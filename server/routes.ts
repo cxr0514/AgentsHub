@@ -9,6 +9,7 @@ import {
   insertSavedPropertySchema,
   insertReportSchema
 } from "../shared/schema";
+import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -34,9 +35,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           yearBuilt: req.query.yearBuilt ? parseInt(req.query.yearBuilt as string) : undefined,
         };
         
-        properties = await storage.getPropertiesByFilters(filters);
+        // Use integrated search that combines local DB and MLS data
+        properties = await searchProperties(filters);
       } else {
-        properties = await storage.getAllProperties();
+        // If no filters, still use the integration service but with empty filters
+        properties = await searchProperties({});
       }
       
       res.json(properties);
@@ -54,7 +57,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid property ID" });
       }
       
-      const property = await storage.getProperty(id);
+      // Use integrated property details that combines local and MLS data
+      const property = await getPropertyDetails(id);
       
       if (!property) {
         return res.status(404).json({ message: "Property not found" });
@@ -132,7 +136,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "City and state are required" });
       }
       
-      const marketData = await storage.getMarketDataByLocation(
+      // Use integrated market data service that combines local and MLS data
+      const marketData = await getMarketData(
         city as string, 
         state as string, 
         zipCode as string | undefined
@@ -283,6 +288,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing saved property:", error);
       res.status(500).json({ message: "Failed to remove saved property" });
+    }
+  });
+
+  // MLS data synchronization route
+  apiRouter.post("/mls/sync", async (req, res) => {
+    try {
+      // Check for optional limit parameter
+      const limit = req.body.limit ? parseInt(req.body.limit) : 100;
+      
+      // Trigger MLS data synchronization
+      const result = await synchronizeMLSData(limit);
+      
+      res.json(result);
+    } catch (error) {
+      console.error("Error synchronizing MLS data:", error);
+      res.status(500).json({ 
+        status: 'error',
+        message: "Failed to synchronize MLS data"
+      });
     }
   });
 

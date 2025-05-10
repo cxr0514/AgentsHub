@@ -1,0 +1,311 @@
+/**
+ * MLS Service - Handles integration with real MLS data sources
+ */
+import { Property, InsertProperty } from '@shared/schema';
+import { db } from '../db';
+import { properties } from '@shared/schema';
+
+// API response types for MLS data
+interface MLSApiResponse {
+  success: boolean;
+  properties?: MLSProperty[];
+  error?: string;
+}
+
+interface MLSProperty {
+  mlsId: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  price: string;
+  bedrooms: number;
+  bathrooms: string;
+  squareFeet: string;
+  lotSize: string;
+  yearBuilt: number;
+  propertyType: string;
+  status: string;
+  daysOnMarket: number;
+  images: string[];
+  description: string;
+  features: string[];
+  latitude: number;
+  longitude: number;
+  neighborhood?: string;
+}
+
+// Config object for MLS API settings
+const MLS_CONFIG = {
+  API_KEY: process.env.MLS_API_KEY || '',
+  API_ENDPOINT: process.env.MLS_API_ENDPOINT || 'https://api.mlsdatasource.com/v1',
+  CACHE_DURATION: 60 * 60 * 1000, // 1 hour in milliseconds
+};
+
+// Cache to reduce API calls
+let propertyCache: Map<string, { data: any; timestamp: number }> = new Map();
+
+/**
+ * Convert MLS property data to our application's property format
+ */
+function convertMLSPropertyToAppProperty(mlsProperty: MLSProperty): InsertProperty {
+  return {
+    address: mlsProperty.address,
+    city: mlsProperty.city,
+    state: mlsProperty.state,
+    zipCode: mlsProperty.zipCode,
+    neighborhood: mlsProperty.neighborhood || null,
+    price: mlsProperty.price,
+    bedrooms: mlsProperty.bedrooms,
+    bathrooms: mlsProperty.bathrooms,
+    squareFeet: mlsProperty.squareFeet,
+    lotSize: mlsProperty.lotSize,
+    yearBuilt: mlsProperty.yearBuilt,
+    propertyType: mlsProperty.propertyType,
+    status: mlsProperty.status,
+    daysOnMarket: mlsProperty.daysOnMarket,
+    images: JSON.stringify(mlsProperty.images),
+    pricePerSqft: (Number(mlsProperty.price.replace(/,/g, '')) / Number(mlsProperty.squareFeet.replace(/,/g, ''))).toFixed(2),
+    description: mlsProperty.description,
+    features: JSON.stringify(mlsProperty.features),
+  };
+}
+
+/**
+ * Fetch properties from MLS API with optional search parameters
+ */
+async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLSApiResponse> {
+  if (!MLS_CONFIG.API_KEY) {
+    console.warn('MLS API key not configured. Using fallback data.');
+    return { success: false, error: 'MLS_API_KEY not configured' };
+  }
+
+  // Create cache key from search parameters
+  const cacheKey = JSON.stringify(searchParams);
+  
+  // Check cache before making API request
+  const cachedData = propertyCache.get(cacheKey);
+  if (cachedData && Date.now() - cachedData.timestamp < MLS_CONFIG.CACHE_DURATION) {
+    return cachedData.data;
+  }
+
+  try {
+    const queryParams = new URLSearchParams();
+    
+    // Add all search parameters to query
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    // Make request to MLS API
+    const response = await fetch(`${MLS_CONFIG.API_ENDPOINT}/properties?${queryParams.toString()}`, {
+      headers: {
+        'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`MLS API error: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    // Cache the result
+    propertyCache.set(cacheKey, {
+      data,
+      timestamp: Date.now()
+    });
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching from MLS API:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    };
+  }
+}
+
+/**
+ * Search for properties using MLS API
+ */
+export async function searchMLSProperties(filters: Record<string, any> = {}): Promise<Property[]> {
+  // Convert our application filters to MLS API parameters
+  const mlsParams: Record<string, any> = {};
+  
+  if (filters.location) {
+    // Parse location which could be city, zip, etc.
+    mlsParams.location = filters.location;
+  }
+  
+  if (filters.propertyType) {
+    mlsParams.propertyType = filters.propertyType;
+  }
+  
+  if (filters.minPrice) {
+    mlsParams.minPrice = filters.minPrice;
+  }
+  
+  if (filters.maxPrice) {
+    mlsParams.maxPrice = filters.maxPrice;
+  }
+  
+  if (filters.minBeds) {
+    mlsParams.minBedrooms = filters.minBeds;
+  }
+  
+  if (filters.minBaths) {
+    mlsParams.minBathrooms = filters.minBaths;
+  }
+  
+  if (filters.minSqft) {
+    mlsParams.minSquareFeet = filters.minSqft;
+  }
+  
+  if (filters.maxSqft) {
+    mlsParams.maxSquareFeet = filters.maxSqft;
+  }
+  
+  if (filters.status) {
+    mlsParams.status = filters.status;
+  }
+  
+  if (filters.yearBuilt) {
+    mlsParams.yearBuilt = filters.yearBuilt;
+  }
+
+  // Call MLS API 
+  const response = await fetchFromMLS(mlsParams);
+  
+  if (!response.success || !response.properties) {
+    console.error('Failed to fetch MLS properties:', response.error);
+    return [];
+  }
+  
+  // Process and store the properties in our database
+  try {
+    const propertiesData = response.properties.map(convertMLSPropertyToAppProperty);
+    
+    // Insert properties into database, skipping duplicates
+    const insertedProperties = await db.insert(properties)
+      .values(propertiesData)
+      .onConflictDoUpdate({
+        target: [properties.address, properties.city, properties.state, properties.zipCode],
+        set: {
+          price: sql`EXCLUDED.price`,
+          status: sql`EXCLUDED.status`,
+          daysOnMarket: sql`EXCLUDED.days_on_market`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
+        },
+      })
+      .returning();
+    
+    return insertedProperties;
+  } catch (error) {
+    console.error('Error storing MLS properties in database:', error);
+    return [];
+  }
+}
+
+/**
+ * Get property details from MLS using property ID
+ */
+export async function getMLSPropertyDetails(propertyId: string): Promise<Property | null> {
+  if (!MLS_CONFIG.API_KEY) {
+    console.warn('MLS API key not configured. Unable to fetch property details.');
+    return null;
+  }
+  
+  try {
+    const response = await fetch(`${MLS_CONFIG.API_ENDPOINT}/properties/${propertyId}`, {
+      headers: {
+        'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`MLS API error: ${response.status} ${response.statusText}`);
+    }
+    
+    const mlsProperty = await response.json();
+    
+    if (!mlsProperty) {
+      return null;
+    }
+    
+    // Convert to app property format and save to database
+    const propertyData = convertMLSPropertyToAppProperty(mlsProperty);
+    
+    // Insert or update in database
+    const [insertedProperty] = await db.insert(properties)
+      .values(propertyData)
+      .onConflictDoUpdate({
+        target: [properties.address, properties.city, properties.state, properties.zipCode],
+        set: {
+          price: sql`EXCLUDED.price`,
+          status: sql`EXCLUDED.status`,
+          daysOnMarket: sql`EXCLUDED.days_on_market`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
+        },
+      })
+      .returning();
+    
+    return insertedProperty;
+  } catch (error) {
+    console.error('Error fetching property details from MLS:', error);
+    return null;
+  }
+}
+
+/**
+ * Function to clear the MLS data cache
+ */
+export function clearMLSCache(): void {
+  propertyCache.clear();
+  console.log('MLS property cache cleared');
+}
+
+/**
+ * Function to refresh MLS data in the database
+ */
+export async function refreshMLSData(limit: number = 100): Promise<number> {
+  // Clear cache to ensure fresh data
+  clearMLSCache();
+  
+  try {
+    const response = await fetchFromMLS({ limit });
+    
+    if (!response.success || !response.properties) {
+      console.error('Failed to refresh MLS data:', response.error);
+      return 0;
+    }
+    
+    const propertiesData = response.properties.map(convertMLSPropertyToAppProperty);
+    
+    // Insert or update properties
+    const insertedProperties = await db.insert(properties)
+      .values(propertiesData)
+      .onConflictDoUpdate({
+        target: [properties.address, properties.city, properties.state, properties.zipCode],
+        set: {
+          price: sql`EXCLUDED.price`,
+          status: sql`EXCLUDED.status`,
+          daysOnMarket: sql`EXCLUDED.days_on_market`,
+          updatedAt: sql`CURRENT_TIMESTAMP`,
+        },
+      })
+      .returning();
+    
+    return insertedProperties.length;
+  } catch (error) {
+    console.error('Error refreshing MLS data:', error);
+    return 0;
+  }
+}
+
+// Import missing dependencies
+import { sql } from 'drizzle-orm';
