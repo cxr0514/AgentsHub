@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Property, PropertyHistory } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { generatePropertyDetailReport } from "@/lib/pdfGenerator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import PropertyImages from "./PropertyImages";
@@ -8,7 +10,8 @@ import {
   Bookmark, 
   Share2, 
   FileText, 
-  MapPin 
+  MapPin,
+  Download
 } from "lucide-react";
 
 interface PropertyDetailsProps {
@@ -17,6 +20,27 @@ interface PropertyDetailsProps {
 
 const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const { toast } = useToast();
+
+  const handleGenerateReport = async () => {
+    if (!property) return;
+    
+    try {
+      const result = await generatePropertyDetailReport(property);
+      
+      toast({
+        title: "Report Generated",
+        description: `Property report has been downloaded successfully`,
+      });
+    } catch (error) {
+      console.error("Error generating report:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate the property report",
+        variant: "destructive"
+      });
+    }
+  };
 
   const { data: property, isLoading: isPropertyLoading } = useQuery({
     queryKey: [`/api/properties/${propertyId}`],
@@ -108,8 +132,9 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
               variant="default" 
               size="sm" 
               className="flex items-center bg-primary hover:bg-primary/90"
+              onClick={handleGenerateReport}
             >
-              <FileText className="h-4 w-4 mr-1" />
+              <Download className="h-4 w-4 mr-1" />
               Generate Report
             </Button>
           </div>

@@ -2,6 +2,14 @@ import { Property } from "@shared/schema";
 import { jsPDF } from "jspdf";
 import 'jspdf-autotable';
 
+// Add missing types for jsPDF-AutoTable plugin
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => any;
+    lastAutoTable: any;
+  }
+}
+
 /**
  * Generates a PDF report for property comparisons
  */
@@ -161,8 +169,8 @@ export async function generatePropertyDetailReport(property: Property) {
       ['Bathrooms', property.bathrooms.toString()],
       ['Square Feet', `${Number(property.squareFeet).toLocaleString()} sqft`],
       ['Lot Size', property.lotSize ? `${Number(property.lotSize).toLocaleString()} sqft` : 'N/A'],
-      ['Year Built', property.yearBuilt.toString()],
-      ['Price per SqFt', `$${property.pricePerSqft}`],
+      ['Year Built', property.yearBuilt ? property.yearBuilt.toString() : 'N/A'],
+      ['Price per SqFt', property.pricePerSqft ? `$${property.pricePerSqft}` : 'N/A'],
       ['Days on Market', property.daysOnMarket ? property.daysOnMarket.toString() : 'N/A']
     ],
   });
