@@ -3,6 +3,8 @@ import {
   type User, type Property, type MarketData, type SavedSearch, type SavedProperty, type Report, type PropertyHistory,
   type InsertUser, type InsertProperty, type InsertMarketData, type InsertSavedSearch, type InsertSavedProperty, type InsertReport, type InsertPropertyHistory
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, or, like, gte, lte, desc } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -512,4 +514,271 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage implements IStorage {
+  // User methods
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...insertUser,
+        role: insertUser.role || 'user',
+        fullName: insertUser.fullName || null
+      })
+      .returning();
+    return user;
+  }
+
+  // Property methods
+  async getProperty(id: number): Promise<Property | undefined> {
+    const [property] = await db.select().from(properties).where(eq(properties.id, id));
+    return property;
+  }
+
+  async getAllProperties(): Promise<Property[]> {
+    return await db.select().from(properties);
+  }
+
+  async getPropertiesByFilters(filters: PropertyFilters): Promise<Property[]> {
+    let query = db.select().from(properties);
+    
+    // Build conditions based on filters
+    const conditions = [];
+    
+    if (filters.location) {
+      const locationLower = `%${filters.location.toLowerCase()}%`;
+      conditions.push(
+        or(
+          like(properties.city.toLowerCase(), locationLower),
+          like(properties.state.toLowerCase(), locationLower),
+          like(properties.zipCode.toLowerCase(), locationLower),
+          like((properties.neighborhood as any)?.toLowerCase() || '', locationLower)
+        )
+      );
+    }
+
+    if (filters.propertyType) {
+      conditions.push(eq(properties.propertyType, filters.propertyType));
+    }
+
+    if (filters.minPrice) {
+      conditions.push(gte(properties.price, filters.minPrice.toString()));
+    }
+
+    if (filters.maxPrice) {
+      conditions.push(lte(properties.price, filters.maxPrice.toString()));
+    }
+
+    if (filters.minBeds) {
+      conditions.push(gte(properties.bedrooms, filters.minBeds));
+    }
+
+    if (filters.minBaths && !isNaN(Number(filters.minBaths))) {
+      conditions.push(gte(properties.bathrooms, filters.minBaths.toString()));
+    }
+
+    if (filters.minSqft) {
+      conditions.push(gte(properties.squareFeet, filters.minSqft.toString()));
+    }
+
+    if (filters.maxSqft) {
+      conditions.push(lte(properties.squareFeet, filters.maxSqft.toString()));
+    }
+
+    if (filters.status) {
+      conditions.push(eq(properties.status, filters.status));
+    }
+
+    if (filters.yearBuilt) {
+      conditions.push(eq(properties.yearBuilt, filters.yearBuilt));
+    }
+
+    // Apply conditions if any exist
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    return await query;
+  }
+
+  async createProperty(property: InsertProperty): Promise<Property> {
+    const now = new Date();
+    const [createdProperty] = await db
+      .insert(properties)
+      .values({
+        ...property,
+        yearBuilt: property.yearBuilt || null,
+        neighborhood: property.neighborhood || null,
+        description: property.description || null,
+        createdAt: now,
+        updatedAt: now
+      })
+      .returning();
+    return createdProperty;
+  }
+
+  async updateProperty(id: number, property: Partial<InsertProperty>): Promise<Property | undefined> {
+    const now = new Date();
+    const [updatedProperty] = await db
+      .update(properties)
+      .set({
+        ...property,
+        updatedAt: now
+      })
+      .where(eq(properties.id, id))
+      .returning();
+    return updatedProperty;
+  }
+
+  // Market data methods
+  async getMarketData(id: number): Promise<MarketData | undefined> {
+    const [data] = await db.select().from(marketData).where(eq(marketData.id, id));
+    return data;
+  }
+
+  async getMarketDataByLocation(city: string, state: string, zipCode?: string): Promise<MarketData[]> {
+    let query = db.select().from(marketData)
+      .where(
+        and(
+          eq(marketData.city, city),
+          eq(marketData.state, state)
+        )
+      );
+    
+    if (zipCode) {
+      query = query.where(eq(marketData.zipCode, zipCode));
+    }
+    
+    // Order by year and month descending
+    const results = await query;
+    return results.sort((a, b) => 
+      b.year - a.year || b.month - a.month
+    );
+  }
+
+  async createMarketData(data: InsertMarketData): Promise<MarketData> {
+    const [createdData] = await db
+      .insert(marketData)
+      .values({
+        ...data,
+        daysOnMarket: data.daysOnMarket || null,
+        medianPrice: data.medianPrice || null,
+        averagePricePerSqft: data.averagePricePerSqft || null,
+        activeListings: data.activeListings || null,
+        soldPerMonth: data.soldPerMonth || null,
+        medianRent: data.medianRent || null,
+        rentToValue: data.rentToValue || null,
+        marketType: data.marketType || null
+      })
+      .returning();
+    return createdData;
+  }
+
+  // Saved searches methods
+  async getSavedSearchesByUser(userId: number): Promise<SavedSearch[]> {
+    return await db.select().from(savedSearches).where(eq(savedSearches.userId, userId));
+  }
+
+  async createSavedSearch(search: InsertSavedSearch): Promise<SavedSearch> {
+    const [createdSearch] = await db
+      .insert(savedSearches)
+      .values({
+        ...search,
+        location: search.location || null,
+        propertyType: search.propertyType || null,
+        minPrice: search.minPrice || null,
+        maxPrice: search.maxPrice || null,
+        minBeds: search.minBeds || null,
+        minBaths: search.minBaths || null,
+        minSqft: search.minSqft || null,
+        maxSqft: search.maxSqft || null
+      })
+      .returning();
+    return createdSearch;
+  }
+
+  async deleteSavedSearch(id: number): Promise<boolean> {
+    const result = await db.delete(savedSearches).where(eq(savedSearches.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Saved properties methods
+  async getSavedPropertiesByUser(userId: number): Promise<SavedProperty[]> {
+    return await db.select().from(savedProperties).where(eq(savedProperties.userId, userId));
+  }
+
+  async createSavedProperty(saved: InsertSavedProperty): Promise<SavedProperty> {
+    const [createdSaved] = await db
+      .insert(savedProperties)
+      .values({
+        ...saved,
+        notes: saved.notes || null
+      })
+      .returning();
+    return createdSaved;
+  }
+
+  async deleteSavedProperty(id: number): Promise<boolean> {
+    const result = await db.delete(savedProperties).where(eq(savedProperties.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Reports methods
+  async getReport(id: number): Promise<Report | undefined> {
+    const [report] = await db.select().from(reports).where(eq(reports.id, id));
+    return report;
+  }
+
+  async getReportsByUser(userId: number): Promise<Report[]> {
+    return await db.select().from(reports).where(eq(reports.userId, userId));
+  }
+
+  async createReport(report: InsertReport): Promise<Report> {
+    const [createdReport] = await db
+      .insert(reports)
+      .values({
+        ...report,
+        description: report.description || null
+      })
+      .returning();
+    return createdReport;
+  }
+
+  async deleteReport(id: number): Promise<boolean> {
+    const result = await db.delete(reports).where(eq(reports.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Property history methods
+  async getPropertyHistory(propertyId: number): Promise<PropertyHistory[]> {
+    return await db
+      .select()
+      .from(propertyHistory)
+      .where(eq(propertyHistory.propertyId, propertyId))
+      .orderBy(desc(propertyHistory.date));
+  }
+
+  async createPropertyHistory(history: InsertPropertyHistory): Promise<PropertyHistory> {
+    const [createdHistory] = await db
+      .insert(propertyHistory)
+      .values({
+        ...history,
+        price: history.price || null,
+        description: history.description || null
+      })
+      .returning();
+    return createdHistory;
+  }
+}
+
+// Use database storage instead of in-memory storage
+export const storage = new DatabaseStorage();
