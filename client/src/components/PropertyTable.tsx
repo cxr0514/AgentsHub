@@ -42,32 +42,59 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
       
       // Process properties to ensure images and features are properly parsed
       return data.map((property: any) => {
-        let parsedImages = property.images;
-        let parsedFeatures = property.features;
+        let parsedImages = [];
+        let parsedFeatures = [];
         
+        // Extract URLs using regex pattern from property.images (string or array)
         try {
-          // Parse images if it's a string and looks like JSON
-          if (typeof property.images === 'string') {
-            if (property.images.startsWith('[') || property.images.startsWith('{')) {
-              parsedImages = JSON.parse(property.images);
+          const imageData = property.images;
+          // Direct regex extraction for URLs - most reliable approach with the current data format
+          const urlPattern = /(https?:\/\/[^\s"]+)/g;
+          
+          if (typeof imageData === 'string') {
+            const matches = imageData.match(urlPattern);
+            if (matches && matches.length > 0) {
+              parsedImages = matches;
             }
+          } else if (Array.isArray(imageData)) {
+            // If it's already an array, try to process each item
+            const extractedUrls = [];
+            imageData.forEach(item => {
+              if (typeof item === 'string') {
+                const itemMatches = item.match(urlPattern);
+                if (itemMatches) {
+                  extractedUrls.push(...itemMatches);
+                } else if (item.includes('http')) {
+                  extractedUrls.push(item);
+                }
+              }
+            });
+            parsedImages = extractedUrls.length > 0 ? extractedUrls : [];
           }
         } catch (e) {
-          console.warn('Failed to parse property images:', e);
-          // Fallback to default image array
-          parsedImages = ['/assets/property-placeholder.jpg'];
+          console.warn('Failed to process property images:', e);
+          parsedImages = [];
         }
         
+        // Process features similarly with regex extraction for text
         try {
-          // Parse features if it's a string and looks like JSON
-          if (typeof property.features === 'string') {
-            if (property.features.startsWith('[') || property.features.startsWith('{')) {
-              parsedFeatures = JSON.parse(property.features);
+          const featureData = property.features;
+          const wordPattern = /[a-zA-Z][a-zA-Z\s]+/g;
+          
+          if (typeof featureData === 'string') {
+            // First try to extract words using a regex
+            const matches = featureData.match(wordPattern);
+            if (matches && matches.length > 0) {
+              parsedFeatures = matches.map(match => match.trim()).filter(item => item.length > 0);
             }
+          } else if (Array.isArray(featureData)) {
+            // If it's already an array, map each item
+            parsedFeatures = featureData.map(item => 
+              typeof item === 'string' ? item.trim() : ''
+            ).filter(item => item.length > 0);
           }
         } catch (e) {
-          console.warn('Failed to parse property features:', e);
-          // Fallback to empty array
+          console.warn('Failed to process property features:', e);
           parsedFeatures = [];
         }
         

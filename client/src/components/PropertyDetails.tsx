@@ -25,7 +25,71 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
       if (!response.ok) {
         throw new Error('Failed to fetch property details');
       }
-      return await response.json();
+      
+      const data = await response.json();
+      
+      // Process property to ensure images and features are properly parsed
+      let parsedImages = [];
+      let parsedFeatures = [];
+      
+      // Extract URLs using regex pattern from data.images (string or array)
+      try {
+        const imageData = data.images;
+        // Direct regex extraction for URLs - most reliable approach with the current data format
+        const urlPattern = /(https?:\/\/[^\s"]+)/g;
+        
+        if (typeof imageData === 'string') {
+          const matches = imageData.match(urlPattern);
+          if (matches && matches.length > 0) {
+            parsedImages = matches;
+          }
+        } else if (Array.isArray(imageData)) {
+          // If it's already an array, try to process each item
+          const extractedUrls = [];
+          imageData.forEach(item => {
+            if (typeof item === 'string') {
+              const itemMatches = item.match(urlPattern);
+              if (itemMatches) {
+                extractedUrls.push(...itemMatches);
+              } else if (item.includes('http')) {
+                extractedUrls.push(item);
+              }
+            }
+          });
+          parsedImages = extractedUrls.length > 0 ? extractedUrls : [];
+        }
+      } catch (e) {
+        console.warn('Failed to process property images:', e);
+        parsedImages = [];
+      }
+      
+      // Process features similarly with regex extraction for text
+      try {
+        const featureData = data.features;
+        const wordPattern = /[a-zA-Z][a-zA-Z\s]+/g;
+        
+        if (typeof featureData === 'string') {
+          // First try to extract words using a regex
+          const matches = featureData.match(wordPattern);
+          if (matches && matches.length > 0) {
+            parsedFeatures = matches.map(match => match.trim()).filter(item => item.length > 0);
+          }
+        } else if (Array.isArray(featureData)) {
+          // If it's already an array, map each item
+          parsedFeatures = featureData.map(item => 
+            typeof item === 'string' ? item.trim() : ''
+          ).filter(item => item.length > 0);
+        }
+      } catch (e) {
+        console.warn('Failed to process property features:', e);
+        parsedFeatures = [];
+      }
+      
+      return {
+        ...data,
+        images: parsedImages,
+        features: parsedFeatures
+      };
     }
   });
 
