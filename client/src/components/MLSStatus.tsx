@@ -1,152 +1,140 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ReloadIcon, InfoCircledIcon, CheckCircledIcon, CrossCircledIcon } from "@radix-ui/react-icons";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getMLSStatus, synchronizeMLSData } from '../lib/mlsApi';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { InfoCircledIcon, UpdateIcon, CheckCircledIcon, CrossCircledIcon } from '@radix-ui/react-icons';
+import { getMLSStatus, synchronizeMLSData } from '@/lib/mlsApi';
 import { useToast } from '@/hooks/use-toast';
 
 export default function MLSStatus() {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  
-  // Query MLS status
-  const { data: mlsStatus, isLoading: isStatusLoading, error: statusError } = useQuery({
-    queryKey: ['mls', 'status'],
-    queryFn: () => getMLSStatus(),
+  const [status, setStatus] = useState<{
+    connected: boolean;
+    lastSync: string | null;
+    propertyCount: number;
+    error?: string;
+  }>({
+    connected: false,
+    lastSync: null,
+    propertyCount: 0
   });
-  
-  // Mutation for synchronizing MLS data
-  const syncMutation = useMutation({
-    mutationFn: (limit: number) => synchronizeMLSData(limit),
-    onSuccess: (data) => {
-      toast({
-        title: "MLS Synchronization",
-        description: data.message,
-        variant: data.status === 'success' ? 'default' : 'destructive',
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { toast } = useToast();
+
+  const fetchStatus = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getMLSStatus();
+      setStatus(data);
+    } catch (error) {
+      console.error('Error fetching MLS status:', error);
+      setStatus({
+        connected: false,
+        lastSync: null,
+        propertyCount: 0,
+        error: 'Failed to connect to MLS API'
       });
-      
-      // Invalidate queries that would be affected by the sync
-      queryClient.invalidateQueries({ queryKey: ['properties'] });
-      queryClient.invalidateQueries({ queryKey: ['market-data'] });
-      queryClient.invalidateQueries({ queryKey: ['mls', 'status'] });
-    },
-    onError: (error) => {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSync = async () => {
+    setIsSyncing(true);
+    try {
+      const result = await synchronizeMLSData(100);
+      toast({
+        title: "MLS Synchronization Complete",
+        description: `Synchronized ${result.imported} properties from MLS.`,
+        variant: "default",
+      });
+      fetchStatus();
+    } catch (error) {
+      console.error('Error synchronizing MLS data:', error);
       toast({
         title: "Synchronization Failed",
-        description: error instanceof Error ? error.message : "An error occurred during MLS synchronization",
-        variant: 'destructive',
+        description: "Could not sync with MLS. Please check your API connection.",
+        variant: "destructive",
       });
+    } finally {
+      setIsSyncing(false);
     }
-  });
-  
-  const handleSync = (limit: number = 100) => {
-    syncMutation.mutate(limit);
   };
-  
-  if (statusError) {
-    return (
-      <Alert variant="destructive" className="mb-4">
-        <CrossCircledIcon className="h-4 w-4" />
-        <AlertTitle>MLS Connection Error</AlertTitle>
-        <AlertDescription>
-          Unable to determine MLS connection status. Please check your API credentials.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-  
-  if (isStatusLoading) {
-    return (
-      <Card className="mb-4">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg flex items-center">
-            <ReloadIcon className="h-4 w-4 mr-2 animate-spin" />
-            Checking MLS Connection...
-          </CardTitle>
-        </CardHeader>
-      </Card>
-    );
-  }
-  
+
+  useEffect(() => {
+    fetchStatus();
+    // Refresh status every 5 minutes
+    const interval = setInterval(fetchStatus, 300000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <Card className="mb-4">
+    <Card className="shadow-md">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg flex items-center">
-          MLS Data Integration
-          {mlsStatus?.isConfigured ? (
-            <Badge variant="outline" className="ml-2 bg-green-50 text-green-700 border-green-200">
-              <CheckCircledIcon className="h-3 w-3 mr-1" /> Connected
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="ml-2 bg-amber-50 text-amber-700 border-amber-200">
-              <InfoCircledIcon className="h-3 w-3 mr-1" /> Not Configured
-            </Badge>
-          )}
+        <CardTitle className="text-lg flex items-center gap-2">
+          <InfoCircledIcon className="h-5 w-5" />
+          MLS Integration Status
         </CardTitle>
         <CardDescription>
-          Manage Multiple Listing Service (MLS) data synchronization
+          Connection to Multiple Listing Service API
         </CardDescription>
       </CardHeader>
-      
-      {isExpanded && (
-        <CardContent>
-          <Alert variant={mlsStatus?.isConfigured ? "default" : "warning"} className="mb-4">
-            <InfoCircledIcon className="h-4 w-4" />
-            <AlertTitle>MLS Status</AlertTitle>
-            <AlertDescription>
-              {mlsStatus?.message || "MLS connection status unknown"}
-            </AlertDescription>
-          </Alert>
-          
-          <div className="text-sm">
-            <p className="mb-2">
-              The MLS integration allows you to fetch real estate listings directly from 
-              your Multiple Listing Service provider.
-            </p>
-            {!mlsStatus?.isConfigured && (
-              <p className="text-amber-700">
-                To enable MLS integration, please configure your MLS API credentials.
-              </p>
-            )}
+      <CardContent>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span>Connection Status:</span>
+            <div className="flex items-center gap-1">
+              {status.connected ? (
+                <>
+                  <CheckCircledIcon className="h-4 w-4 text-green-500" />
+                  <span className="text-green-500 font-medium">Connected</span>
+                </>
+              ) : (
+                <>
+                  <CrossCircledIcon className="h-4 w-4 text-red-500" />
+                  <span className="text-red-500 font-medium">Disconnected</span>
+                </>
+              )}
+            </div>
           </div>
-        </CardContent>
-      )}
-      
+          
+          <div className="flex items-center justify-between text-sm">
+            <span>Properties in System:</span>
+            <span className="font-medium">{status.propertyCount}</span>
+          </div>
+          
+          <div className="flex items-center justify-between text-sm">
+            <span>Last Synchronized:</span>
+            <span className="font-medium">
+              {status.lastSync ? new Date(status.lastSync).toLocaleString() : 'Never'}
+            </span>
+          </div>
+          
+          {status.error && (
+            <div className="mt-2 text-sm text-red-500 border border-red-200 bg-red-50 p-2 rounded">
+              {status.error}
+            </div>
+          )}
+        </div>
+      </CardContent>
       <CardFooter className="flex justify-between pt-2">
         <Button 
           variant="outline" 
-          onClick={() => setIsExpanded(!isExpanded)}
+          size="sm" 
+          onClick={fetchStatus}
+          disabled={isLoading}
         >
-          {isExpanded ? "Show Less" : "Show More"}
+          {isLoading ? 'Checking...' : 'Check Status'}
         </Button>
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handleSync(25)}
-            disabled={!mlsStatus?.isConfigured || syncMutation.isPending}
-          >
-            Sync Recent
-          </Button>
-          
-          <Button
-            onClick={() => handleSync(100)}
-            disabled={!mlsStatus?.isConfigured || syncMutation.isPending}
-          >
-            {syncMutation.isPending ? (
-              <>
-                <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                Syncing...
-              </>
-            ) : (
-              "Sync All Data"
-            )}
-          </Button>
-        </div>
+        <Button 
+          variant="default" 
+          size="sm" 
+          onClick={handleSync} 
+          disabled={isSyncing || !status.connected}
+          className="flex items-center gap-1"
+        >
+          <UpdateIcon className="h-3.5 w-3.5" />
+          {isSyncing ? 'Syncing...' : 'Sync Now'}
+        </Button>
       </CardFooter>
     </Card>
   );

@@ -1,11 +1,7 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useEffect, useState } from 'react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ReloadIcon, CheckCircledIcon, CrossCircledIcon, QuestionMarkCircledIcon } from "@radix-ui/react-icons";
-import { apiRequest } from '../lib/queryClient';
+import { CheckCircledIcon, CrossCircledIcon, InfoCircledIcon, ReloadIcon } from '@radix-ui/react-icons';
 
 type DatabaseStatus = {
   connected: boolean;
@@ -14,102 +10,100 @@ type DatabaseStatus = {
 };
 
 export default function SystemStatus() {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  // Query for database status
-  const { 
-    data: dbStatus, 
-    isLoading: isDatabaseLoading, 
-    error: dbError,
-    refetch: refetchDbStatus 
-  } = useQuery({
-    queryKey: ['system', 'db-status'],
-    queryFn: () => apiRequest<DatabaseStatus>('/api/system/db-status', { method: 'GET' }),
+  const [dbStatus, setDbStatus] = useState<DatabaseStatus>({
+    connected: false
   });
+  const [isChecking, setIsChecking] = useState(false);
 
-  const handleRefreshStatus = () => {
-    refetchDbStatus();
+  const checkDatabaseStatus = async () => {
+    setIsChecking(true);
+    try {
+      const response = await fetch('/api/system/db-status');
+      if (!response.ok) {
+        throw new Error('Failed to check database status');
+      }
+      const data = await response.json();
+      setDbStatus(data);
+    } catch (error) {
+      console.error('Error checking database status:', error);
+      setDbStatus({
+        connected: false,
+        error: 'Failed to connect to database'
+      });
+    } finally {
+      setIsChecking(false);
+    }
   };
 
+  useEffect(() => {
+    checkDatabaseStatus();
+    // Check status every 5 minutes
+    const interval = setInterval(checkDatabaseStatus, 300000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <Card className="mb-4">
+    <Card className="shadow-md">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg">System Status</CardTitle>
+        <CardTitle className="text-lg flex items-center gap-2">
+          <InfoCircledIcon className="h-5 w-5" />
+          System Status
+        </CardTitle>
         <CardDescription>
-          Database and integration system status
+          Backend system and database connection status
         </CardDescription>
       </CardHeader>
-      
       <CardContent>
-        <div className="flex items-center justify-between mb-2">
-          <span className="font-medium">Database:</span>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span>Database Connection:</span>
+            <div className="flex items-center gap-1">
+              {dbStatus.connected ? (
+                <>
+                  <CheckCircledIcon className="h-4 w-4 text-green-500" />
+                  <span className="text-green-500 font-medium">Connected</span>
+                </>
+              ) : (
+                <>
+                  <CrossCircledIcon className="h-4 w-4 text-red-500" />
+                  <span className="text-red-500 font-medium">Disconnected</span>
+                </>
+              )}
+            </div>
+          </div>
           
-          {isDatabaseLoading ? (
-            <Badge variant="outline" className="bg-slate-50 text-slate-700">
-              <ReloadIcon className="h-3 w-3 mr-1 animate-spin" /> Checking...
-            </Badge>
-          ) : dbError ? (
-            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-              <QuestionMarkCircledIcon className="h-3 w-3 mr-1" /> Unknown
-            </Badge>
-          ) : dbStatus?.connected ? (
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              <CheckCircledIcon className="h-3 w-3 mr-1" /> Connected
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="bg-destructive/20 text-destructive border-destructive/20">
-              <CrossCircledIcon className="h-3 w-3 mr-1" /> Disconnected
-            </Badge>
+          {dbStatus.version && (
+            <div className="flex items-center justify-between text-sm">
+              <span>Database Version:</span>
+              <span className="font-medium">{dbStatus.version}</span>
+            </div>
+          )}
+          
+          <div className="flex items-center justify-between text-sm">
+            <span>API Server:</span>
+            <div className="flex items-center gap-1">
+              <CheckCircledIcon className="h-4 w-4 text-green-500" />
+              <span className="text-green-500 font-medium">Running</span>
+            </div>
+          </div>
+          
+          {dbStatus.error && (
+            <div className="mt-2 text-sm text-red-500 border border-red-200 bg-red-50 p-2 rounded">
+              {dbStatus.error}
+            </div>
           )}
         </div>
-        
-        {isExpanded && (
-          <>
-            {dbStatus?.connected && dbStatus?.version && (
-              <Alert className="mt-2">
-                <AlertTitle>PostgreSQL Database</AlertTitle>
-                <AlertDescription className="text-xs break-all">
-                  {dbStatus.version}
-                </AlertDescription>
-              </Alert>
-            )}
-            
-            {dbStatus && !dbStatus.connected && dbStatus.error && (
-              <Alert variant="destructive" className="mt-2">
-                <AlertTitle>Database Connection Error</AlertTitle>
-                <AlertDescription className="text-xs break-all">
-                  {dbStatus.error}
-                </AlertDescription>
-              </Alert>
-            )}
-          </>
-        )}
       </CardContent>
-      
-      <CardFooter className="flex justify-between pt-2">
+      <CardFooter className="pt-2">
         <Button 
           variant="outline" 
-          onClick={() => setIsExpanded(!isExpanded)}
+          size="sm" 
+          onClick={checkDatabaseStatus}
+          disabled={isChecking}
+          className="flex items-center gap-1 w-full"
         >
-          {isExpanded ? "Show Less" : "Show More"}
-        </Button>
-        
-        <Button 
-          variant="outline"
-          onClick={handleRefreshStatus}
-          disabled={isDatabaseLoading}
-        >
-          {isDatabaseLoading ? (
-            <>
-              <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-              Checking...
-            </>
-          ) : (
-            <>
-              <ReloadIcon className="mr-2 h-4 w-4" />
-              Refresh Status
-            </>
-          )}
+          <ReloadIcon className="h-3.5 w-3.5" />
+          {isChecking ? 'Checking Status...' : 'Check System Status'}
         </Button>
       </CardFooter>
     </Card>

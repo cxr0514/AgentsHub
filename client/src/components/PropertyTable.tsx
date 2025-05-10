@@ -41,13 +41,42 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
       const data = await response.json();
       
       // Process properties to ensure images and features are properly parsed
-      return data.map((property: any) => ({
-        ...property,
-        images: typeof property.images === 'string' ? 
-          JSON.parse(property.images) : property.images,
-        features: typeof property.features === 'string' ? 
-          JSON.parse(property.features) : property.features
-      }));
+      return data.map((property: any) => {
+        let parsedImages = property.images;
+        let parsedFeatures = property.features;
+        
+        try {
+          // Parse images if it's a string and looks like JSON
+          if (typeof property.images === 'string') {
+            if (property.images.startsWith('[') || property.images.startsWith('{')) {
+              parsedImages = JSON.parse(property.images);
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to parse property images:', e);
+          // Fallback to default image array
+          parsedImages = ['/assets/property-placeholder.jpg'];
+        }
+        
+        try {
+          // Parse features if it's a string and looks like JSON
+          if (typeof property.features === 'string') {
+            if (property.features.startsWith('[') || property.features.startsWith('{')) {
+              parsedFeatures = JSON.parse(property.features);
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to parse property features:', e);
+          // Fallback to empty array
+          parsedFeatures = [];
+        }
+        
+        return {
+          ...property,
+          images: parsedImages,
+          features: parsedFeatures
+        };
+      });
     }
   });
 

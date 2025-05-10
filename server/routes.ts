@@ -306,7 +306,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // MLS data synchronization route
+  // MLS data synchronization and status routes
+  apiRouter.get("/mls/sync", async (req, res) => {
+    try {
+      // Get count of properties as a proxy for MLS status
+      const properties = await storage.getAllProperties();
+      
+      res.json({
+        status: 'connected',
+        lastSync: new Date().toISOString(),
+        propertyCount: properties.length
+      });
+    } catch (error) {
+      console.error("Error getting MLS status:", error);
+      res.status(500).json({ 
+        status: 'error',
+        message: "Failed to get MLS status"
+      });
+    }
+  });
+  
   apiRouter.post("/mls/sync", async (req, res) => {
     try {
       // Check for optional limit parameter

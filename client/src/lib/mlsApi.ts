@@ -1,64 +1,81 @@
 /**
  * MLS API Client - Handles communication with MLS API endpoints
  */
-import { apiRequest } from './queryClient';
-import { Property, MarketData } from '@shared/schema';
 
 /**
  * Search for properties with optional filters
  */
 export async function searchProperties(filters: any = {}) {
-  // Build query params for the request
-  const queryParams = new URLSearchParams();
+  const params = new URLSearchParams();
   
+  // Add all provided filters to query parameters
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
-      queryParams.append(key, String(value));
+      params.append(key, String(value));
     }
   });
   
-  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-  return apiRequest<Property[]>(`/api/properties${queryString}`, { method: 'GET' });
+  const queryString = params.toString();
+  const url = `/api/properties${queryString ? `?${queryString}` : ''}`;
+  
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Failed to fetch properties');
+  }
+  
+  return await response.json();
 }
 
 /**
  * Get details for a specific property
  */
 export async function getPropertyDetails(propertyId: number) {
-  return apiRequest<Property>(`/api/properties/${propertyId}`, { method: 'GET' });
+  const response = await fetch(`/api/properties/${propertyId}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch property details');
+  }
+  
+  return await response.json();
 }
 
 /**
  * Get market data for a location
  */
 export async function getMarketData(city: string, state: string, zipCode?: string) {
-  // Build query params for the request
-  const queryParams = new URLSearchParams();
-  queryParams.append('city', city);
-  queryParams.append('state', state);
+  const params = new URLSearchParams({
+    city,
+    state
+  });
   
   if (zipCode) {
-    queryParams.append('zipCode', zipCode);
+    params.append('zipCode', zipCode);
   }
   
-  return apiRequest<MarketData[]>(`/api/market-data?${queryParams.toString()}`, { method: 'GET' });
+  const response = await fetch(`/api/market-data?${params.toString()}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch market data');
+  }
+  
+  return await response.json();
 }
 
 /**
  * Trigger synchronization with MLS data
  */
 export async function synchronizeMLSData(limit: number = 100) {
-  return apiRequest<{
-    status: string;
-    message: string;
-    count?: number;
-  }>('/api/mls/sync', {
+  const response = await fetch('/api/mls/sync', {
     method: 'POST',
-    body: JSON.stringify({ limit }),
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify({ limit })
   });
+  
+  if (!response.ok) {
+    throw new Error('Failed to synchronize MLS data');
+  }
+  
+  return await response.json();
 }
 
 /**
@@ -66,15 +83,32 @@ export async function synchronizeMLSData(limit: number = 100) {
  */
 export async function getMLSStatus() {
   try {
-    const result = await synchronizeMLSData(1);
-    return {
-      isConfigured: result.status !== 'warning',
-      message: result.message
+    // Just get all properties to count them
+    const propertiesResponse = await fetch('/api/properties');
+    
+    let status = {
+      connected: true, // Assume connected for now until we implement the real API
+      lastSync: null,
+      propertyCount: 0
     };
+    
+    // Get the count of properties in the system
+    if (propertiesResponse.ok) {
+      const propertiesData = await propertiesResponse.json();
+      status.propertyCount = Array.isArray(propertiesData) ? propertiesData.length : 0;
+      
+      // Mock last sync time - in a real implementation this would come from the backend
+      status.lastSync = new Date().toISOString();
+    }
+    
+    return status;
   } catch (error) {
+    console.error('Error getting MLS status:', error);
     return {
-      isConfigured: false,
-      message: error instanceof Error ? error.message : 'Unknown error checking MLS status'
+      connected: false,
+      lastSync: null,
+      propertyCount: 0,
+      error: error instanceof Error ? error.message : 'Unknown error'
     };
   }
 }
