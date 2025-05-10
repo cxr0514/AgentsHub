@@ -133,18 +133,20 @@ const SavedProperties = () => {
             </Button>
           </Card>
         ) : viewType === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {savedProperties.map((savedProperty: SavedProperty & { property: Property }) => (
-              <div key={savedProperty.id} className="relative">
-                <PropertyCard 
-                  property={savedProperty.property} 
-                  isSaved={true}
-                  onSave={() => handleRemoveProperty(savedProperty.id)}
-                />
+              <div key={savedProperty.id} className="relative flex flex-col h-full">
+                <div className="flex-1 mb-2">
+                  <PropertyCard 
+                    property={savedProperty.property} 
+                    isSaved={true}
+                    onSave={() => handleRemoveProperty(savedProperty.id)}
+                  />
+                </div>
                 {savedProperty.notes && (
-                  <Card className="mt-2 bg-accent/5 border-accent/20">
+                  <Card className="bg-accent/5 border-accent/20">
                     <CardContent className="p-3">
-                      <p className="text-sm">{savedProperty.notes}</p>
+                      <p className="text-sm line-clamp-2 overflow-hidden text-ellipsis">{savedProperty.notes}</p>
                     </CardContent>
                   </Card>
                 )}
@@ -171,7 +173,19 @@ const SavedProperties = () => {
                       <div className="flex items-center">
                         <img 
                           className="h-12 w-16 object-cover rounded-md mr-4" 
-                          src={JSON.parse(savedProperty.property.images as string)[0]} 
+                          src={
+                            (() => {
+                              try {
+                                const images = typeof savedProperty.property.images === 'string' 
+                                  ? JSON.parse(savedProperty.property.images) 
+                                  : savedProperty.property.images;
+                                return images[0];
+                              } catch (error) {
+                                console.error("Error parsing images:", error);
+                                return "";
+                              }
+                            })()
+                          } 
                           alt={savedProperty.property.address} 
                         />
                         <div>
