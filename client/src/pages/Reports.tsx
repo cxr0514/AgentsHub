@@ -122,20 +122,48 @@ const Reports = () => {
 
   const handleDownloadReport = async (report: Report) => {
     try {
-      const response = await fetch(`/api/reports/${report.id}`);
+      // First try to parse properties from the report, if this fails we'll fetch them
+      let propertiesToInclude: Property[] = [];
+      let reportProperties: number[] = [];
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch report details');
+      try {
+        if (typeof report.properties === 'string') {
+          reportProperties = JSON.parse(report.properties);
+        } else if (report.properties) {
+          reportProperties = report.properties as unknown as number[];
+        }
+      } catch (parseError) {
+        console.warn('Error parsing report properties:', parseError);
       }
       
-      const reportData = await response.json();
-      await generatePropertyComparisonReport(reportData.properties, report.title);
+      // If we have properties data and the properties from the query
+      if (reportProperties.length > 0 && properties) {
+        propertiesToInclude = properties.filter((property: Property) => 
+          reportProperties.includes(property.id)
+        );
+      }
+      
+      // If we don't have the properties yet, fetch them
+      if (propertiesToInclude.length === 0) {
+        const response = await fetch(`/api/reports/${report.id}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch report details');
+        }
+        
+        const reportData = await response.json();
+        propertiesToInclude = reportData.properties || [];
+      }
+      
+      // Generate the PDF report
+      const result = await generatePropertyComparisonReport(propertiesToInclude, report.title);
       
       toast({
         title: "Report downloaded",
-        description: "Your report has been downloaded successfully"
+        description: `Your report "${result.filename}" has been downloaded successfully`
       });
     } catch (error) {
+      console.error('Error generating report:', error);
       toast({
         title: "Error",
         description: `Failed to download report: ${error}`,
