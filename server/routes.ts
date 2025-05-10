@@ -10,6 +10,7 @@ import {
   insertReportSchema
 } from "../shared/schema";
 import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService";
+import { testDatabaseConnection } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -288,6 +289,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing saved property:", error);
       res.status(500).json({ message: "Failed to remove saved property" });
+    }
+  });
+
+  // Database status endpoint
+  apiRouter.get("/system/db-status", async (req, res) => {
+    try {
+      const status = await testDatabaseConnection();
+      res.json(status);
+    } catch (error) {
+      console.error("Error checking database status:", error);
+      res.status(500).json({ 
+        connected: false,
+        error: error instanceof Error ? error.message : "Unknown database error"
+      });
     }
   });
 

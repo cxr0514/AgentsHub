@@ -4,6 +4,8 @@ import { Helmet } from "react-helmet";
 import SearchFilters from "@/components/SearchFilters";
 import MarketOverview from "@/components/MarketOverview";
 import PropertyTable from "@/components/PropertyTable";
+import SystemStatus from "@/components/SystemStatus";
+import MLSStatus from "@/components/MLSStatus";
 
 const Dashboard = () => {
   const [searchFilters, setSearchFilters] = useState({
