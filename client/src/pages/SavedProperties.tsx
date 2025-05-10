@@ -16,6 +16,7 @@ const userId = 1;
 const SavedProperties = () => {
   const { toast } = useToast();
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
+  const [activeTab, setActiveTab] = useState("all");
   
   const { 
     data: savedProperties, 
@@ -55,6 +56,12 @@ const SavedProperties = () => {
   const handleRemoveProperty = (savedPropertyId: number) => {
     removeMutation.mutate(savedPropertyId);
   };
+  
+  // Filter properties based on active tab
+  const filteredProperties = savedProperties ? savedProperties.filter((savedProperty: SavedProperty & { property: Property }) => {
+    if (activeTab === "all") return true;
+    return savedProperty.property.status.toLowerCase() === activeTab.toLowerCase();
+  }) : [];
 
   if (isLoading) {
     return (
@@ -98,7 +105,7 @@ const SavedProperties = () => {
         </div>
         
         <div className="flex justify-between items-center mb-6">
-          <Tabs defaultValue="all" className="w-[400px]">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-[400px]">
             <TabsList>
               <TabsTrigger value="all">All Properties</TabsTrigger>
               <TabsTrigger value="active">Active</TabsTrigger>
@@ -125,7 +132,7 @@ const SavedProperties = () => {
           </div>
         </div>
         
-        {!savedProperties || savedProperties.length === 0 ? (
+        {!savedProperties || filteredProperties.length === 0 ? (
           <Card className="p-8 text-center">
             <p className="text-text-secondary mb-4">You haven't saved any properties yet.</p>
             <Button variant="default" className="bg-accent hover:bg-accent/90">
@@ -134,7 +141,7 @@ const SavedProperties = () => {
           </Card>
         ) : viewType === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {savedProperties.map((savedProperty: SavedProperty & { property: Property }) => (
+            {filteredProperties.map((savedProperty: SavedProperty & { property: Property }) => (
               <div key={savedProperty.id} className="relative flex flex-col h-full">
                 <div className="flex-1 mb-2">
                   <PropertyCard 
@@ -167,7 +174,7 @@ const SavedProperties = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {savedProperties.map((savedProperty: SavedProperty & { property: Property }) => (
+                {filteredProperties.map((savedProperty: SavedProperty & { property: Property }) => (
                   <tr key={savedProperty.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center">
