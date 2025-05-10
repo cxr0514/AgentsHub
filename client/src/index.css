@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 29% 24%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215 16% 47%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 29% 24%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 29% 24%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  
+  --primary: 210 29% 24%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 357 78% 57%;
+  --secondary-foreground: 0 0% 100%;
+  
+  --accent: 206 74% 53%;
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 357 78% 57%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --success: 145 63% 42%;
+  --success-foreground: 0 0% 100%;
+  
+  --warning: 45 93% 50%;
+  --warning-foreground: 210 29% 24%;
+  
+  --error: 357 78% 57%;
+  --error-foreground: 0 0% 100%;
+  
+  --text-primary: 210 29% 24%;
+  --text-secondary: 210 9% 55%;
+  
+  --ring: 210 29% 24%;
+  --radius: 0.5rem;
+
+  /* Chart Colors */
+  --chart-1: 206 74% 53%;
+  --chart-2: 357 78% 57%;
+  --chart-3: 145 63% 42%;
+  --chart-4: 45 93% 50%;
+  --chart-5: 210 29% 24%;
+}
+
+.dark {
+  --background: 210 29% 10%;
+  --foreground: 0 0% 98%;
+  --muted: 210 29% 15%;
+  --muted-foreground: 210 29% 70%;
+  --popover: 210 29% 13%;
+  --popover-foreground: 0 0% 98%;
+  --card: 210 29% 13%;
+  --card-foreground: 0 0% 98%;
+  --border: 210 29% 20%;
+  --input: 210 29% 20%;
+  
+  --primary: 210 29% 24%;
+  --primary-foreground: 0 0% 98%;
+  
+  --secondary: 357 78% 57%;
+  --secondary-foreground: 0 0% 98%;
+  
+  --accent: 206 74% 53%;
+  --accent-foreground: 0 0% 98%;
+  
+  --destructive: 357 78% 57%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --success: 145 63% 42%;
+  --success-foreground: 0 0% 98%;
+  
+  --warning: 45 93% 50%;
+  --warning-foreground: 210 29% 24%;
+  
+  --error: 357 78% 57%;
+  --error-foreground: 0 0% 98%;
+  
+  --text-primary: 0 0% 98%;
+  --text-secondary: 210 9% 70%;
+  
+  --ring: 210 29% 70%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Chart styles */
+.chart-container {
+  position: relative;
+  height: 200px;
+  width: 100%;
+}
+
+.chart-bar {
+  position: absolute;
+  bottom: 0;
+  width: 8%;
+  background-color: hsl(var(--accent));
+  border-radius: 4px 4px 0 0;
+  transition: height 0.5s ease;
+}
+
+/* Map placeholder styles */
+.map-container {
+  background-color: #E8F4FC;
+  background-image: linear-gradient(rgba(52, 152, 219, 0.1) 1px, transparent 1px), 
+                    linear-gradient(90deg, rgba(52, 152, 219, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Property image carousel */
+.carousel {
+  scroll-behavior: smooth;
+}

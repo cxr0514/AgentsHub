@@ -1,0 +1,167 @@
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import PriceChart from "./PriceChart";
+import DaysOnMarketChart from "./DaysOnMarketChart";
+import MarketHealthChart from "./MarketHealthChart";
+
+interface MarketOverviewProps {
+  city: string;
+  state: string;
+}
+
+const MarketOverview = ({ city, state }: MarketOverviewProps) => {
+  const { data: marketData, isLoading } = useQuery({
+    queryKey: ['/api/market-data', { city, state }],
+    queryFn: async () => {
+      const response = await fetch(`/api/market-data?city=${city}&state=${state}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch market data');
+      }
+      return await response.json();
+    }
+  });
+
+  if (isLoading) {
+    return (
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Market Overview: Loading...</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="bg-white rounded-lg shadow-md overflow-hidden animate-pulse">
+              <div className="p-4 border-b">
+                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+              </div>
+              <div className="p-4">
+                <div className="h-48 bg-gray-200 rounded"></div>
+              </div>
+              <div className="p-4 bg-gray-50 border-t">
+                <div className="flex justify-between">
+                  <div>
+                    <div className="h-3 bg-gray-200 rounded w-20 mb-2"></div>
+                    <div className="h-5 bg-gray-200 rounded w-24"></div>
+                  </div>
+                  <div className="text-right">
+                    <div className="h-3 bg-gray-200 rounded w-20 mb-2"></div>
+                    <div className="h-5 bg-gray-200 rounded w-16"></div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!marketData || marketData.length === 0) {
+    return (
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Market Overview: {city}, {state}</h2>
+        <Card className="bg-white rounded-lg shadow-md p-6 text-center">
+          <p>No market data available for this location.</p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Sort by date (most recent first)
+  const sortedData = [...marketData].sort((a, b) => {
+    if (a.year !== b.year) return b.year - a.year;
+    return b.month - a.month;
+  });
+
+  const currentData = sortedData[0];
+  const priceData = sortedData.slice(0, 9).reverse();
+
+  return (
+    <div className="mb-6">
+      <h2 className="text-xl font-semibold mb-4">Market Overview: {city}, {state}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Price Trend Chart */}
+        <Card className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-4 border-b">
+            <h3 className="font-medium">Median Price Trend</h3>
+          </div>
+          <div className="p-4">
+            <PriceChart data={priceData} />
+            <div className="text-center mt-4 text-sm text-text-secondary">
+              Last {priceData.length} months (
+                {new Date(priceData[0]?.year, priceData[0]?.month - 1).toLocaleString('default', { month: 'short' })}-
+                {new Date(priceData[priceData.length - 1]?.year, priceData[priceData.length - 1]?.month - 1).toLocaleString('default', { month: 'short' })} 
+                {priceData[priceData.length - 1]?.year}
+              )
+            </div>
+          </div>
+          <div className="p-4 bg-gray-50 border-t">
+            <div className="flex justify-between">
+              <div>
+                <div className="text-sm text-text-secondary">Current Median Price</div>
+                <div className="text-xl font-semibold text-text-primary">
+                  ${Number(currentData.medianPrice).toLocaleString()}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-text-secondary">YoY Change</div>
+                <div className="text-success font-medium">+12.4%</div>
+              </div>
+            </div>
+          </div>
+        </Card>
+        
+        {/* Days on Market Chart */}
+        <Card className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-4 border-b">
+            <h3 className="font-medium">Inventory & Days on Market</h3>
+          </div>
+          <div className="p-4">
+            <DaysOnMarketChart days={currentData.daysOnMarket} />
+          </div>
+          <div className="p-4 bg-gray-50 border-t">
+            <div className="flex justify-between">
+              <div>
+                <div className="text-sm text-text-secondary">Active Listings</div>
+                <div className="text-xl font-semibold text-text-primary">
+                  {currentData.activeListings}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-text-secondary">Inventory</div>
+                <div className="text-warning font-medium">
+                  {currentData.inventoryMonths} months
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+        
+        {/* Market Health Chart */}
+        <Card className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="p-4 border-b">
+            <h3 className="font-medium">Market Health</h3>
+          </div>
+          <div className="p-4">
+            <MarketHealthChart marketType={currentData.marketType} ratio={Number(currentData.saleToListRatio)} />
+          </div>
+          <div className="p-4 bg-gray-50 border-t">
+            <div className="flex justify-between">
+              <div>
+                <div className="text-sm text-text-secondary">Sale-to-List Ratio</div>
+                <div className="text-xl font-semibold text-text-primary">
+                  {currentData.saleToListRatio}%
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm text-text-secondary">Price Reductions</div>
+                <div className="text-warning font-medium">
+                  {currentData.priceReductions}%
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default MarketOverview;
