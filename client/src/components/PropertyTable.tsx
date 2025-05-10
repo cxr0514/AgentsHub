@@ -38,7 +38,16 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
       if (!response.ok) {
         throw new Error('Failed to fetch properties');
       }
-      return await response.json();
+      const data = await response.json();
+      
+      // Process properties to ensure images and features are properly parsed
+      return data.map((property: any) => ({
+        ...property,
+        images: typeof property.images === 'string' ? 
+          JSON.parse(property.images) : property.images,
+        features: typeof property.features === 'string' ? 
+          JSON.parse(property.features) : property.features
+      }));
     }
   });
 

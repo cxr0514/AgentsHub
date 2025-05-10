@@ -36,6 +36,11 @@ const Dashboard = () => {
           <p className="text-text-secondary">Find and analyze comparable properties quickly and efficiently</p>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <SystemStatus />
+          <MLSStatus />
+        </div>
+
         <SearchFilters onSearch={handleSearch} />
         
         <MarketOverview 
