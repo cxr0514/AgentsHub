@@ -30,9 +30,9 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
-                <a className={`${location === item.path ? 'text-accent' : 'hover:text-accent'} transition-colors ${item.path === '/' ? 'font-medium' : ''}`}>
+                <span className={`${location === item.path ? 'text-accent' : 'hover:text-accent'} transition-colors ${item.path === '/' ? 'font-medium' : ''} cursor-pointer`}>
                   {item.label}
-                </a>
+                </span>
               </Link>
             ))}
           </div>

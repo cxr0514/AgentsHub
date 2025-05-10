@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet";
-import { useQuery, useMutation, QueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Property, SavedProperty } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PropertyCard from "@/components/PropertyCard";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 
 // Mock user ID - in a real app this would come from auth
 const userId = 1; 
@@ -196,13 +197,14 @@ const SavedProperties = () => {
                       <div className="text-sm">{savedProperty.notes || "-"}</div>
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <Button 
-                        variant="link" 
-                        className="text-accent hover:text-accent/80"
-                        onClick={() => window.location.href = `/properties/${savedProperty.property.id}`}
-                      >
-                        View
-                      </Button>
+                      <Link href={`/properties/${savedProperty.property.id}`}>
+                        <Button 
+                          variant="link" 
+                          className="text-accent hover:text-accent/80"
+                        >
+                          View
+                        </Button>
+                      </Link>
                       <Button 
                         variant="link" 
                         className="text-secondary hover:text-secondary/80"

@@ -25,14 +25,14 @@ const Sidebar = () => {
         <nav className="space-y-1">
           {navigationItems.map((item) => (
             <Link key={item.path} href={item.path}>
-              <a className={`flex items-center space-x-3 px-3 py-2 rounded-md ${
+              <div className={`flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer ${
                 location === item.path 
                   ? 'bg-accent bg-opacity-10 text-accent' 
                   : 'hover:bg-gray-100'
               }`}>
                 {item.icon}
                 <span>{item.label}</span>
-              </a>
+              </div>
             </Link>
           ))}
         </nav>
@@ -40,13 +40,12 @@ const Sidebar = () => {
         <h2 className="text-lg font-semibold mt-8 mb-4">Recent Searches</h2>
         <div className="space-y-2">
           {recentSearches.map((search, index) => (
-            <a 
+            <div 
               key={index} 
-              href="#" 
-              className="block px-3 py-2 hover:bg-gray-100 rounded-md text-sm"
+              className="block px-3 py-2 hover:bg-gray-100 rounded-md text-sm cursor-pointer"
             >
               {search}
-            </a>
+            </div>
           ))}
         </div>
       </div>
