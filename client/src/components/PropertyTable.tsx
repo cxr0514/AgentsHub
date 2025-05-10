@@ -40,63 +40,21 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
       }
       const data = await response.json();
       
-      // Process properties to ensure images and features are properly parsed
+      // Now that our API correctly returns arrays, we can simplify this code
       return data.map((property: any) => {
-        let parsedImages = [];
-        let parsedFeatures = [];
-        
-        // Extract URLs using regex pattern from property.images (string or array)
-        try {
-          const imageData = property.images;
-          // Direct regex extraction for URLs - most reliable approach with the current data format
-          const urlPattern = /(https?:\/\/[^\s"]+)/g;
-          
-          if (typeof imageData === 'string') {
-            const matches = imageData.match(urlPattern);
-            if (matches && matches.length > 0) {
-              parsedImages = matches;
-            }
-          } else if (Array.isArray(imageData)) {
-            // If it's already an array, try to process each item
-            const extractedUrls = [];
-            imageData.forEach(item => {
-              if (typeof item === 'string') {
-                const itemMatches = item.match(urlPattern);
-                if (itemMatches) {
-                  extractedUrls.push(...itemMatches);
-                } else if (item.includes('http')) {
-                  extractedUrls.push(item);
-                }
-              }
-            });
-            parsedImages = extractedUrls.length > 0 ? extractedUrls : [];
-          }
-        } catch (e) {
-          console.warn('Failed to process property images:', e);
-          parsedImages = [];
-        }
-        
-        // Process features similarly with regex extraction for text
-        try {
-          const featureData = property.features;
-          const wordPattern = /[a-zA-Z][a-zA-Z\s]+/g;
-          
-          if (typeof featureData === 'string') {
-            // First try to extract words using a regex
-            const matches = featureData.match(wordPattern);
-            if (matches && matches.length > 0) {
-              parsedFeatures = matches.map(match => match.trim()).filter(item => item.length > 0);
-            }
-          } else if (Array.isArray(featureData)) {
-            // If it's already an array, map each item
-            parsedFeatures = featureData.map(item => 
-              typeof item === 'string' ? item.trim() : ''
-            ).filter(item => item.length > 0);
-          }
-        } catch (e) {
-          console.warn('Failed to process property features:', e);
-          parsedFeatures = [];
-        }
+        // Images should already be an array from our API, but add validation just in case
+        const parsedImages = Array.isArray(property.images) 
+          ? property.images 
+          : (typeof property.images === 'string' && property.images.includes('http') 
+            ? [property.images] 
+            : []);
+            
+        // Features should already be an array from our API, but add validation just in case
+        const parsedFeatures = Array.isArray(property.features)
+          ? property.features
+          : (typeof property.features === 'string'
+            ? [property.features]
+            : []);
         
         return {
           ...property,
@@ -212,8 +170,11 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
                     <div className="flex items-center">
                       <img 
                         className="h-16 w-24 object-cover rounded-md mr-4" 
-                        src={JSON.parse(property.images as string)[0]} 
+                        src={Array.isArray(property.images) && property.images.length > 0 ? property.images[0] : ''} 
                         alt={`${property.address}`} 
+                        onError={(e) => {
+                          e.currentTarget.src = "https://via.placeholder.com/150x100?text=No+Image";
+                        }}
                       />
                       <div>
                         <div className="font-medium text-primary">{property.address}</div>

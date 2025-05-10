@@ -5,7 +5,7 @@ import { db } from '../db';
 import { properties, marketData } from '@shared/schema';
 import { searchMLSProperties, refreshMLSData, getMLSPropertyDetails } from './mlsService';
 import { PropertyFilters } from '../storage';
-import { eq, and, gte, lte, like } from 'drizzle-orm';
+import { eq, and, gte, lte, like, or } from 'drizzle-orm';
 
 /**
  * Synchronize local properties with MLS data
@@ -101,7 +101,80 @@ export async function searchProperties(filters: PropertyFilters = {}): Promise<a
     }
     
     // Execute the query
-    const localProperties = await query;
+    const rawProperties = await query;
+    
+    // Process the properties to properly handle jsonb fields
+    const localProperties = rawProperties.map(property => {
+      // For image processing
+      let processedImages = property.images;
+      if (processedImages) {
+        if (typeof processedImages === 'string') {
+          // Try to extract URLs using regex
+          const urlRegex = /(https?:\/\/[^\s"]+)/g;
+          const matches = processedImages.match(urlRegex);
+          if (matches && matches.length > 0) {
+            processedImages = matches;
+          } else {
+            // Try parsing as JSON if it looks like JSON
+            try {
+              if (processedImages.includes('[') && processedImages.includes(']')) {
+                // Clean up extra quotes first
+                const cleanedJSON = processedImages
+                  .replace(/\"{3}/g, '"')
+                  .replace(/\\"/g, '"');
+                processedImages = JSON.parse(cleanedJSON);
+              }
+            } catch (e) {
+              console.warn('Failed to parse images JSON:', e);
+              processedImages = [];
+            }
+          }
+        } else if (!Array.isArray(processedImages)) {
+          // If it's not a string or array, set to empty array
+          processedImages = [];
+        }
+      } else {
+        processedImages = [];
+      }
+      
+      // For features processing
+      let processedFeatures = property.features;
+      if (processedFeatures) {
+        if (typeof processedFeatures === 'string') {
+          // Try to extract features using regex for text patterns
+          const wordPattern = /[a-zA-Z][a-zA-Z\s]+/g;
+          const matches = processedFeatures.match(wordPattern);
+          if (matches && matches.length > 0) {
+            processedFeatures = matches.map(m => m.trim()).filter(Boolean);
+          } else {
+            // Try parsing as JSON if it looks like JSON
+            try {
+              if (processedFeatures.includes('[') && processedFeatures.includes(']')) {
+                // Clean up extra quotes first
+                const cleanedJSON = processedFeatures
+                  .replace(/\"{3}/g, '"')
+                  .replace(/\\"/g, '"');
+                processedFeatures = JSON.parse(cleanedJSON);
+              }
+            } catch (e) {
+              console.warn('Failed to parse features JSON:', e);
+              processedFeatures = [];
+            }
+          }
+        } else if (!Array.isArray(processedFeatures)) {
+          // If it's not a string or array, set to empty array
+          processedFeatures = [];
+        }
+      } else {
+        processedFeatures = [];
+      }
+      
+      return {
+        ...property,
+        images: processedImages,
+        features: processedFeatures
+      };
+    });
     
     // If we have enough local results or MLS API is not configured, return local results
     if (localProperties.length >= 20 || !process.env.MLS_API_KEY) {
@@ -155,12 +228,85 @@ export async function searchProperties(filters: PropertyFilters = {}): Promise<a
 export async function getPropertyDetails(id: number): Promise<any | null> {
   try {
     // First check local database
-    const [localProperty] = await db.select().from(properties).where(eq(properties.id, id));
+    const [rawProperty] = await db.select().from(properties).where(eq(properties.id, id));
     
-    if (localProperty) {
-      // If MLS API is not configured or we have complete data, return local property
-      if (!process.env.MLS_API_KEY || (localProperty.description && localProperty.images)) {
-        return localProperty;
+    if (rawProperty) {
+      // Process the property to handle jsonb fields
+      let processedProperty = { ...rawProperty };
+
+      // For image processing
+      let processedImages = rawProperty.images;
+      if (processedImages) {
+        if (typeof processedImages === 'string') {
+          // Try to extract URLs using regex
+          const urlRegex = /(https?:\/\/[^\s"]+)/g;
+          const matches = processedImages.match(urlRegex);
+          if (matches && matches.length > 0) {
+            processedImages = matches;
+          } else {
+            // Try parsing as JSON if it looks like JSON
+            try {
+              if (processedImages.includes('[') && processedImages.includes(']')) {
+                // Clean up extra quotes first
+                const cleanedJSON = processedImages
+                  .replace(/\"{3}/g, '"')
+                  .replace(/\\"/g, '"');
+                processedImages = JSON.parse(cleanedJSON);
+              }
+            } catch (e) {
+              console.warn('Failed to parse images JSON:', e);
+              processedImages = [];
+            }
+          }
+        } else if (!Array.isArray(processedImages)) {
+          // If it's not a string or array, set to empty array
+          processedImages = [];
+        }
+      } else {
+        processedImages = [];
+      }
+      
+      // For features processing
+      let processedFeatures = rawProperty.features;
+      if (processedFeatures) {
+        if (typeof processedFeatures === 'string') {
+          // Try to extract features using regex for text patterns
+          const wordPattern = /[a-zA-Z][a-zA-Z\s]+/g;
+          const matches = processedFeatures.match(wordPattern);
+          if (matches && matches.length > 0) {
+            processedFeatures = matches.map(m => m.trim()).filter(Boolean);
+          } else {
+            // Try parsing as JSON if it looks like JSON
+            try {
+              if (processedFeatures.includes('[') && processedFeatures.includes(']')) {
+                // Clean up extra quotes first
+                const cleanedJSON = processedFeatures
+                  .replace(/\"{3}/g, '"')
+                  .replace(/\\"/g, '"');
+                processedFeatures = JSON.parse(cleanedJSON);
+              }
+            } catch (e) {
+              console.warn('Failed to parse features JSON:', e);
+              processedFeatures = [];
+            }
+          }
+        } else if (!Array.isArray(processedFeatures)) {
+          // If it's not a string or array, set to empty array
+          processedFeatures = [];
+        }
+      } else {
+        processedFeatures = [];
+      }
+      
+      processedProperty = {
+        ...processedProperty,
+        images: processedImages,
+        features: processedFeatures
+      };
+      
+      // If MLS API is not configured or we have complete data, return processed local property
+      if (!process.env.MLS_API_KEY || (processedProperty.description && processedProperty.images.length > 0)) {
+        return processedProperty;
       }
       
       // Otherwise, try to get more detailed data from MLS
