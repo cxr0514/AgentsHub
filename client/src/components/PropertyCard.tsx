@@ -12,7 +12,17 @@ interface PropertyCardProps {
 }
 
 const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) => {
-  const images = JSON.parse(property.images as string);
+  let images;
+  try {
+    // Handle both already parsed arrays and JSON strings
+    images = typeof property.images === 'string' 
+      ? JSON.parse(property.images) 
+      : property.images;
+  } catch (error) {
+    console.error("Error parsing images:", error);
+    images = [];
+  }
+  
   const mainImage = images && images.length > 0 ? images[0] : null;
 
   const handleSaveClick = (e: React.MouseEvent) => {

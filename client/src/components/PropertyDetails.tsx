@@ -96,7 +96,9 @@ const PropertyDetails = ({ propertyId }: PropertyDetailsProps) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
         <div className="p-4">
           <PropertyImages 
-            images={JSON.parse(property.images as string)} 
+            images={typeof property.images === 'string' 
+              ? JSON.parse(property.images) 
+              : property.images}
             address={property.address} 
             city={property.city} 
             state={property.state} 
