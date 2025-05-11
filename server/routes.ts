@@ -12,13 +12,17 @@ import {
 import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService";
 import { testDatabaseConnection } from "./db";
 import { addApiKey, getApiKeysList, deleteApiKey, loadApiKeysIntoEnv } from "./routes/api-keys";
-import { requireAdmin, requirePermission } from "./middleware/permissions";
+import { requireAdmin, requirePermission, loadUser } from "./middleware/permissions";
 import { Permission } from "@shared/permissions";
 import { login, logout, register, getCurrentUser, updateUserProfile, changePassword, getAllUsers, deleteUser } from "./routes/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
   const apiRouter = express.Router();
+  
+  // Apply the global middlewares
+  apiRouter.use(loadUser);
+  
   app.use("/api", apiRouter);
 
   // Properties routes

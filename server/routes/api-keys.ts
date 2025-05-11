@@ -1,11 +1,10 @@
-import { Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
+import { Request, Response } from "express";
+import fs from "fs";
+import path from "path";
+import { randomBytes } from "crypto";
+import { z } from "zod";
 
-// Path to the API keys file
-const API_KEYS_FILE = path.join(process.cwd(), '.env.api-keys');
-
-// Interface for API key data
+// API key interface
 interface ApiKey {
   id: string;
   name: string;
@@ -14,118 +13,186 @@ interface ApiKey {
   createdAt: string;
 }
 
+// API key file path
+const API_KEYS_FILE = ".env.api-keys";
+
+// Schema for API key creation
+const apiKeySchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  service: z.string().min(1, "Service is required"),
+});
+
 // Initialize API keys file if it doesn't exist
 function initializeApiKeysFile() {
   if (!fs.existsSync(API_KEYS_FILE)) {
-    fs.writeFileSync(API_KEYS_FILE, JSON.stringify([]));
+    fs.writeFileSync(API_KEYS_FILE, "# API Keys\n", "utf-8");
   }
 }
 
-// Get all API keys
+// Get API keys from file
 function getApiKeys(): ApiKey[] {
-  initializeApiKeysFile();
-  const data = fs.readFileSync(API_KEYS_FILE, 'utf8');
-  return JSON.parse(data);
+  try {
+    initializeApiKeysFile();
+    
+    const fileContent = fs.readFileSync(API_KEYS_FILE, "utf-8");
+    const lines = fileContent.split("\n");
+    
+    const apiKeys: ApiKey[] = [];
+    const commentPattern = /^#\s*API_KEY_([a-zA-Z0-9_-]+)=(.+?)\|(.+?)\|(.+?)\|(.+)$/;
+    
+    for (const line of lines) {
+      const match = line.match(commentPattern);
+      if (match) {
+        apiKeys.push({
+          id: match[1],
+          name: match[2],
+          service: match[3],
+          key: match[4],
+          createdAt: match[5],
+        });
+      }
+    }
+    
+    return apiKeys;
+  } catch (error) {
+    console.error("Error loading API keys:", error);
+    return [];
+  }
 }
 
 // Save API keys to file
 function saveApiKeys(apiKeys: ApiKey[]) {
-  fs.writeFileSync(API_KEYS_FILE, JSON.stringify(apiKeys, null, 2));
+  try {
+    initializeApiKeysFile();
+    
+    let fileContent = "# API Keys\n";
+    
+    // Add API keys as comments for reference
+    for (const apiKey of apiKeys) {
+      fileContent += `# API_KEY_${apiKey.id}=${apiKey.name}|${apiKey.service}|${apiKey.key}|${apiKey.createdAt}\n`;
+    }
+    
+    // Add environment variables
+    for (const apiKey of apiKeys) {
+      fileContent += `${apiKey.service.toUpperCase()}_API_KEY=${apiKey.key}\n`;
+    }
+    
+    fs.writeFileSync(API_KEYS_FILE, fileContent, "utf-8");
+  } catch (error) {
+    console.error("Error saving API keys:", error);
+  }
 }
 
-// Add a new API key
+// Add API key endpoint
 export function addApiKey(req: Request, res: Response) {
   try {
-    const { name, key, service } = req.body;
+    // Validate request body
+    const validatedData = apiKeySchema.parse(req.body);
     
-    if (!name || !key || !service) {
-      return res.status(400).json({ error: 'Name, key, and service are required' });
-    }
+    // Generate a new API key
+    const keyId = randomBytes(6).toString("hex");
+    const apiKey = randomBytes(32).toString("hex");
     
-    const apiKeys = getApiKeys();
-    
-    // Check if a key with this name already exists
-    const existingKey = apiKeys.find(k => k.name === name);
-    if (existingKey) {
-      return res.status(400).json({ error: `API key with name '${name}' already exists` });
-    }
-    
-    // Add the new key
+    // Create new API key
     const newKey: ApiKey = {
-      id: Date.now().toString(),
-      name,
-      key,
-      service,
-      createdAt: new Date().toISOString()
+      id: keyId,
+      name: validatedData.name,
+      service: validatedData.service.toLowerCase(),
+      key: apiKey,
+      createdAt: new Date().toISOString(),
     };
     
-    apiKeys.push(newKey);
+    // Get existing API keys
+    const apiKeys = getApiKeys();
+    
+    // Check if service already has a key
+    const existingServiceIndex = apiKeys.findIndex(
+      (key) => key.service.toLowerCase() === newKey.service.toLowerCase()
+    );
+    
+    if (existingServiceIndex !== -1) {
+      // Update existing service key
+      apiKeys[existingServiceIndex] = newKey;
+    } else {
+      // Add new API key
+      apiKeys.push(newKey);
+    }
+    
+    // Save API keys
     saveApiKeys(apiKeys);
     
-    // Set the environment variable
-    process.env[name] = key;
+    // Load API keys into environment
+    loadApiKeysIntoEnv();
     
-    return res.status(201).json({ success: true, key: { ...newKey, key: '•'.repeat(key.length) } });
+    return res.status(201).json(newKey);
   } catch (error) {
-    console.error('Error adding API key:', error);
-    return res.status(500).json({ error: 'Failed to add API key' });
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ errors: error.errors });
+    }
+    
+    console.error("Add API key error:", error);
+    return res.status(500).json({ message: "Failed to add API key" });
   }
 }
 
-// Get all API keys (masked)
+// Get API keys list endpoint
 export function getApiKeysList(req: Request, res: Response) {
   try {
-    const apiKeys = getApiKeys().map(key => ({
-      ...key,
-      key: '•'.repeat(key.key.length) // Mask the actual key values
+    const apiKeys = getApiKeys();
+    
+    // Return API keys without the actual key value for security
+    const safeApiKeys = apiKeys.map(({ key, ...rest }) => ({
+      ...rest,
+      key: `${key.substring(0, 4)}...${key.substring(key.length - 4)}`,
     }));
     
-    return res.status(200).json(apiKeys);
+    return res.status(200).json(safeApiKeys);
   } catch (error) {
-    console.error('Error getting API keys:', error);
-    return res.status(500).json({ error: 'Failed to get API keys' });
+    console.error("Get API keys error:", error);
+    return res.status(500).json({ message: "Failed to get API keys" });
   }
 }
 
-// Delete an API key by ID
+// Delete API key endpoint
 export function deleteApiKey(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const keyId = req.params.keyId;
     
-    if (!id) {
-      return res.status(400).json({ error: 'API key ID is required' });
-    }
-    
+    // Get existing API keys
     const apiKeys = getApiKeys();
-    const keyToDelete = apiKeys.find(k => k.id === id);
     
-    if (!keyToDelete) {
-      return res.status(404).json({ error: 'API key not found' });
+    // Filter out the API key to delete
+    const updatedApiKeys = apiKeys.filter((key) => key.id !== keyId);
+    
+    // Check if any API key was removed
+    if (updatedApiKeys.length === apiKeys.length) {
+      return res.status(404).json({ message: "API key not found" });
     }
     
-    // Remove the key from the array
-    const updatedKeys = apiKeys.filter(k => k.id !== id);
-    saveApiKeys(updatedKeys);
+    // Save updated API keys
+    saveApiKeys(updatedApiKeys);
     
-    // Remove from environment variables
-    delete process.env[keyToDelete.name];
+    // Load API keys into environment
+    loadApiKeysIntoEnv();
     
-    return res.status(200).json({ success: true, id });
+    return res.status(200).json({ message: "API key deleted successfully" });
   } catch (error) {
-    console.error('Error deleting API key:', error);
-    return res.status(500).json({ error: 'Failed to delete API key' });
+    console.error("Delete API key error:", error);
+    return res.status(500).json({ message: "Failed to delete API key" });
   }
 }
 
-// Load all API keys into environment variables on startup
+// Load API keys into environment
 export function loadApiKeysIntoEnv() {
   try {
     const apiKeys = getApiKeys();
-    apiKeys.forEach(key => {
-      process.env[key.name] = key.key;
-    });
+    
+    for (const apiKey of apiKeys) {
+      process.env[`${apiKey.service.toUpperCase()}_API_KEY`] = apiKey.key;
+    }
+    
     console.log(`Loaded ${apiKeys.length} API keys into environment variables`);
   } catch (error) {
-    console.error('Error loading API keys into environment:', error);
+    console.error("Error loading API keys into environment:", error);
   }
 }
