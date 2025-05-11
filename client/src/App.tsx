@@ -13,6 +13,7 @@ import SavedProperties from "@/pages/SavedProperties";
 import Reports from "@/pages/Reports";
 import CMAGenerator from "@/pages/CMAGenerator";
 import DocumentGenerator from "@/pages/DocumentGenerator";
+import ApiKeyManagement from "@/pages/ApiKeyManagement";
 import NotFound from "@/pages/not-found";
 
 function Router() {
