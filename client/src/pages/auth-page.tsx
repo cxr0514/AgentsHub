@@ -67,8 +67,8 @@ export default function AuthPage() {
 
   // Handle register form submission
   const onRegisterSubmit = (data: RegisterFormData) => {
-    const { confirmPassword, ...userData } = data;
-    registerMutation.mutate(userData);
+    // Include confirmPassword field in the data sent to server
+    registerMutation.mutate(data);
   };
 
   // Redirect if user is already logged in
