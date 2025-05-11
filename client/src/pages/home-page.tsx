@@ -26,35 +26,25 @@ export default function HomePage() {
         <nav className="p-4 flex-1">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground font-medium px-2 py-1.5">Main</p>
-            <Link href="/">
-              <a className="flex items-center space-x-2 px-2 py-1.5 rounded-md bg-accent text-accent-foreground">
-                <Home className="h-4 w-4" />
-                <span>Dashboard</span>
-              </a>
+            <Link href="/" className="flex items-center space-x-2 px-2 py-1.5 rounded-md bg-accent text-accent-foreground">
+              <Home className="h-4 w-4" />
+              <span>Dashboard</span>
             </Link>
-            <Link href="/properties">
-              <a className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
-                <Building2 className="h-4 w-4" />
-                <span>Properties</span>
-              </a>
+            <Link href="/properties" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+              <Building2 className="h-4 w-4" />
+              <span>Properties</span>
             </Link>
-            <Link href="/search">
-              <a className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
-                <Search className="h-4 w-4" />
-                <span>Property Search</span>
-              </a>
+            <Link href="/search" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+              <Search className="h-4 w-4" />
+              <span>Property Search</span>
             </Link>
-            <Link href="/market-analysis">
-              <a className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
-                <BarChart4 className="h-4 w-4" />
-                <span>Market Analysis</span>
-              </a>
+            <Link href="/market-analysis" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+              <BarChart4 className="h-4 w-4" />
+              <span>Market Analysis</span>
             </Link>
-            <Link href="/reports">
-              <a className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
-                <ClipboardList className="h-4 w-4" />
-                <span>Reports</span>
-              </a>
+            <Link href="/reports" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+              <ClipboardList className="h-4 w-4" />
+              <span>Reports</span>
             </Link>
           </div>
 
@@ -64,17 +54,13 @@ export default function HomePage() {
           >
             <div className="mt-6 space-y-1">
               <p className="text-sm text-muted-foreground font-medium px-2 py-1.5">Administration</p>
-              <Link href="/settings">
-                <a className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
-                </a>
+              <Link href="/settings" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+                <Settings className="h-4 w-4" />
+                <span>Settings</span>
               </Link>
-              <Link href="/api-keys">
-                <a className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
-                  <Key className="h-4 w-4" />
-                  <span>API Keys</span>
-                </a>
+              <Link href="/api-keys" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+                <Key className="h-4 w-4" />
+                <span>API Keys</span>
               </Link>
             </div>
           </PermissionGuard>
