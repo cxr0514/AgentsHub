@@ -1,16 +1,7 @@
 import { Property } from "@shared/schema";
 import { jsPDF } from "jspdf";
-import 'jspdf-autotable';
-
-// Add missing types for jsPDF-AutoTable plugin
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => jsPDF;
-    lastAutoTable: {
-      finalY: number;
-    };
-  }
-}
+// Force import the autotable plugin correctly
+import { default as autoTable } from 'jspdf-autotable';
 
 /**
  * Generates a PDF report for property comparisons
@@ -18,223 +9,240 @@ declare module 'jspdf' {
 export async function generatePropertyComparisonReport(properties: Property[], title: string = "Property Comparison Report") {
   console.log("Generating report for properties:", properties);
   
-  const doc = new jsPDF();
-  
-  // Add title
-  doc.setFontSize(18);
-  doc.text(title, 14, 22);
-  
-  // Add date
-  doc.setFontSize(11);
-  doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
-  
-  // Create property comparison table
-  const tableColumn = ["Address", "Price", "Size", "$/SqFt", "Beds/Baths", "Status"];
-  const tableRows = properties.map(property => [
-    `${property.address}, ${property.city}`,
-    `$${Number(property.price).toLocaleString()}`,
-    `${Number(property.squareFeet).toLocaleString()} sqft`,
-    `$${property.pricePerSqft}`,
-    `${property.bedrooms}bd/${property.bathrooms}ba`,
-    property.status
-  ]);
-  
-  doc.autoTable({
-    head: [tableColumn],
-    body: tableRows,
-    startY: 40,
-    theme: 'grid',
-    headStyles: { 
-      fillColor: [44, 62, 80], // Primary color from design system
-      textColor: [255, 255, 255]
-    },
-    alternateRowStyles: {
-      fillColor: [240, 240, 240]
-    }
-  });
-  
-  // Add property details
-  let yPos = doc.lastAutoTable.finalY + 20;
-  
-  properties.forEach(property => {
-    if (yPos > 250) {
-      doc.addPage();
-      yPos = 20;
-    }
+  try {
+    // Create a new document
+    const doc = new jsPDF();
     
-    doc.setFontSize(14);
-    doc.text(property.address, 14, yPos);
-    yPos += 8;
+    // Add title
+    doc.setFontSize(18);
+    doc.text(title, 14, 22);
     
-    doc.setFontSize(10);
-    const neighborhoodText = property.neighborhood ? `${property.neighborhood}, ` : '';
-    doc.text(`${neighborhoodText}${property.city}, ${property.state} ${property.zipCode}`, 14, yPos);
-    yPos += 6;
+    // Add date
+    doc.setFontSize(11);
+    doc.text(`Generated on ${new Date().toLocaleDateString()}`, 14, 30);
     
-    doc.text(`Price: $${Number(property.price).toLocaleString()}`, 14, yPos);
-    yPos += 6;
+    // Create property comparison table
+    const tableColumn = ["Address", "Price", "Size", "$/SqFt", "Beds/Baths", "Status"];
+    const tableRows = properties.map(property => [
+      `${property.address}, ${property.city}`,
+      `$${Number(property.price).toLocaleString()}`,
+      `${Number(property.squareFeet).toLocaleString()} sqft`,
+      `$${property.pricePerSqft}`,
+      `${property.bedrooms}bd/${property.bathrooms}ba`,
+      property.status
+    ]);
     
-    doc.text(`${property.bedrooms} bedrooms, ${property.bathrooms} bathrooms, ${Number(property.squareFeet).toLocaleString()} sqft`, 14, yPos);
-    yPos += 6;
+    // Use the imported autoTable function directly
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 40,
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [44, 62, 80], // Primary color
+        textColor: [255, 255, 255]
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 240]
+      }
+    });
     
-    doc.text(`Year built: ${property.yearBuilt}`, 14, yPos);
-    yPos += 6;
+    // Get the final Y position after the table
+    const finalY = (doc as any)['lastAutoTable'].finalY || 60;
+    let yPos = finalY + 20;
     
-    doc.text(`Status: ${property.status}`, 14, yPos);
-    yPos += 6;
-    
-    doc.text(`Price per sqft: $${property.pricePerSqft}`, 14, yPos);
-    yPos += 6;
-    
-    if (property.daysOnMarket) {
-      doc.text(`Days on market: ${property.daysOnMarket}`, 14, yPos);
+    // Add property details
+    properties.forEach(property => {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.text(property.address, 14, yPos);
+      yPos += 8;
+      
+      doc.setFontSize(10);
+      const neighborhoodText = property.neighborhood ? `${property.neighborhood}, ` : '';
+      doc.text(`${neighborhoodText}${property.city}, ${property.state} ${property.zipCode}`, 14, yPos);
       yPos += 6;
-    }
-    
-    // Add feature list if available
-    if (property.features && Array.isArray(property.features) && property.features.length > 0) {
-      doc.text(`Features: ${property.features.join(', ')}`, 14, yPos);
+      
+      doc.text(`Price: $${Number(property.price).toLocaleString()}`, 14, yPos);
       yPos += 6;
+      
+      doc.text(`${property.bedrooms} bedrooms, ${property.bathrooms} bathrooms, ${Number(property.squareFeet).toLocaleString()} sqft`, 14, yPos);
+      yPos += 6;
+      
+      doc.text(`Year built: ${property.yearBuilt}`, 14, yPos);
+      yPos += 6;
+      
+      doc.text(`Status: ${property.status}`, 14, yPos);
+      yPos += 6;
+      
+      doc.text(`Price per sqft: $${property.pricePerSqft}`, 14, yPos);
+      yPos += 6;
+      
+      if (property.daysOnMarket) {
+        doc.text(`Days on market: ${property.daysOnMarket}`, 14, yPos);
+        yPos += 6;
+      }
+      
+      // Add feature list if available
+      if (property.features && Array.isArray(property.features) && property.features.length > 0) {
+        doc.text(`Features: ${property.features.join(', ')}`, 14, yPos);
+        yPos += 6;
+      }
+      
+      yPos += 10;
+    });
+    
+    // Add footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(
+        `Page ${i} of ${pageCount} - Generated by RealComp`,
+        doc.internal.pageSize.width / 2, 
+        doc.internal.pageSize.height - 10, 
+        { align: 'center' }
+      );
     }
     
-    yPos += 10;
-  });
-  
-  // Add footer
-  const pageCount = doc.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text(
-      `Page ${i} of ${pageCount} - Generated by RealComp`,
-      doc.internal.pageSize.width / 2, 
-      doc.internal.pageSize.height - 10, 
-      { align: 'center' }
-    );
+    // Save the PDF
+    const filename = `${title.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+    
+    return {
+      success: true,
+      filename: filename
+    };
+  } catch (error) {
+    console.error("Error generating PDF report:", error);
+    throw new Error(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  
-  // Save the PDF
-  const filename = `${title.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.pdf`;
-  doc.save(filename);
-  
-  return {
-    success: true,
-    filename: filename
-  };
 }
 
 export async function generatePropertyDetailReport(property: Property) {
   console.log("Generating detail report for property:", property);
   
-  const doc = new jsPDF();
-  
-  // Add header
-  doc.setFontSize(20);
-  doc.setTextColor(44, 62, 80); // Primary color
-  doc.text("Property Detail Report", 14, 20);
-  
-  // Add property title/address
-  doc.setFontSize(16);
-  doc.text(property.address, 14, 30);
-  
-  // Add property location
-  doc.setFontSize(12);
-  const neighborhoodText = property.neighborhood ? `${property.neighborhood}, ` : '';
-  doc.text(`${neighborhoodText}${property.city}, ${property.state} ${property.zipCode}`, 14, 38);
-  
-  // Add horizontal line
-  doc.setDrawColor(200, 200, 200);
-  doc.line(14, 42, 196, 42);
-  
-  // Add property overview
-  doc.setFontSize(14);
-  doc.setTextColor(44, 62, 80);
-  doc.text("Property Overview", 14, 50);
-  
-  // Create property details table
-  doc.autoTable({
-    startY: 55,
-    theme: 'grid',
-    headStyles: { 
-      fillColor: [44, 62, 80],
-      textColor: [255, 255, 255]
-    },
-    tableLineColor: [200, 200, 200],
-    tableLineWidth: 0.1,
-    head: [['Attribute', 'Value']],
-    body: [
-      ['Price', `$${Number(property.price).toLocaleString()}`],
-      ['Property Type', property.propertyType],
-      ['Status', property.status],
-      ['Bedrooms', property.bedrooms.toString()],
-      ['Bathrooms', property.bathrooms.toString()],
-      ['Square Feet', `${Number(property.squareFeet).toLocaleString()} sqft`],
-      ['Lot Size', property.lotSize ? `${Number(property.lotSize).toLocaleString()} sqft` : 'N/A'],
-      ['Year Built', property.yearBuilt ? property.yearBuilt.toString() : 'N/A'],
-      ['Price per SqFt', property.pricePerSqft ? `$${property.pricePerSqft}` : 'N/A'],
-      ['Days on Market', property.daysOnMarket ? property.daysOnMarket.toString() : 'N/A']
-    ],
-  });
-  
-  // Add features section
-  let featuresY = doc.lastAutoTable.finalY + 15;
-  doc.setFontSize(14);
-  doc.text("Features", 14, featuresY);
-  featuresY += 8;
-  
-  // Add feature list
-  doc.setFontSize(10);
-  if (property.features && Array.isArray(property.features) && property.features.length > 0) {
-    const featureChunks = [];
-    for (let i = 0; i < property.features.length; i += 2) {
-      featureChunks.push(property.features.slice(i, i + 2));
+  try {
+    const doc = new jsPDF();
+    
+    // Add header
+    doc.setFontSize(20);
+    doc.setTextColor(44, 62, 80); // Primary color
+    doc.text("Property Detail Report", 14, 20);
+    
+    // Add property title/address
+    doc.setFontSize(16);
+    doc.text(property.address, 14, 30);
+    
+    // Add property location
+    doc.setFontSize(12);
+    const neighborhoodText = property.neighborhood ? `${property.neighborhood}, ` : '';
+    doc.text(`${neighborhoodText}${property.city}, ${property.state} ${property.zipCode}`, 14, 38);
+    
+    // Add horizontal line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 42, 196, 42);
+    
+    // Add property overview
+    doc.setFontSize(14);
+    doc.setTextColor(44, 62, 80);
+    doc.text("Property Overview", 14, 50);
+    
+    // Create property details table - using the imported autoTable function directly
+    autoTable(doc, {
+      startY: 55,
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [44, 62, 80],
+        textColor: [255, 255, 255]
+      },
+      tableLineColor: [200, 200, 200],
+      tableLineWidth: 0.1,
+      head: [['Attribute', 'Value']],
+      body: [
+        ['Price', `$${Number(property.price).toLocaleString()}`],
+        ['Property Type', property.propertyType],
+        ['Status', property.status],
+        ['Bedrooms', property.bedrooms.toString()],
+        ['Bathrooms', property.bathrooms.toString()],
+        ['Square Feet', `${Number(property.squareFeet).toLocaleString()} sqft`],
+        ['Lot Size', property.lotSize ? `${Number(property.lotSize).toLocaleString()} sqft` : 'N/A'],
+        ['Year Built', property.yearBuilt ? property.yearBuilt.toString() : 'N/A'],
+        ['Price per SqFt', property.pricePerSqft ? `$${property.pricePerSqft}` : 'N/A'],
+        ['Days on Market', property.daysOnMarket ? property.daysOnMarket.toString() : 'N/A']
+      ],
+    });
+    
+    // Access the finalY position from the autoTable result
+    const finalY = (doc as any)['lastAutoTable'].finalY || 60;
+    
+    // Add features section
+    let featuresY = finalY + 15;
+    doc.setFontSize(14);
+    doc.text("Features", 14, featuresY);
+    featuresY += 8;
+    
+    // Add feature list
+    doc.setFontSize(10);
+    if (property.features && Array.isArray(property.features) && property.features.length > 0) {
+      const featureChunks = [];
+      for (let i = 0; i < property.features.length; i += 2) {
+        featureChunks.push(property.features.slice(i, i + 2));
+      }
+      
+      featureChunks.forEach(chunk => {
+        chunk.forEach((feature, index) => {
+          doc.text(`• ${feature}`, 14 + (index * 90), featuresY);
+        });
+        featuresY += 6;
+      });
+    } else {
+      doc.text("No features listed", 14, featuresY);
+      featuresY += 6;
     }
     
-    featureChunks.forEach(chunk => {
-      chunk.forEach((feature, index) => {
-        doc.text(`• ${feature}`, 14 + (index * 90), featuresY);
-      });
+    // Add description section
+    featuresY += 10;
+    doc.setFontSize(14);
+    doc.text("Description", 14, featuresY);
+    featuresY += 8;
+    
+    // Add description text
+    doc.setFontSize(10);
+    if (property.description) {
+      const splitDescription = doc.splitTextToSize(property.description, 180);
+      doc.text(splitDescription, 14, featuresY);
+      featuresY += (splitDescription.length * 6) + 10;
+    } else {
+      doc.text("No description available", 14, featuresY);
       featuresY += 6;
-    });
-  } else {
-    doc.text("No features listed", 14, featuresY);
-    featuresY += 6;
+    }
+    
+    // Add footer
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text(
+      `Generated by RealComp on ${new Date().toLocaleDateString()}`,
+      doc.internal.pageSize.width / 2, 
+      doc.internal.pageSize.height - 10, 
+      { align: 'center' }
+    );
+    
+    // Save the PDF
+    const filename = `${property.address.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(filename);
+    
+    return {
+      success: true,
+      filename: filename
+    };
+  } catch (error) {
+    console.error("Error generating property detail report:", error);
+    throw new Error(`Failed to generate property report: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  
-  // Add description section
-  featuresY += 10;
-  doc.setFontSize(14);
-  doc.text("Description", 14, featuresY);
-  featuresY += 8;
-  
-  // Add description text
-  doc.setFontSize(10);
-  if (property.description) {
-    const splitDescription = doc.splitTextToSize(property.description, 180);
-    doc.text(splitDescription, 14, featuresY);
-    featuresY += (splitDescription.length * 6) + 10;
-  } else {
-    doc.text("No description available", 14, featuresY);
-    featuresY += 6;
-  }
-  
-  // Add footer
-  doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text(
-    `Generated by RealComp on ${new Date().toLocaleDateString()}`,
-    doc.internal.pageSize.width / 2, 
-    doc.internal.pageSize.height - 10, 
-    { align: 'center' }
-  );
-  
-  // Save the PDF
-  const filename = `${property.address.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.pdf`;
-  doc.save(filename);
-  
-  return {
-    success: true,
-    filename: filename
-  };
 }
