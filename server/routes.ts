@@ -13,6 +13,8 @@ import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData
 import { testDatabaseConnection } from "./db";
 import { addApiKey, getApiKeysList, deleteApiKey, loadApiKeysIntoEnv } from "./routes/api-keys";
 import { requireAdmin, requirePermission } from "./middleware/permissions";
+import { Permission } from "@shared/permissions";
+import { login, logout, register, getCurrentUser, updateUserProfile, changePassword, getAllUsers, deleteUser } from "./routes/auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -307,6 +309,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Authentication routes
+  apiRouter.post("/auth/login", login);
+  apiRouter.post("/auth/logout", logout);
+  apiRouter.post("/auth/register", register);
+  apiRouter.get("/auth/me", getCurrentUser);
+  
+  // User management routes
+  apiRouter.patch("/users/:userId/profile", requirePermission(Permission.MANAGE_OWN_PROFILE), updateUserProfile);
+  apiRouter.post("/users/:userId/change-password", requirePermission(Permission.MANAGE_OWN_PROFILE), changePassword);
+  
+  // Admin user management routes
+  apiRouter.get("/users", requireAdmin(), getAllUsers);
+  apiRouter.delete("/users/:userId", requireAdmin(), deleteUser);
   
   // API key management routes (admin only)
   apiRouter.get("/system/api-keys", requireAdmin(), getApiKeysList);

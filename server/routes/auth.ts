@@ -1,116 +1,108 @@
-import { Request, Response } from 'express';
-import { storage } from '../storage';
-import { compare, hash } from 'bcrypt';
-import { User } from '@shared/schema';
-import { z } from 'zod';
+import { Request, Response } from "express";
+import { storage } from "../storage";
+import bcrypt from "bcrypt";
+import { User, insertUserSchema } from "@shared/schema";
+import { z } from "zod";
+import { Permission, UserRole, hasPermission } from "@shared/permissions";
 
-// Login schema
-const loginSchema = z.object({
-  username: z.string().min(1, { message: "Username is required" }),
-  password: z.string().min(1, { message: "Password is required" }),
-});
-
-// Register schema 
-const registerSchema = z.object({
-  username: z.string().min(3, { message: "Username must be at least 3 characters" }),
-  email: z.string().email({ message: "Valid email is required" }),
-  password: z.string().min(8, { message: "Password must be at least 8 characters" }),
-  fullName: z.string().optional(),
-  role: z.string().optional(),
-});
-
-// Update user schema
-const updateUserSchema = z.object({
-  username: z.string().min(3).optional(),
-  email: z.string().email().optional(),
-  fullName: z.string().optional(),
-  role: z.string().optional(),
-});
-
-// Password change schema
-const passwordChangeSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: z.string().min(8),
-});
-
-const SALT_ROUNDS = 10;
-
-// Helper function to hash passwords
-async function hashPassword(password: string): Promise<string> {
-  return await hash(password, SALT_ROUNDS);
+declare module "express-session" {
+  interface SessionData {
+    userId: number;
+  }
 }
 
-// Login handler
+// Password hashing utility function
+async function hashPassword(password: string): Promise<string> {
+  const saltRounds = 10;
+  return bcrypt.hash(password, saltRounds);
+}
+
+// Login Handler
 export async function login(req: Request, res: Response) {
   try {
-    // Validate input
-    const { username, password } = loginSchema.parse(req.body);
+    const { username, password } = req.body;
     
-    // Find user
+    if (!username || !password) {
+      return res.status(400).json({ message: "Username and password are required" });
+    }
+
     const user = await storage.getUserByUsername(username);
+    
     if (!user) {
       return res.status(401).json({ message: "Invalid username or password" });
     }
+
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     
-    // Check password
-    const passwordMatch = await compare(password, user.password);
-    if (!passwordMatch) {
+    if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid username or password" });
     }
-    
-    // Create session
+
+    // Set user session
     req.session.userId = user.id;
     
-    // Return user (without password)
+    // Return user without password
     const { password: _, ...userWithoutPassword } = user;
     return res.status(200).json(userWithoutPassword);
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid input", errors: error.errors });
-    }
     console.error("Login error:", error);
     return res.status(500).json({ message: "An error occurred during login" });
   }
 }
 
-// Register handler
+// Register Handler
 export async function register(req: Request, res: Response) {
   try {
-    // Validate input
-    const userData = registerSchema.parse(req.body);
+    // Validate incoming data
+    const userSchema = insertUserSchema.extend({
+      password: z.string().min(8, "Password must be at least 8 characters"),
+      email: z.string().email("Invalid email address"),
+    });
+    
+    const validatedData = userSchema.parse(req.body);
     
     // Check if username already exists
-    const existingUser = await storage.getUserByUsername(userData.username);
+    const existingUser = await storage.getUserByUsername(validatedData.username);
     if (existingUser) {
-      return res.status(409).json({ message: "Username already taken" });
+      return res.status(400).json({ message: "Username already taken" });
     }
     
     // Hash password
-    const hashedPassword = await hashPassword(userData.password);
+    const hashedPassword = await hashPassword(validatedData.password);
     
-    // Create user (regular user by default)
+    // Set role (first user is admin, others are regular users)
+    const users = await storage.getAllUsers();
+    const role = users.length === 0 ? UserRole.ADMIN : UserRole.USER;
+    
+    // Create user
     const user = await storage.createUser({
-      ...userData,
+      ...validatedData,
       password: hashedPassword,
-      role: userData.role || 'user',
+      role
     });
     
-    // Create session
+    // Set user session
     req.session.userId = user.id;
     
-    // Return user (without password)
+    // Return user without password
     const { password: _, ...userWithoutPassword } = user;
     return res.status(201).json(userWithoutPassword);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid input", errors: error.errors });
-    }
+  } catch (error: any) {
     console.error("Registration error:", error);
+    
+    if (error.name === "ZodError") {
+      return res.status(400).json({ 
+        message: "Validation error", 
+        errors: error.errors 
+      });
+    }
+    
     return res.status(500).json({ message: "An error occurred during registration" });
   }
 }
 
-// Logout handler
+// Logout Handler
 export function logout(req: Request, res: Response) {
   req.session.destroy((err) => {
     if (err) {
@@ -118,24 +110,26 @@ export function logout(req: Request, res: Response) {
       return res.status(500).json({ message: "An error occurred during logout" });
     }
     
-    res.clearCookie('connect.sid');
+    res.clearCookie("connect.sid");
     return res.status(200).json({ message: "Logged out successfully" });
   });
 }
 
-// Get current user handler
+// Get Current User Handler
 export async function getCurrentUser(req: Request, res: Response) {
-  if (!req.session.userId) {
-    return res.status(200).json(null);
-  }
-  
   try {
-    const user = await storage.getUser(req.session.userId);
-    if (!user) {
-      return res.status(200).json(null);
+    if (!req.session.userId) {
+      return res.status(401).json({ message: "Not authenticated" });
     }
     
-    // Return user (without password)
+    const user = await storage.getUser(req.session.userId);
+    
+    if (!user) {
+      req.session.destroy(() => {});
+      return res.status(401).json({ message: "User not found" });
+    }
+    
+    // Return user without password
     const { password: _, ...userWithoutPassword } = user;
     return res.status(200).json(userWithoutPassword);
   } catch (error) {
@@ -144,76 +138,73 @@ export async function getCurrentUser(req: Request, res: Response) {
   }
 }
 
-// Update user profile
+// Update User Profile Handler
 export async function updateUserProfile(req: Request, res: Response) {
-  const userId = parseInt(req.params.userId);
-  
-  // Ensure user exists
-  const user = await storage.getUser(userId);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  
-  // Check if user is updating their own profile or is an admin
-  if (req.session.userId !== userId && req.user?.role !== 'admin') {
-    return res.status(403).json({ message: "Forbidden: You can only update your own profile" });
-  }
-  
   try {
-    // Validate input
-    const updateData = updateUserSchema.parse(req.body);
+    const userId = parseInt(req.params.userId);
     
-    // If username is being changed, check if it already exists
-    if (updateData.username && updateData.username !== user.username) {
-      const existingUser = await storage.getUserByUsername(updateData.username);
-      if (existingUser) {
-        return res.status(409).json({ message: "Username already taken" });
-      }
+    // Ensure users can only update their own profile unless they're admin
+    if (req.session.userId !== userId && !hasPermission(req.user, Permission.MANAGE_USERS)) {
+      return res.status(403).json({ message: "Forbidden: You can only update your own profile" });
     }
     
-    // If non-admin tries to change role, block it
-    if (updateData.role && req.user?.role !== 'admin') {
-      delete updateData.role;
-    }
+    // Validate incoming data
+    const updateSchema = z.object({
+      email: z.string().email().optional(),
+      fullName: z.string().optional().nullable(),
+    });
+    
+    const validatedData = updateSchema.parse(req.body);
     
     // Update user
-    const updatedUser = await storage.updateUser(userId, updateData);
+    const updatedUser = await storage.updateUser(userId, validatedData);
     
-    // Return user (without password)
+    // Return user without password
     const { password: _, ...userWithoutPassword } = updatedUser;
     return res.status(200).json(userWithoutPassword);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid input", errors: error.errors });
+  } catch (error: any) {
+    console.error("Update profile error:", error);
+    
+    if (error.name === "ZodError") {
+      return res.status(400).json({ 
+        message: "Validation error", 
+        errors: error.errors 
+      });
     }
-    console.error("Update user error:", error);
-    return res.status(500).json({ message: "An error occurred while updating user" });
+    
+    return res.status(500).json({ message: "An error occurred while updating profile" });
   }
 }
 
-// Change password
+// Change Password Handler
 export async function changePassword(req: Request, res: Response) {
-  const userId = parseInt(req.params.userId);
-  
-  // Ensure user exists
-  const user = await storage.getUser(userId);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  
-  // Check if user is changing their own password or is an admin
-  if (req.session.userId !== userId && req.user?.role !== 'admin') {
-    return res.status(403).json({ message: "Forbidden: You can only change your own password" });
-  }
-  
   try {
-    // Validate input
-    const { currentPassword, newPassword } = passwordChangeSchema.parse(req.body);
+    const userId = parseInt(req.params.userId);
     
-    // Check current password (skip this check for admin)
+    // Ensure users can only change their own password unless they're admin
+    if (req.session.userId !== userId && !hasPermission(req.user, Permission.MANAGE_USERS)) {
+      return res.status(403).json({ message: "Forbidden: You can only change your own password" });
+    }
+    
+    // Validate incoming data
+    const passwordSchema = z.object({
+      currentPassword: z.string(),
+      newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    });
+    
+    const { currentPassword, newPassword } = passwordSchema.parse(req.body);
+    
+    // Get user
+    const user = await storage.getUser(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    // Skip current password check for admins changing other users' passwords
     if (req.session.userId === userId) {
-      const passwordMatch = await compare(currentPassword, user.password);
-      if (!passwordMatch) {
+      // Verify current password
+      const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isPasswordValid) {
         return res.status(401).json({ message: "Current password is incorrect" });
       }
     }
@@ -221,27 +212,32 @@ export async function changePassword(req: Request, res: Response) {
     // Hash new password
     const hashedPassword = await hashPassword(newPassword);
     
-    // Update password
+    // Update user
     await storage.updateUser(userId, { password: hashedPassword });
     
     return res.status(200).json({ message: "Password changed successfully" });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: "Invalid input", errors: error.errors });
+  } catch (error: any) {
+    console.error("Change password error:", error);
+    
+    if (error.name === "ZodError") {
+      return res.status(400).json({ 
+        message: "Validation error", 
+        errors: error.errors 
+      });
     }
-    console.error("Password change error:", error);
+    
     return res.status(500).json({ message: "An error occurred while changing password" });
   }
 }
 
-// Get all users (admin only)
+// Admin: Get All Users
 export async function getAllUsers(req: Request, res: Response) {
   try {
     const users = await storage.getAllUsers();
     
     // Return users without passwords
     const usersWithoutPasswords = users.map(user => {
-      const { password: _, ...userWithoutPassword } = user;
+      const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
     });
     
@@ -252,27 +248,30 @@ export async function getAllUsers(req: Request, res: Response) {
   }
 }
 
-// Delete user (admin only)
+// Admin: Delete User
 export async function deleteUser(req: Request, res: Response) {
-  const userId = parseInt(req.params.userId);
-  
-  // Ensure user exists
-  const user = await storage.getUser(userId);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  
   try {
-    // Don't allow deleting the last admin
-    if (user.role === 'admin') {
-      const admins = (await storage.getAllUsers()).filter(u => u.role === 'admin');
-      if (admins.length <= 1) {
-        return res.status(400).json({ message: "Cannot delete the last admin user" });
-      }
+    const userId = parseInt(req.params.userId);
+    
+    // Prevent admins from deleting themselves
+    if (req.session.userId === userId) {
+      return res.status(400).json({ message: "You cannot delete your own account" });
+    }
+    
+    // Prevent deleting the last admin
+    const users = await storage.getAllUsers();
+    const admins = users.filter(u => u.role === UserRole.ADMIN);
+    
+    if (admins.length === 1 && admins[0].id === userId) {
+      return res.status(400).json({ message: "Cannot delete the last admin user" });
     }
     
     // Delete user
-    await storage.deleteUser(userId);
+    const deleted = await storage.deleteUser(userId);
+    
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found" });
+    }
     
     return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
