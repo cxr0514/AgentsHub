@@ -365,6 +365,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // CSV/Spreadsheet import endpoint
+  apiRouter.post("/properties/import", async (req, res) => {
+    try {
+      const { properties } = req.body;
+      
+      if (!properties || !Array.isArray(properties) || properties.length === 0) {
+        return res.status(400).json({ 
+          message: "Valid property data is required",
+          imported: 0,
+          failed: 0
+        });
+      }
+      
+      // Process each property and import valid ones
+      const results = await Promise.allSettled(
+        properties.map(async (propertyData) => {
+          try {
+            // Validate the property data with partial schema (allow incomplete data)
+            // Ensure required fields are present
+            if (!propertyData.address || !propertyData.city || !propertyData.state || 
+                !propertyData.zipCode || !propertyData.price || !propertyData.propertyType) {
+              throw new Error("Missing required property fields");
+            }
+            
+            // Create a valid property object with all required fields
+            const validData = insertPropertySchema.parse({
+              address: propertyData.address,
+              city: propertyData.city,
+              state: propertyData.state,
+              zipCode: propertyData.zipCode,
+              price: propertyData.price?.toString() || "0",
+              bedrooms: Number(propertyData.bedrooms) || 0,
+              bathrooms: propertyData.bathrooms?.toString() || "0",
+              squareFeet: propertyData.squareFeet?.toString() || "0",
+              propertyType: propertyData.propertyType || "Unknown",
+              status: propertyData.status || "Unknown",
+              ...propertyData
+            });
+            
+            return await storage.createProperty(validData);
+          } catch (error) {
+            // Log validation errors but continue with other properties
+            console.warn("Invalid property data:", error);
+            throw error;
+          }
+        })
+      );
+      
+      // Count successful and failed imports
+      const imported = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
+      
+      res.status(201).json({
+        message: `Successfully imported ${imported} properties${failed > 0 ? `, ${failed} failed` : ''}`,
+        imported,
+        failed
+      });
+    } catch (error) {
+      console.error("Error importing properties:", error);
+      res.status(500).json({ 
+        message: "Failed to import properties", 
+        error: error instanceof Error ? error.message : "Unknown error",
+        imported: 0,
+        failed: req.body.properties?.length || 0
+      });
+    }
+  });
 
   // Reports routes
   apiRouter.get("/users/:userId/reports", async (req, res) => {

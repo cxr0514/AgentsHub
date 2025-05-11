@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import SearchFilters from "@/components/SearchFilters";
 import PropertyTable from "@/components/PropertyTable";
 import MapSearch from "@/components/MapSearch";
-import { Table, Map } from "lucide-react";
+import CsvUploadDialog from "@/components/CsvUploadDialog";
+import { Table, Map, Upload, FileUp } from "lucide-react";
 
 const PropertySearch = () => {
   const [searchFilters, setSearchFilters] = useState<Record<string, any>>({});
   const [viewMode, setViewMode] = useState<string>("list");
   const [properties, setProperties] = useState<Property[]>([]);
+  const [showCsvUploadDialog, setShowCsvUploadDialog] = useState(false);
   
   // Fetch properties
   const { data: fetchedProperties, isLoading } = useQuery({
@@ -89,23 +91,34 @@ const PropertySearch = () => {
                 Search for properties using advanced filters
               </p>
             </div>
-            <div className="inline-flex rounded-md shadow-sm">
+            <div className="flex gap-4">
               <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                className={`${viewMode === "list" ? "bg-primary hover:bg-primary/90" : ""} rounded-l-md rounded-r-none`}
-                onClick={() => setViewMode("list")}
+                variant="outline"
+                className="border-accent text-accent hover:bg-accent/10"
+                onClick={() => setShowCsvUploadDialog(true)}
               >
-                <Table className="h-4 w-4 mr-2" />
-                List View
+                <Upload className="h-4 w-4 mr-2" />
+                Import CSV
               </Button>
-              <Button
-                variant={viewMode === "map" ? "default" : "outline"}
-                className={`${viewMode === "map" ? "bg-primary hover:bg-primary/90" : ""} rounded-l-none rounded-r-md`}
-                onClick={() => setViewMode("map")}
-              >
-                <Map className="h-4 w-4 mr-2" />
-                Map View
-              </Button>
+              
+              <div className="inline-flex rounded-md shadow-sm">
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  className={`${viewMode === "list" ? "bg-primary hover:bg-primary/90" : ""} rounded-l-md rounded-r-none`}
+                  onClick={() => setViewMode("list")}
+                >
+                  <Table className="h-4 w-4 mr-2" />
+                  List View
+                </Button>
+                <Button
+                  variant={viewMode === "map" ? "default" : "outline"}
+                  className={`${viewMode === "map" ? "bg-primary hover:bg-primary/90" : ""} rounded-l-none rounded-r-md`}
+                  onClick={() => setViewMode("map")}
+                >
+                  <Map className="h-4 w-4 mr-2" />
+                  Map View
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -148,6 +161,12 @@ const PropertySearch = () => {
           </div>
         )}
       </div>
+      
+      {/* CSV Upload Dialog */}
+      <CsvUploadDialog 
+        open={showCsvUploadDialog}
+        onOpenChange={setShowCsvUploadDialog}
+      />
     </>
   );
 };
