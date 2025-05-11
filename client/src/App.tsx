@@ -4,36 +4,21 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
-import { PermissionsProvider } from "@/hooks/use-permissions";
+import { ProtectedRoute } from "./lib/protected-route";
 
-import Layout from "@/components/Layout";
-import Dashboard from "@/pages/Dashboard";
-import PropertySearch from "@/pages/PropertySearch";
-import PropertyDetail from "@/pages/PropertyDetail";
-import MarketAnalysis from "@/pages/MarketAnalysis";
-import SavedProperties from "@/pages/SavedProperties";
-import Reports from "@/pages/Reports";
-import CMAGenerator from "@/pages/CMAGenerator";
-import DocumentGenerator from "@/pages/DocumentGenerator";
-import ApiKeyManagement from "@/pages/ApiKeyManagement";
+import HomePage from "@/pages/home-page";
+import AuthPage from "@/pages/auth-page";
+import ApiKeyManagement from "@/pages/api-key-management";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
-    <Layout>
-      <Switch>
-        <Route path="/" component={Dashboard} />
-        <Route path="/search" component={PropertySearch} />
-        <Route path="/properties/:id" component={PropertyDetail} />
-        <Route path="/market" component={MarketAnalysis} />
-        <Route path="/saved" component={SavedProperties} />
-        <Route path="/reports" component={Reports} />
-        <Route path="/cma-generator" component={CMAGenerator} />
-        <Route path="/documents" component={DocumentGenerator} />
-        <Route path="/settings/api-keys" component={ApiKeyManagement} />
-        <Route component={NotFound} />
-      </Switch>
-    </Layout>
+    <Switch>
+      <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/api-keys" component={ApiKeyManagement} />
+      <Route path="/auth" component={AuthPage} />
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 
@@ -43,9 +28,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <AuthProvider>
-          <PermissionsProvider>
-            <Router />
-          </PermissionsProvider>
+          <Router />
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

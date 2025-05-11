@@ -8,16 +8,14 @@ interface PermissionGuardProps {
   fallback?: ReactNode;
 }
 
-export function PermissionGuard({ permission, children, fallback }: PermissionGuardProps) {
+export function PermissionGuard({ permission, children, fallback = null }: PermissionGuardProps) {
   const { user } = useAuth();
   
-  if (!user) {
-    return fallback ? <>{fallback}</> : null;
-  }
-  
+  // Check if the user has the required permission
   if (hasPermission(user, permission)) {
     return <>{children}</>;
   }
   
-  return fallback ? <>{fallback}</> : null;
+  // Return fallback if user doesn't have permission
+  return <>{fallback}</>;
 }
