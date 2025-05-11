@@ -11,6 +11,7 @@ import PropertyDetail from "@/pages/PropertyDetail";
 import MarketAnalysis from "@/pages/MarketAnalysis";
 import SavedProperties from "@/pages/SavedProperties";
 import Reports from "@/pages/Reports";
+import CMAGenerator from "@/pages/CMAGenerator";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -23,6 +24,7 @@ function Router() {
         <Route path="/market" component={MarketAnalysis} />
         <Route path="/saved" component={SavedProperties} />
         <Route path="/reports" component={Reports} />
+        <Route path="/cma-generator" component={CMAGenerator} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

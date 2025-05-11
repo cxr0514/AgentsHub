@@ -10,7 +10,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Property, Report } from "@shared/schema";
-import { FileText, Download, Trash2, PlusCircle, Calendar } from "lucide-react";
+import { FileText, Download, Trash2, PlusCircle, Calendar, BarChart2 } from "lucide-react";
+import { Link } from "wouter";
 
 // Mock user ID - in a real app this would come from auth
 const userId = 1;
@@ -223,86 +224,94 @@ const Reports = () => {
               Create and manage property comparison reports
             </p>
           </div>
-          <Dialog open={showNewReportDialog} onOpenChange={setShowNewReportDialog}>
-            <DialogTrigger asChild>
-              <Button className="bg-accent hover:bg-accent/90">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Report
+          <div className="flex gap-2">
+            <Link href="/cma-generator">
+              <Button variant="outline" className="border-accent text-accent hover:bg-accent/10">
+                <BarChart2 className="mr-2 h-4 w-4" />
+                CMA Generator
               </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Create New Report</DialogTitle>
-                <DialogDescription>
-                  Select properties to include in your comparison report.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 mt-4">
-                <div>
-                  <Label htmlFor="title">Report Title</Label>
-                  <Input
-                    id="title"
-                    value={newReportTitle}
-                    onChange={(e) => setNewReportTitle(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description (Optional)</Label>
-                  <Input
-                    id="description"
-                    value={newReportDescription}
-                    onChange={(e) => setNewReportDescription(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label>Select Properties</Label>
-                  <div className="border border-border rounded-md mt-2 max-h-60 overflow-y-auto">
-                    {properties && properties.length > 0 ? (
-                      <div className="divide-y divide-border">
-                        {properties.map((property: Property) => (
-                          <div 
-                            key={property.id} 
-                            className={`flex items-center p-3 cursor-pointer hover:bg-muted ${
-                              selectedPropertyIds.includes(property.id) ? 'bg-accent/10' : ''
-                            }`}
-                            onClick={() => togglePropertySelection(property.id)}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedPropertyIds.includes(property.id)}
-                              onChange={() => {}}
-                              className="mr-3"
-                            />
-                            <div className="flex-1">
-                              <div className="font-medium">{property.address}</div>
-                              <div className="text-sm text-text-secondary">
-                                {property.city}, {property.state} - ${Number(property.price).toLocaleString()}
+            </Link>
+            <Dialog open={showNewReportDialog} onOpenChange={setShowNewReportDialog}>
+              <DialogTrigger asChild>
+                <Button className="bg-accent hover:bg-accent/90">
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  New Report
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Create New Report</DialogTitle>
+                  <DialogDescription>
+                    Select properties to include in your comparison report.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <Label htmlFor="title">Report Title</Label>
+                    <Input
+                      id="title"
+                      value={newReportTitle}
+                      onChange={(e) => setNewReportTitle(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Input
+                      id="description"
+                      value={newReportDescription}
+                      onChange={(e) => setNewReportDescription(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Select Properties</Label>
+                    <div className="border border-border rounded-md mt-2 max-h-60 overflow-y-auto">
+                      {properties && properties.length > 0 ? (
+                        <div className="divide-y divide-border">
+                          {properties.map((property: Property) => (
+                            <div 
+                              key={property.id} 
+                              className={`flex items-center p-3 cursor-pointer hover:bg-muted ${
+                                selectedPropertyIds.includes(property.id) ? 'bg-accent/10' : ''
+                              }`}
+                              onClick={() => togglePropertySelection(property.id)}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedPropertyIds.includes(property.id)}
+                                onChange={() => {}}
+                                className="mr-3"
+                              />
+                              <div className="flex-1">
+                                <div className="font-medium">{property.address}</div>
+                                <div className="text-sm text-text-secondary">
+                                  {property.city}, {property.state} - ${Number(property.price).toLocaleString()}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="p-4 text-center text-text-secondary">
-                        No properties available
-                      </div>
-                    )}
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-4 text-center text-text-secondary">
+                          No properties available
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setShowNewReportDialog(false)}>
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleCreateReport}
-                  disabled={!newReportTitle || selectedPropertyIds.length === 0}
-                >
-                  Create Report
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowNewReportDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleCreateReport}
+                    disabled={!newReportTitle || selectedPropertyIds.length === 0}
+                  >
+                    Create Report
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {!reports || reports.length === 0 ? (
@@ -336,7 +345,9 @@ const Reports = () => {
                   <p className="text-sm mt-2">
                     {typeof report.properties === 'string' 
                       ? `${JSON.parse(report.properties).length} properties included` 
-                      : `${report.properties.length} properties included`}
+                      : Array.isArray(report.properties) 
+                        ? `${report.properties.length} properties included`
+                        : "Properties included"}
                   </p>
                 </CardContent>
                 <CardFooter className="flex justify-between">
