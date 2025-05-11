@@ -27,7 +27,7 @@ const Sidebar = () => {
             <Link key={item.path} href={item.path}>
               <div className={`flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer ${
                 location === item.path 
-                  ? 'bg-accent bg-opacity-10 text-accent' 
+                  ? 'bg-blue-500 text-white font-medium' 
                   : 'hover:bg-gray-100'
               }`}>
                 {item.icon}
