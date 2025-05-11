@@ -133,7 +133,7 @@ const CsvUploadDialog = ({ open, onOpenChange }: CsvUploadDialogProps) => {
         <div className="space-y-4 mt-4">
           {!uploadResults && (
             <>
-              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+              <div className="border-2 border-dashed border-border rounded-lg p-6 text-center relative">
                 {file ? (
                   <div className="space-y-2">
                     <FileText className="h-10 w-10 mx-auto text-primary" />
@@ -208,12 +208,18 @@ const CsvUploadDialog = ({ open, onOpenChange }: CsvUploadDialogProps) => {
           )}
         </div>
         
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isUploading}>
+        <DialogFooter className="gap-2">
+          <Button 
+            type="button"
+            variant="outline" 
+            onClick={handleClose} 
+            disabled={isUploading}
+          >
             {uploadResults ? 'Close' : 'Cancel'}
           </Button>
           {!uploadResults && (
             <Button 
+              type="button"
               onClick={handleUpload} 
               disabled={!file || isUploading}
               className="bg-primary hover:bg-primary/90"

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useToast } from "@/hooks/use-toast";
+import { generatePropertyComparisonReport } from "@/lib/pdfGenerator";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Property } from "@shared/schema";
@@ -15,7 +17,8 @@ import {
 import { 
   ArrowDownNarrowWide, 
   Trash2, 
-  FileText 
+  FileText, 
+  Download
 } from "lucide-react";
 
 interface PropertyTableProps {
@@ -25,9 +28,11 @@ interface PropertyTableProps {
 }
 
 const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExport = true }: PropertyTableProps) => {
+  const { toast } = useToast();
   const [, navigate] = useLocation();
   const [sortBy, setSortBy] = useState<string>("price");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [isExporting, setIsExporting] = useState(false);
 
   const queryString = new URLSearchParams(filters).toString();
   
@@ -75,6 +80,42 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
     } else {
       setSortBy(column);
       setSortOrder("asc");
+    }
+  };
+  
+  const handleExportReport = async () => {
+    if (!properties || properties.length === 0) {
+      toast({
+        title: "No properties to export",
+        description: "Please select at least one property to include in the report",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsExporting(true);
+    
+    try {
+      // Generate and download the PDF report
+      const result = await generatePropertyComparisonReport(
+        sortedProperties,
+        `${title} - ${new Date().toLocaleDateString()}`
+      );
+      
+      toast({
+        title: "Report generated",
+        description: `Your report "${result.filename}" has been downloaded`,
+        variant: "default"
+      });
+    } catch (error) {
+      console.error("Error generating report:", error);
+      toast({
+        title: "Report generation failed",
+        description: error instanceof Error ? error.message : "Unknown error generating report",
+        variant: "destructive"
+      });
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -136,9 +177,24 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
               <Trash2 className="h-4 w-4 mr-1" />
               Clear
             </Button>
-            <Button variant="default" size="sm" className="flex items-center bg-accent hover:bg-accent/90">
-              <FileText className="h-4 w-4 mr-1" />
-              Export Report
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="flex items-center bg-accent hover:bg-accent/90"
+              onClick={handleExportReport}
+              disabled={isExporting || !properties || properties.length === 0}
+            >
+              {isExporting ? (
+                <>
+                  <span className="h-4 w-4 mr-1 animate-spin">◌</span>
+                  Exporting...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4 mr-1" />
+                  Export Report
+                </>
+              )}
             </Button>
           </div>
         )}
