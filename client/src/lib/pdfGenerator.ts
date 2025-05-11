@@ -5,8 +5,10 @@ import 'jspdf-autotable';
 // Add missing types for jsPDF-AutoTable plugin
 declare module 'jspdf' {
   interface jsPDF {
-    autoTable: (options: any) => any;
-    lastAutoTable: any;
+    autoTable: (options: any) => jsPDF;
+    lastAutoTable: {
+      finalY: number;
+    };
   }
 }
 
@@ -52,7 +54,7 @@ export async function generatePropertyComparisonReport(properties: Property[], t
   });
   
   // Add property details
-  let yPos = (doc as any).lastAutoTable.finalY + 20;
+  let yPos = doc.lastAutoTable.finalY + 20;
   
   properties.forEach(property => {
     if (yPos > 250) {
@@ -176,7 +178,7 @@ export async function generatePropertyDetailReport(property: Property) {
   });
   
   // Add features section
-  let featuresY = (doc as any).lastAutoTable.finalY + 15;
+  let featuresY = doc.lastAutoTable.finalY + 15;
   doc.setFontSize(14);
   doc.text("Features", 14, featuresY);
   featuresY += 8;
