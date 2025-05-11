@@ -8,13 +8,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { 
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, ChevronDown, ChevronUp, Plus, X } from "lucide-react";
+import { format } from "date-fns";
 
 interface SearchFiltersProps {
   onSearch: (filters: any) => void;
 }
 
 const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
+  // Basic filters
   const [location, setLocation] = useState<string>("San Francisco, CA");
   const [propertyType, setPropertyType] = useState<string>("Single Family");
   const [minPrice, setMinPrice] = useState<string>("500000");
@@ -22,33 +38,90 @@ const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
   const [beds, setBeds] = useState<string>("3+");
   const [baths, setBaths] = useState<string>("2+");
   
+  // Advanced filters
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState<boolean>(false);
+  const [zipCode, setZipCode] = useState<string>("");
+  const [radius, setRadius] = useState<string>("5");
+  const [minSqft, setMinSqft] = useState<string>("");
+  const [maxSqft, setMaxSqft] = useState<string>("");
+  const [hasBasement, setHasBasement] = useState<boolean>(false);
+  const [hasGarage, setHasGarage] = useState<boolean>(false);
+  const [minGarageSpaces, setMinGarageSpaces] = useState<string>("0");
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(["Active"]);
+  const [saleDateStart, setSaleDateStart] = useState<Date | undefined>(undefined);
+  const [saleDateEnd, setSaleDateEnd] = useState<Date | undefined>(undefined);
+  
   const handleSearch = () => {
+    // Extract numeric values from formatted inputs
     const minBedsValue = beds.replace("+", "");
     const minBathsValue = baths.replace("+", "");
     
-    const filters = {
+    // Calculate bed/bath ranges for comps (±1)
+    const maxBedsValue = parseInt(minBedsValue) + 1;
+    const maxBathsValue = (parseFloat(minBathsValue) + 1).toString();
+    
+    // Build the filter object
+    const filters: any = {
       location,
       propertyType,
       minPrice,
       maxPrice,
       minBeds: minBedsValue,
-      minBaths: minBathsValue
+      maxBeds: maxBedsValue.toString(),
+      minBaths: minBathsValue,
+      maxBaths: maxBathsValue,
+      statusList: selectedStatuses
     };
+    
+    // Add advanced filters if enabled
+    if (showAdvancedFilters) {
+      if (zipCode) filters.zipCode = zipCode;
+      if (radius) filters.radius = radius;
+      if (minSqft) filters.minSqft = minSqft;
+      if (maxSqft) filters.maxSqft = maxSqft;
+      if (hasBasement) filters.hasBasement = hasBasement;
+      if (hasGarage) filters.hasGarage = hasGarage;
+      if (parseInt(minGarageSpaces) > 0) filters.minGarageSpaces = parseInt(minGarageSpaces);
+      if (saleDateStart) filters.saleDateStart = format(saleDateStart, 'yyyy-MM-dd');
+      if (saleDateEnd) filters.saleDateEnd = format(saleDateEnd, 'yyyy-MM-dd');
+    }
     
     onSearch(filters);
   };
   
   const handleClear = () => {
+    // Reset basic filters
     setLocation("San Francisco, CA");
     setPropertyType("Single Family");
     setMinPrice("500000");
     setMaxPrice("1200000");
     setBeds("3+");
     setBaths("2+");
+    
+    // Reset advanced filters
+    setZipCode("");
+    setRadius("5");
+    setMinSqft("");
+    setMaxSqft("");
+    setHasBasement(false);
+    setHasGarage(false);
+    setMinGarageSpaces("0");
+    setSelectedStatuses(["Active"]);
+    setSaleDateStart(undefined);
+    setSaleDateEnd(undefined);
+  };
+  
+  const toggleStatus = (status: string) => {
+    if (selectedStatuses.includes(status)) {
+      setSelectedStatuses(selectedStatuses.filter(s => s !== status));
+    } else {
+      setSelectedStatuses([...selectedStatuses, status]);
+    }
   };
   
   return (
     <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+      {/* Basic Filters */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
           <label className="block text-sm font-medium mb-1">Location</label>
@@ -135,10 +208,196 @@ const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
         </div>
       </div>
       
+      {/* Advanced Filters */}
+      {showAdvancedFilters && (
+        <div className="mt-4 border-t pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Location Filters */}
+            <div>
+              <label className="block text-sm font-medium mb-1">ZIP Code</label>
+              <Input 
+                type="text" 
+                placeholder="Enter ZIP code"
+                value={zipCode}
+                onChange={(e) => setZipCode(e.target.value)}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Search Radius (miles)</label>
+              <Select value={radius} onValueChange={setRadius}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select radius" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1 mile</SelectItem>
+                  <SelectItem value="5">5 miles</SelectItem>
+                  <SelectItem value="10">10 miles</SelectItem>
+                  <SelectItem value="25">25 miles</SelectItem>
+                  <SelectItem value="50">50 miles</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Square Footage */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Square Footage</label>
+              <div className="flex items-center">
+                <Input
+                  type="text"
+                  placeholder="Min sqft"
+                  value={minSqft ? Number(minSqft).toLocaleString() : ""}
+                  onChange={(e) => setMinSqft(e.target.value.replace(/[^0-9]/g, ''))}
+                  className="rounded-l-md rounded-r-none"
+                />
+                <div className="px-2">-</div>
+                <Input
+                  type="text"
+                  placeholder="Max sqft"
+                  value={maxSqft ? Number(maxSqft).toLocaleString() : ""}
+                  onChange={(e) => setMaxSqft(e.target.value.replace(/[^0-9]/g, ''))}
+                  className="rounded-l-none rounded-r-md"
+                />
+              </div>
+            </div>
+            
+            {/* Property Features */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Property Status</label>
+              <div className="flex flex-wrap gap-2">
+                {['Active', 'Pending', 'Sold'].map(status => (
+                  <div 
+                    key={status}
+                    className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
+                      selectedStatuses.includes(status) 
+                        ? 'bg-primary text-white' 
+                        : 'bg-gray-100 text-gray-700'
+                    }`}
+                    onClick={() => toggleStatus(status)}
+                  >
+                    {status}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Additional Filters */}
+            <div>
+              <label className="block text-sm font-medium mb-2">Additional Features</label>
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="has-basement" 
+                    checked={hasBasement}
+                    onCheckedChange={(checked) => setHasBasement(!!checked)}
+                  />
+                  <label htmlFor="has-basement" className="text-sm">Has Basement</label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="has-garage" 
+                    checked={hasGarage}
+                    onCheckedChange={(checked) => setHasGarage(!!checked)}
+                  />
+                  <label htmlFor="has-garage" className="text-sm">Has Garage</label>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1">Min. Garage Spaces</label>
+              <Select value={minGarageSpaces} onValueChange={setMinGarageSpaces}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select minimum" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">Any</SelectItem>
+                  <SelectItem value="1">1+</SelectItem>
+                  <SelectItem value="2">2+</SelectItem>
+                  <SelectItem value="3">3+</SelectItem>
+                  <SelectItem value="4">4+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Sale Date Range (for Sold comps) */}
+            <div className="col-span-1 md:col-span-2 lg:col-span-3">
+              <label className="block text-sm font-medium mb-1">Sale Date Range (for Sold comps)</label>
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="w-full sm:w-auto">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {saleDateStart ? format(saleDateStart, 'PPP') : 'Start date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={saleDateStart}
+                        onSelect={setSaleDateStart}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                <div className="w-full sm:w-auto">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full justify-start text-left">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {saleDateEnd ? format(saleDateEnd, 'PPP') : 'End date'}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={saleDateEnd}
+                        onSelect={setSaleDateEnd}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                {(saleDateStart || saleDateEnd) && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => {
+                      setSaleDateStart(undefined);
+                      setSaleDateEnd(undefined);
+                    }}
+                  >
+                    <X className="h-4 w-4 mr-1" />
+                    Clear dates
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="flex justify-between mt-4">
-        <Button variant="link" className="text-accent hover:text-accent/80 font-medium">
-          <Plus className="h-5 w-5 mr-1" />
-          More Filters
+        <Button 
+          variant="link" 
+          className="text-accent hover:text-accent/80 font-medium"
+          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+        >
+          {showAdvancedFilters ? (
+            <>
+              <ChevronUp className="h-5 w-5 mr-1" />
+              Hide Advanced Filters
+            </>
+          ) : (
+            <>
+              <Plus className="h-5 w-5 mr-1" />
+              Show Advanced Filters
+            </>
+          )}
         </Button>
         <div className="flex space-x-2">
           <Button variant="outline" onClick={handleClear}>Clear</Button>

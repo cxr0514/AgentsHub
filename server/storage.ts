@@ -51,11 +51,24 @@ export interface PropertyFilters {
   minPrice?: number;
   maxPrice?: number;
   minBeds?: number;
+  maxBeds?: number; // For bed range (±1)
   minBaths?: number;
+  maxBaths?: number; // For bath range (±1)
   minSqft?: number;
   maxSqft?: number;
-  status?: string;
+  status?: string; // Active, Pending, Sold
+  statusList?: string[]; // Multiple statuses
   yearBuilt?: number;
+  zipCode?: string;
+  radius?: number; // Miles radius for location search
+  lat?: number; // Latitude for radius search
+  lng?: number; // Longitude for radius search
+  hasBasement?: boolean;
+  hasGarage?: boolean;
+  minGarageSpaces?: number;
+  saleDate?: Date; // For filtering sold comps by date
+  saleDateStart?: string; // For sale date range
+  saleDateEnd?: string; // For sale date range
 }
 
 export class MemStorage implements IStorage {
@@ -565,6 +578,11 @@ export class DatabaseStorage implements IStorage {
         )
       );
     }
+    
+    // Filter by zip code exact match
+    if (filters.zipCode) {
+      conditions.push(eq(properties.zipCode, filters.zipCode));
+    }
 
     if (filters.propertyType) {
       conditions.push(eq(properties.propertyType, filters.propertyType));
@@ -578,14 +596,25 @@ export class DatabaseStorage implements IStorage {
       conditions.push(lte(properties.price, filters.maxPrice.toString()));
     }
 
+    // Beds filtering - exact or range
     if (filters.minBeds) {
       conditions.push(gte(properties.bedrooms, filters.minBeds));
     }
+    
+    if (filters.maxBeds) {
+      conditions.push(lte(properties.bedrooms, filters.maxBeds));
+    }
 
+    // Baths filtering - exact or range
     if (filters.minBaths && !isNaN(Number(filters.minBaths))) {
       conditions.push(gte(properties.bathrooms, filters.minBaths.toString()));
     }
+    
+    if (filters.maxBaths && !isNaN(Number(filters.maxBaths))) {
+      conditions.push(lte(properties.bathrooms, filters.maxBaths.toString()));
+    }
 
+    // Square footage filtering
     if (filters.minSqft) {
       conditions.push(gte(properties.squareFeet, filters.minSqft.toString()));
     }
@@ -594,12 +623,62 @@ export class DatabaseStorage implements IStorage {
       conditions.push(lte(properties.squareFeet, filters.maxSqft.toString()));
     }
 
+    // Status filtering - single status or list of statuses
     if (filters.status) {
       conditions.push(eq(properties.status, filters.status));
+    } else if (filters.statusList && filters.statusList.length > 0) {
+      const statusConditions = filters.statusList.map(status => eq(properties.status, status));
+      conditions.push(or(...statusConditions));
     }
 
+    // Year built filtering
     if (filters.yearBuilt) {
       conditions.push(eq(properties.yearBuilt, filters.yearBuilt));
+    }
+    
+    // Basement filtering
+    if (filters.hasBasement !== undefined) {
+      conditions.push(eq(properties.hasBasement, filters.hasBasement));
+    }
+    
+    // Garage filtering
+    if (filters.hasGarage !== undefined) {
+      conditions.push(eq(properties.hasGarage, filters.hasGarage));
+    }
+    
+    if (filters.minGarageSpaces) {
+      conditions.push(gte(properties.garageSpaces, filters.minGarageSpaces));
+    }
+    
+    // Sale date filtering for sold comps
+    if (filters.saleDate) {
+      conditions.push(eq(properties.saleDate, filters.saleDate));
+    }
+    
+    if (filters.saleDateStart) {
+      const startDate = new Date(filters.saleDateStart);
+      conditions.push(gte(properties.saleDate, startDate));
+    }
+    
+    if (filters.saleDateEnd) {
+      const endDate = new Date(filters.saleDateEnd);
+      conditions.push(lte(properties.saleDate, endDate));
+    }
+    
+    // Distance-based search using lat/lng (to be implemented with a geospatial function)
+    // This is a basic implementation and would need to be improved with proper distance calculation 
+    if (filters.lat && filters.lng && filters.radius) {
+      // Simple bounding box as placeholder - proper implementation would use PostGIS or similar
+      // Approximate conversion from miles to degrees (rough estimation)
+      const milesPerDegree = 69; // ~69 miles per degree of latitude
+      const degreeDelta = filters.radius / milesPerDegree;
+      
+      conditions.push(gte(properties.latitude, filters.lat - degreeDelta));
+      conditions.push(lte(properties.latitude, filters.lat + degreeDelta));
+      
+      // Longitude degrees vary based on latitude, this is a simplification
+      conditions.push(gte(properties.longitude, filters.lng - degreeDelta));
+      conditions.push(lte(properties.longitude, filters.lng + degreeDelta));
     }
 
     // Apply conditions if any exist
