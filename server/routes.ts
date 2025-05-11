@@ -12,6 +12,7 @@ import {
 import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService";
 import { testDatabaseConnection } from "./db";
 import { addApiKey, getApiKeysList, deleteApiKey, loadApiKeysIntoEnv } from "./routes/api-keys";
+import { requireAdmin, requirePermission } from "./middleware/permissions";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -307,10 +308,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // API key management routes
-  apiRouter.get("/system/api-keys", getApiKeysList);
-  apiRouter.post("/system/api-keys", addApiKey);
-  apiRouter.delete("/system/api-keys/:id", deleteApiKey);
+  // API key management routes (admin only)
+  apiRouter.get("/system/api-keys", requireAdmin(), getApiKeysList);
+  apiRouter.post("/system/api-keys", requireAdmin(), addApiKey);
+  apiRouter.delete("/system/api-keys/:id", requireAdmin(), deleteApiKey);
 
   // MLS data synchronization and status routes
   apiRouter.get("/mls/sync", async (req, res) => {
