@@ -466,7 +466,7 @@ export default function SearchPage() {
                       <SelectValue placeholder="All Property Types" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Property Types</SelectItem>
+                      <SelectItem value="all">All Property Types</SelectItem>
                       <SelectItem value="Single Family">Single Family</SelectItem>
                       <SelectItem value="Condo">Condo</SelectItem>
                       <SelectItem value="Townhouse">Townhouse</SelectItem>
@@ -487,7 +487,7 @@ export default function SearchPage() {
                       <SelectValue placeholder="Any Status" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any Status</SelectItem>
+                      <SelectItem value="any">Any Status</SelectItem>
                       <SelectItem value="Active">Active</SelectItem>
                       <SelectItem value="Pending">Pending</SelectItem>
                       <SelectItem value="Sold">Sold</SelectItem>
@@ -508,7 +508,7 @@ export default function SearchPage() {
                         <SelectValue placeholder="Min Price" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No Min</SelectItem>
+                        <SelectItem value="no_min">No Min</SelectItem>
                         <SelectItem value="50000">$50K</SelectItem>
                         <SelectItem value="100000">$100K</SelectItem>
                         <SelectItem value="200000">$200K</SelectItem>
