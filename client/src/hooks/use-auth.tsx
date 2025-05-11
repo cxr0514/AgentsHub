@@ -23,7 +23,7 @@ type LoginData = {
   password: string;
 };
 
-type RegisterData = z.infer<typeof insertUserSchema>;
+type RegisterData = z.infer<typeof insertUserSchema> & { confirmPassword?: string };
 
 export const AuthContext = createContext<AuthContextType | null>(null);
 
