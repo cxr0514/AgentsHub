@@ -28,6 +28,7 @@ function Router() {
         <Route path="/reports" component={Reports} />
         <Route path="/cma-generator" component={CMAGenerator} />
         <Route path="/documents" component={DocumentGenerator} />
+        <Route path="/settings/api-keys" component={ApiKeyManagement} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

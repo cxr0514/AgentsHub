@@ -95,7 +95,7 @@ const ApiKeyManagement = () => {
   });
 
   // Query to fetch API keys
-  const { data: apiKeys, isLoading, refetch } = useQuery({
+  const { data: apiKeys = [], isLoading, refetch } = useQuery<ApiKey[]>({
     queryKey: ["/api/system/api-keys"],
     refetchOnWindowFocus: false,
   });
