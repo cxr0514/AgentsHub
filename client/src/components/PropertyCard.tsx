@@ -83,29 +83,32 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
-  switch (status.toLowerCase()) {
+  // Ensure we have a valid status string
+  const statusText = status?.toString() || 'Unknown';
+  
+  switch (statusText.toLowerCase()) {
     case 'active':
       return (
-        <Badge variant="outline" className="bg-success bg-opacity-10 text-success border-success">
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
           Active
         </Badge>
       );
     case 'pending':
       return (
-        <Badge variant="outline" className="bg-secondary bg-opacity-10 text-secondary border-secondary">
+        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200">
           Pending
         </Badge>
       );
     case 'sold':
       return (
-        <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300">
+        <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200">
           Sold
         </Badge>
       );
     default:
       return (
-        <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300">
-          {status}
+        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
+          {statusText}
         </Badge>
       );
   }

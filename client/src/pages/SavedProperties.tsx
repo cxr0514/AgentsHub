@@ -246,29 +246,32 @@ const SavedProperties = () => {
 };
 
 const StatusBadge = ({ status }: { status: string }) => {
-  switch (status.toLowerCase()) {
+  // Ensure we have a valid status string
+  const statusText = status?.toString() || 'Unknown';
+  
+  switch (statusText.toLowerCase()) {
     case 'active':
       return (
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-success bg-opacity-10 text-success">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
           Active
         </span>
       );
     case 'pending':
       return (
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-secondary bg-opacity-10 text-secondary">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
           Pending
         </span>
       );
     case 'sold':
       return (
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
           Sold
         </span>
       );
     default:
       return (
-        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-          {status}
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+          {statusText}
         </span>
       );
   }
