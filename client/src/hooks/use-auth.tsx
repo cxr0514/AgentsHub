@@ -34,13 +34,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     error,
     isLoading,
   } = useQuery<User | null>({
-    queryKey: ["/api/auth/me"],
+    queryKey: ["/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      const res = await apiRequest("POST", "/api/auth/login", credentials);
+      const res = await apiRequest("POST", "/auth/login", credentials);
       return await res.json();
     },
     onSuccess: (user: User) => {
