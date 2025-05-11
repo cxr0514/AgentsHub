@@ -343,6 +343,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Advanced property search for Comp Matching Engine
+  apiRouter.post("/properties/search", async (req, res) => {
+    try {
+      const { filters } = req.body;
+      
+      if (!filters) {
+        return res.status(400).json({ message: "Filters are required" });
+      }
+      
+      // Use the integration service to search with advanced filters
+      const properties = await searchProperties(filters);
+      
+      res.json(properties);
+    } catch (error) {
+      console.error("Error searching properties:", error);
+      res.status(500).json({ 
+        message: "Failed to search properties",
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
 
   // Reports routes
   apiRouter.get("/users/:userId/reports", async (req, res) => {
