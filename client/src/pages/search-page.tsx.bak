@@ -527,7 +527,7 @@ export default function SearchPage() {
                         <SelectValue placeholder="Max Price" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="no_max">No Max</SelectItem>
+                        <SelectItem value="">No Max</SelectItem>
                         <SelectItem value="200000">$200K</SelectItem>
                         <SelectItem value="300000">$300K</SelectItem>
                         <SelectItem value="500000">$500K</SelectItem>
@@ -551,7 +551,7 @@ export default function SearchPage() {
                         <SelectValue placeholder="Beds" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="any">Any</SelectItem>
+                        <SelectItem value="">Any</SelectItem>
                         <SelectItem value="1">1+</SelectItem>
                         <SelectItem value="2">2+</SelectItem>
                         <SelectItem value="3">3+</SelectItem>
@@ -568,7 +568,7 @@ export default function SearchPage() {
                         <SelectValue placeholder="Baths" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="any">Any</SelectItem>
+                        <SelectItem value="">Any</SelectItem>
                         <SelectItem value="1">1+</SelectItem>
                         <SelectItem value="1.5">1.5+</SelectItem>
                         <SelectItem value="2">2+</SelectItem>
@@ -590,7 +590,7 @@ export default function SearchPage() {
                         <SelectValue placeholder="Min Sq.Ft." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="no_min">No Min</SelectItem>
+                        <SelectItem value="">No Min</SelectItem>
                         <SelectItem value="500">500+</SelectItem>
                         <SelectItem value="1000">1,000+</SelectItem>
                         <SelectItem value="1500">1,500+</SelectItem>
@@ -608,7 +608,7 @@ export default function SearchPage() {
                         <SelectValue placeholder="Max Sq.Ft." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="no_max">No Max</SelectItem>
+                        <SelectItem value="">No Max</SelectItem>
                         <SelectItem value="1500">1,500</SelectItem>
                         <SelectItem value="2000">2,000</SelectItem>
                         <SelectItem value="2500">2,500</SelectItem>
@@ -630,7 +630,7 @@ export default function SearchPage() {
                       <SelectValue placeholder="Any Year" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="any_year">Any Year</SelectItem>
+                      <SelectItem value="">Any Year</SelectItem>
                       <SelectItem value="2020">2020 or newer</SelectItem>
                       <SelectItem value="2010">2010 or newer</SelectItem>
                       <SelectItem value="2000">2000 or newer</SelectItem>
