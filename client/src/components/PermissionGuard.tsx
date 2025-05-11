@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
-import { Permission } from "@shared/permissions";
-import { usePermissions } from "@/hooks/use-permissions";
+import { useAuth } from "@/hooks/use-auth";
+import { Permission, hasPermission } from "@shared/permissions";
 
 interface PermissionGuardProps {
   permission: Permission;
@@ -8,30 +8,16 @@ interface PermissionGuardProps {
   fallback?: ReactNode;
 }
 
-/**
- * A component that renders its children only if the user has the specified permission.
- * Otherwise, it renders the fallback component (if provided).
- */
-export function PermissionGuard({ permission, children, fallback = null }: PermissionGuardProps) {
-  const { hasPermission } = usePermissions();
+export function PermissionGuard({ permission, children, fallback }: PermissionGuardProps) {
+  const { user } = useAuth();
   
-  if (!hasPermission(permission)) {
-    return <>{fallback}</>;
+  if (!user) {
+    return fallback ? <>{fallback}</> : null;
   }
   
-  return <>{children}</>;
-}
-
-/**
- * A component that renders its children only if the user is an admin.
- * Otherwise, it renders the fallback component (if provided).
- */
-export function AdminGuard({ children, fallback = null }: { children: ReactNode; fallback?: ReactNode }) {
-  const { isAdmin } = usePermissions();
-  
-  if (!isAdmin) {
-    return <>{fallback}</>;
+  if (hasPermission(user, permission)) {
+    return <>{children}</>;
   }
   
-  return <>{children}</>;
+  return fallback ? <>{fallback}</> : null;
 }
