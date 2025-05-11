@@ -21,6 +21,8 @@ export const properties = pgTable("properties", {
   state: text("state").notNull(),
   zipCode: text("zip_code").notNull(),
   neighborhood: text("neighborhood"),
+  latitude: numeric("latitude"),
+  longitude: numeric("longitude"),
   price: numeric("price").notNull(),
   bedrooms: integer("bedrooms").notNull(),
   bathrooms: numeric("bathrooms").notNull(),
@@ -28,8 +30,12 @@ export const properties = pgTable("properties", {
   lotSize: numeric("lot_size"),
   yearBuilt: integer("year_built"),
   propertyType: text("property_type").notNull(),
-  status: text("status").notNull(),
+  status: text("status").notNull(), // Active, Pending, Sold
   daysOnMarket: integer("days_on_market"),
+  saleDate: timestamp("sale_date"), // For Sold properties
+  hasBasement: boolean("has_basement"),
+  hasGarage: boolean("has_garage"),
+  garageSpaces: integer("garage_spaces"),
   images: jsonb("images"),
   pricePerSqft: numeric("price_per_sqft"),
   description: text("description"),
