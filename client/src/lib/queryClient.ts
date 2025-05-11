@@ -23,7 +23,7 @@ export async function apiRequest(
   path: string,
   body?: any,
 ) {
-  const url = path.startsWith("/") ? `/api${path}` : `/api/${path}`;
+  const url = path.startsWith("/api/") ? path : path.startsWith("/") ? `/api${path}` : `/api/${path}`;
   
   const options: RequestInit = {
     method,
