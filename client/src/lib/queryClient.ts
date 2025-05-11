@@ -40,10 +40,19 @@ export async function apiRequest(
   const response = await fetch(url, options);
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({
+    const errorData = await response.json().catch(() => ({
       message: response.statusText,
     }));
-    throw new Error(error.message || "An error occurred");
+    
+    if (errorData.errors && Array.isArray(errorData.errors)) {
+      // Handle Zod validation errors
+      const errorMessages = errorData.errors.map((err: any) => 
+        `${err.path ? err.path.join('.') + ': ' : ''}${err.message || err.code}`
+      ).join(', ');
+      throw new Error(errorMessages || "Validation failed");
+    } else {
+      throw new Error(errorData.message || "An error occurred");
+    }
   }
 
   return response;
