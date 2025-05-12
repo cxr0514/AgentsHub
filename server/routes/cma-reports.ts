@@ -3,18 +3,9 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { storage } from '../storage';
-// Import jsPDF correctly
-import { jsPDF } from 'jspdf';
-// Need to add 'jspdf-autotable' for PDF table generation
-// Note: This import adds the autoTable method to the jsPDF prototype
-import 'jspdf-autotable';
 import { log } from '../vite';
 
-// Since TypeScript doesn't know about the autoTable method that's added by jspdf-autotable
-// Define a helper function to type cast and call autoTable
-function addAutoTable(doc: jsPDF, options: any) {
-  return (doc as any).autoTable(options);
-}
+// We'll import modules inside the route handler to ensure they're available
 
 /**
  * CMA Report Generation Routes
@@ -64,6 +55,16 @@ const upload = multer({
 router.post('/generate-cma', upload.single('logo'), async (req, res) => {
   try {
     log('Generating CMA report', 'cma-reports');
+    
+    // Import jsPDF modules synchronously in the handler
+    const jsPDF = (await import('jspdf')).jsPDF;
+    // This import adds autoTable to the jsPDF prototype
+    await import('jspdf-autotable');
+    
+    // Helper function for autoTable
+    function addAutoTable(doc: any, options: any) {
+      return doc.autoTable(options);
+    }
     
     // Parse request data
     const subjectPropertyId = parseInt(req.body.subjectPropertyId);
