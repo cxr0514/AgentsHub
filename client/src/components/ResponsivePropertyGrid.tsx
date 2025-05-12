@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Property } from '@shared/schema';
 import PropertyCard from './PropertyCard';
 import { cn } from '@/lib/utils';
-import { Grid2X2, List, ViewHorizontal } from 'lucide-react';
+import { Grid2X2, List, Rows3 } from 'lucide-react';
 import { Button } from './ui/button';
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
 import useMobile from '@/hooks/use-mobile';
@@ -54,7 +54,7 @@ export default function ResponsivePropertyGrid({
             <List className="h-4 w-4" />
           </ToggleGroupItem>
           <ToggleGroupItem value="compact" aria-label="Compact view">
-            <ViewHorizontal className="h-4 w-4" />
+            <Rows3 className="h-4 w-4" />
           </ToggleGroupItem>
         </ToggleGroup>
       </div>

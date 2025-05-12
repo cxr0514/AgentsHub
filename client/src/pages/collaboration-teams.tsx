@@ -9,7 +9,7 @@ import {
   Plus, 
   Home,
   ArrowLeft,
-  Buildings,
+  Building2,
   Loader2,
   MoreHorizontal,
   Trash2,
@@ -487,7 +487,7 @@ export default function CollaborationTeamsPage() {
                               onClick={() => setAddPropertyDialogOpen(true)}
                               className="cursor-pointer"
                             >
-                              <Buildings className="h-4 w-4 mr-2" />
+                              <Building2 className="h-4 w-4 mr-2" />
                               Add Property
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
@@ -523,7 +523,7 @@ export default function CollaborationTeamsPage() {
                         Members
                       </TabsTrigger>
                       <TabsTrigger value="properties">
-                        <Buildings className="h-4 w-4 mr-2" />
+                        <Building2 className="h-4 w-4 mr-2" />
                         Properties
                       </TabsTrigger>
                     </TabsList>
@@ -611,7 +611,7 @@ export default function CollaborationTeamsPage() {
                         <CardContent>
                           {teamDetails.properties?.length === 0 ? (
                             <div className="text-center py-8 text-muted-foreground">
-                              <Buildings className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                              <Building2 className="h-12 w-12 mx-auto mb-3 opacity-20" />
                               <p>No properties in this team yet.</p>
                             </div>
                           ) : (
@@ -680,7 +680,7 @@ export default function CollaborationTeamsPage() {
               )
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Buildings className="h-16 w-16 text-muted-foreground/20 mb-4" />
+                <Building2 className="h-16 w-16 text-muted-foreground/20 mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Select a Team</h3>
                 <p className="text-muted-foreground max-w-md">
                   Choose a team from the sidebar to view its members and properties
