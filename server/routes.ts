@@ -29,6 +29,7 @@ import attomTestRoutes from "./routes/attom-test";
 import marketHeatmapRoutes from "./routes/market-heatmap";
 import marketAnalysisRoutes from "./routes/market-analysis";
 import mfaRoutes from "./routes/mfa";
+import propertyCompsRoutes from "./routes/property-comps";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -61,6 +62,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register MFA authentication routes
   apiRouter.use("/mfa", mfaRoutes);
+  
+  // Register property comps and comparison routes
+  apiRouter.use("/properties", propertyCompsRoutes);
   
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {

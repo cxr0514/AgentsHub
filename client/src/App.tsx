@@ -22,6 +22,7 @@ import SettingsPage from "@/pages/settings-page";
 import FinancialCalculatorsPage from "@/pages/financial-calculators";
 import AIMarketAnalysisPage from "@/pages/ai-market-analysis";
 import PropertyAnalyzerPage from "@/pages/property-analyzer";
+import CompMatchingPage from "@/pages/comp-matching";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -35,6 +36,7 @@ function Router() {
       <ProtectedRoute path="/market-analysis" component={MarketAnalysisPage} />
       <ProtectedRoute path="/ai-market-analysis" component={AIMarketAnalysisPage} />
       <ProtectedRoute path="/property-analyzer" component={PropertyAnalyzerPage} />
+      <ProtectedRoute path="/comp-matching" component={CompMatchingPage} />
       <ProtectedRoute path="/map-visualization" component={MapVisualizationPage} />
       <ProtectedRoute path="/property-comparison" component={PropertyComparisonPage} />
       <ProtectedRoute path="/reports" component={ReportsPage} />

@@ -1,874 +1,1777 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState, useEffect } from 'react';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
 import {
-  Slider
-} from "@/components/ui/slider";
-import PropertyCard from "./PropertyCard";
-import PropertyTable from "./PropertyTable";
-import { Property } from "@shared/schema";
-import { Loader2, Search } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { 
+  Alert, 
+  AlertDescription, 
+  AlertTitle 
+} from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
+import { 
+  Home, 
+  Search, 
+  Filter, 
+  Map, 
+  ArrowRight, 
+  PencilRuler, 
+  Sliders, 
+  Save, 
+  FileOutput, 
+  CheckCircle, 
+  AlertCircle, 
+  HelpCircle,
+  Building,
+  Bed,
+  Bath,
+  Grid2X2,
+  Calendar,
+  DollarSign,
+  SquareStack,
+  Loader2,
+  Info
+} from 'lucide-react';
+import { apiRequest } from '@/lib/queryClient';
 
-interface CompMatchingEngineProps {
-  propertyId?: number;  // Optional: If we're matching comps for a specific subject property
-  onCompsSelected?: (comps: Property[]) => void; // Callback when comps are selected
+interface Property {
+  id: number;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  price: number;
+  bedrooms: number;
+  bathrooms: number;
+  squareFeet: number;
+  lotSize?: number;
+  yearBuilt?: number;
+  propertyType: string;
+  status: string;
+  daysOnMarket?: number;
+  pricePerSqft?: number;
+  latitude?: number;
+  longitude?: number;
+  images?: string[];
+  hasBasement?: boolean;
+  hasGarage?: boolean;
+  garageSpaces?: number;
 }
 
-const CompMatchingEngine = ({ propertyId, onCompsSelected }: CompMatchingEngineProps) => {
-  // Subject property (if not provided via propertyId)
+interface CompCriteria {
+  propertyId?: number;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  radius: number;
+  minBeds: number;
+  maxBeds: number;
+  minBaths: number;
+  maxBaths: number;
+  minSqft: number;
+  maxSqft: number;
+  minLotSize?: number;
+  maxLotSize?: number;
+  minYearBuilt?: number;
+  maxYearBuilt?: number;
+  propertyType: string;
+  status: string;
+  saleTimeframe?: number; // Sale within last X months
+  priceRange: number; // Percentage +/- from subject property
+  maxResults: number;
+}
+
+interface CompAdjustment {
+  propertyId: number;
+  adjustments: {
+    bedrooms?: number;
+    bathrooms?: number;
+    squareFeet?: number;
+    lotSize?: number;
+    age?: number;
+    garage?: number;
+    basement?: boolean;
+    location?: number;
+    condition?: number;
+    other?: number;
+  };
+  adjustedPrice: number;
+  adjustmentNotes?: string;
+}
+
+// Default values for comp criteria
+const defaultCompCriteria: CompCriteria = {
+  radius: 3,
+  minBeds: 2,
+  maxBeds: 4,
+  minBaths: 1,
+  maxBaths: 3,
+  minSqft: 1000,
+  maxSqft: 3000,
+  propertyType: 'single-family',
+  status: 'sold',
+  saleTimeframe: 6,
+  priceRange: 20,
+  maxResults: 5
+};
+
+const propertyTypeOptions = [
+  { value: 'single-family', label: 'Single Family' },
+  { value: 'multi-family', label: 'Multi-Family' },
+  { value: 'condo', label: 'Condo' },
+  { value: 'townhouse', label: 'Townhouse' },
+  { value: 'land', label: 'Land' },
+];
+
+const statusOptions = [
+  { value: 'sold', label: 'Sold' },
+  { value: 'active', label: 'Active' },
+  { value: 'pending', label: 'Pending' },
+];
+
+const saleTimeframeOptions = [
+  { value: '3', label: 'Last 3 months' },
+  { value: '6', label: 'Last 6 months' },
+  { value: '12', label: 'Last 12 months' },
+];
+
+// Helper function to format currency
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(value);
+};
+
+// Helper function to calculate price per square foot
+const calculatePricePerSqFt = (price: number, sqft: number) => {
+  if (!sqft) return 0;
+  return Math.round(price / sqft);
+};
+
+export function CompMatchingEngine() {
+  const { toast } = useToast();
   const [subjectProperty, setSubjectProperty] = useState<Property | null>(null);
-  
-  // Matching criteria
-  const [matchCriteria, setMatchCriteria] = useState({
-    radius: 5, // miles
-    bedsRange: 1, // ±1 bed
-    bathsRange: 1, // ±1 bath
-    sqftRange: 20, // ±20% sqft
-    priceRange: 20, // ±20% price
-    ageRange: 10, // ±10 years
-    lotSizeRange: 20, // ±20% lot size
-    daysOnMarket: 180, // days (for sales)
-    requireBasement: false,
-    requireGarage: false,
-    propertyType: "Same" // Same, Any, or specific type
-  });
-  
-  // Selected comps
+  const [compCriteria, setCompCriteria] = useState<CompCriteria>(defaultCompCriteria);
+  const [comps, setComps] = useState<Property[]>([]);
   const [selectedComps, setSelectedComps] = useState<Property[]>([]);
+  const [compAdjustments, setCompAdjustments] = useState<Record<number, CompAdjustment>>({});
+  const [activeTab, setActiveTab] = useState('search');
+  const [searchAddress, setSearchAddress] = useState('');
+  const [searchCity, setSearchCity] = useState('');
+  const [searchState, setSearchState] = useState('');
+  const [searchZip, setSearchZip] = useState('');
+  const [isSubjectPropertySelected, setIsSubjectPropertySelected] = useState(false);
   
-  // Status filters
-  const [statusFilters, setStatusFilters] = useState({
-    active: true,
-    pending: true,
-    sold: true
+  // Query to fetch properties based on search parameters
+  const searchPropertiesMutation = useMutation({
+    mutationFn: async (searchParams: { address?: string, city?: string, state?: string, zipCode?: string }) => {
+      const response = await apiRequest('GET', `/api/properties/search?${new URLSearchParams({
+        ...(searchParams.address ? { address: searchParams.address } : {}),
+        ...(searchParams.city ? { city: searchParams.city } : {}),
+        ...(searchParams.state ? { state: searchParams.state } : {}),
+        ...(searchParams.zipCode ? { zipCode: searchParams.zipCode } : {})
+      }).toString()}`);
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to search properties');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      if (data.length === 0) {
+        toast({
+          title: 'No properties found',
+          description: 'Try adjusting your search criteria',
+          variant: 'destructive'
+        });
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: 'Search Failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
   });
   
-  // Current tab
-  const [activeTab, setActiveTab] = useState<string>("setup");
-  
-  // Loading state
-  const [isSearching, setIsSearching] = useState<boolean>(false);
-  
-  // Fetch subject property if propertyId is provided
-  const { data: subjectPropertyData, isLoading: isLoadingSubject } = useQuery({
-    queryKey: ['/api/properties', propertyId],
-    enabled: !!propertyId
+  // Mutation to find comparable properties
+  const findCompsMutation = useMutation({
+    mutationFn: async (criteria: CompCriteria) => {
+      const response = await apiRequest('POST', '/api/properties/find-comps', criteria);
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to find comparable properties');
+      }
+      
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setComps(data.comps || []);
+      if (data.comps.length === 0) {
+        toast({
+          title: 'No comps found',
+          description: 'Try adjusting your criteria for a broader search',
+          variant: 'destructive'
+        });
+      } else {
+        setActiveTab('results');
+        toast({
+          title: 'Comps Found',
+          description: `Found ${data.comps.length} comparable properties`,
+        });
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: 'Comp Search Failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
   });
   
-  // Search results
-  const [searchResults, setSearchResults] = useState<{
-    active: Property[],
-    pending: Property[],
-    sold: Property[]
-  }>({
-    active: [],
-    pending: [],
-    sold: []
+  // Mutation to save comp adjustments
+  const saveAdjustmentsMutation = useMutation({
+    mutationFn: async (adjustmentsData: { subjectPropertyId: number, adjustments: Record<number, CompAdjustment> }) => {
+      const response = await apiRequest('POST', '/api/properties/save-comp-adjustments', adjustmentsData);
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to save adjustments');
+      }
+      
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Adjustments Saved',
+        description: 'Your comp adjustments have been saved successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Save Failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
   });
   
-  // ARV and MAO calculations
-  const [arv, setArv] = useState<{
-    value: number | null,
-    multiplier: number, // default multiplier
-    adjustedArv: number | null
-  }>({
-    value: null,
-    multiplier: 0.7, // 70% rule for real estate investing
-    adjustedArv: null
-  });
-  
-  // Update ARV based on selected comps
-  const calculateARV = (comps: Property[]) => {
-    if (comps.length === 0) return null;
+  // Handle selecting a property as the subject property
+  const handleSelectSubjectProperty = (property: Property) => {
+    setSubjectProperty(property);
+    setIsSubjectPropertySelected(true);
     
-    // Calculate average price of sold comparable properties
-    const soldComps = comps.filter(comp => comp.status === "Sold");
-    
-    if (soldComps.length === 0) return null;
-    
-    // Calculate average price
-    const totalPrice = soldComps.reduce((sum, comp) => sum + parseFloat(comp.price.toString()), 0);
-    const averagePrice = totalPrice / soldComps.length;
-    
-    setArv({
-      ...arv,
-      value: averagePrice,
-      adjustedArv: averagePrice * arv.multiplier
+    // Update comp criteria based on subject property
+    setCompCriteria({
+      ...compCriteria,
+      propertyId: property.id,
+      address: property.address,
+      city: property.city,
+      state: property.state,
+      zipCode: property.zipCode,
+      minBeds: Math.max(1, property.bedrooms - 1),
+      maxBeds: property.bedrooms + 1,
+      minBaths: Math.max(1, Math.floor(property.bathrooms - 1)),
+      maxBaths: Math.ceil(property.bathrooms + 1),
+      minSqft: Math.round(property.squareFeet * 0.8),
+      maxSqft: Math.round(property.squareFeet * 1.2),
+      propertyType: property.propertyType
     });
     
-    return averagePrice;
+    setActiveTab('criteria');
   };
   
-  // Update subject property when data is loaded
-  if (propertyId && subjectPropertyData && !subjectProperty) {
-    setSubjectProperty(subjectPropertyData);
-  }
-  
-  // Generate filters for comp search based on subject property and criteria
-  const generateCompFilters = () => {
-    if (!subjectProperty) return null;
-    
-    // Extract values from subject property
-    const {
-      bedrooms,
-      bathrooms,
-      squareFeet,
-      price,
-      yearBuilt,
-      lotSize,
-      propertyType: subjectPropertyType,
-      latitude,
-      longitude
-    } = subjectProperty;
-    
-    // Calculate ranges
-    const minBeds = Math.max(1, Number(bedrooms) - matchCriteria.bedsRange);
-    const maxBeds = Number(bedrooms) + matchCriteria.bedsRange;
-    
-    const minBaths = Math.max(1, Number(bathrooms) - matchCriteria.bathsRange);
-    const maxBaths = Number(bathrooms) + matchCriteria.bathsRange;
-    
-    const sqftValue = Number(squareFeet);
-    const sqftPercent = matchCriteria.sqftRange / 100;
-    const minSqft = Math.floor(sqftValue * (1 - sqftPercent));
-    const maxSqft = Math.ceil(sqftValue * (1 + sqftPercent));
-    
-    const priceValue = Number(price);
-    const pricePercent = matchCriteria.priceRange / 100;
-    const minPrice = Math.floor(priceValue * (1 - pricePercent));
-    const maxPrice = Math.ceil(priceValue * (1 + pricePercent));
-    
-    // Year built range
-    let minYear = 0;
-    let maxYear = 0;
-    if (yearBuilt) {
-      minYear = Number(yearBuilt) - matchCriteria.ageRange;
-      maxYear = Number(yearBuilt) + matchCriteria.ageRange;
-    }
-    
-    // Determine which statuses to include
-    const statusList = [];
-    if (statusFilters.active) statusList.push("Active");
-    if (statusFilters.pending) statusList.push("Pending");
-    if (statusFilters.sold) statusList.push("Sold");
-    
-    // Build the filter object
-    const filters: any = {
-      minBeds,
-      maxBeds,
-      minBaths,
-      maxBaths,
-      minSqft,
-      maxSqft,
-      minPrice,
-      maxPrice,
-      statusList,
-    };
-    
-    // Only add year built filter if the subject property has this data
-    if (yearBuilt) {
-      filters.minYearBuilt = minYear;
-      filters.maxYearBuilt = maxYear;
-    }
-    
-    // Add property type filter if set to "Same"
-    if (matchCriteria.propertyType === "Same" && subjectPropertyType) {
-      filters.propertyType = subjectPropertyType;
-    } else if (matchCriteria.propertyType !== "Any") {
-      filters.propertyType = matchCriteria.propertyType;
-    }
-    
-    // Add location-based search if we have coordinates
-    if (latitude && longitude) {
-      filters.lat = latitude;
-      filters.lng = longitude;
-      filters.radius = matchCriteria.radius;
-    }
-    
-    // Add optional criteria
-    if (matchCriteria.requireBasement) {
-      filters.hasBasement = true;
-    }
-    
-    if (matchCriteria.requireGarage) {
-      filters.hasGarage = true;
-    }
-    
-    // For sold properties, add date range filter (past N days)
-    if (statusFilters.sold) {
-      const today = new Date();
-      const pastDate = new Date();
-      pastDate.setDate(today.getDate() - matchCriteria.daysOnMarket);
-      
-      filters.saleDateStart = pastDate.toISOString().split('T')[0];
-      filters.saleDateEnd = today.toISOString().split('T')[0];
-    }
-    
-    return filters;
-  };
-  
-  // Search for comparable properties
-  const searchComps = async () => {
-    const filters = generateCompFilters();
-    
-    if (!filters) {
+  // Handle search by address/location
+  const handleSearch = () => {
+    if (!searchAddress && !searchCity && !searchState && !searchZip) {
       toast({
-        title: "Missing subject property",
-        description: "Please select a subject property first",
-        variant: "destructive"
+        title: 'Search Error',
+        description: 'Please enter at least one search parameter',
+        variant: 'destructive'
       });
       return;
     }
     
-    setIsSearching(true);
+    searchPropertiesMutation.mutate({
+      address: searchAddress,
+      city: searchCity,
+      state: searchState,
+      zipCode: searchZip
+    });
+  };
+  
+  // Handle finding comps
+  const handleFindComps = () => {
+    if (!subjectProperty) {
+      toast({
+        title: 'No Subject Property',
+        description: 'Please select a subject property first',
+        variant: 'destructive'
+      });
+      return;
+    }
     
-    try {
-      // Make API call to search properties with our filters
-      const response = await fetch('/api/properties/search', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ filters })
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch comparable properties');
-      }
-      
-      const data = await response.json();
-      
-      // Organize results by status
-      const results = {
-        active: data.filter((p: Property) => p.status === 'Active'),
-        pending: data.filter((p: Property) => p.status === 'Pending'),
-        sold: data.filter((p: Property) => p.status === 'Sold')
-      };
-      
-      setSearchResults(results);
-      
-      // Calculate ARV if we have sold comps
-      calculateARV(results.sold);
-      
-      // Switch to results tab
-      setActiveTab("results");
-      
-    } catch (error) {
-      console.error('Error searching for comps:', error);
-      toast({
-        title: "Error finding comps",
-        description: "There was a problem searching for comparable properties",
-        variant: "destructive"
-      });
-    } finally {
-      setIsSearching(false);
-    }
+    findCompsMutation.mutate(compCriteria);
   };
   
-  // Toggle comp selection
-  const toggleCompSelection = (property: Property) => {
-    if (selectedComps.some(p => p.id === property.id)) {
-      setSelectedComps(selectedComps.filter(p => p.id !== property.id));
+  // Handle selecting a comp for comparison
+  const handleSelectComp = (property: Property) => {
+    // If already selected, remove it
+    if (selectedComps.some(comp => comp.id === property.id)) {
+      setSelectedComps(selectedComps.filter(comp => comp.id !== property.id));
+      
+      // Remove any adjustments for this property
+      const newAdjustments = { ...compAdjustments };
+      delete newAdjustments[property.id];
+      setCompAdjustments(newAdjustments);
     } else {
-      setSelectedComps([...selectedComps, property]);
+      // Add to selected comps (limit to 5)
+      if (selectedComps.length < 5) {
+        setSelectedComps([...selectedComps, property]);
+        
+        // Initialize adjustments for this property
+        setCompAdjustments({
+          ...compAdjustments,
+          [property.id]: {
+            propertyId: property.id,
+            adjustments: {},
+            adjustedPrice: property.price
+          }
+        });
+      } else {
+        toast({
+          title: 'Selection Limit',
+          description: 'You can only select up to 5 comps for comparison',
+          variant: 'destructive'
+        });
+      }
     }
   };
   
-  // Apply selection and notify parent component
-  const applySelection = () => {
-    if (onCompsSelected && selectedComps.length > 0) {
-      onCompsSelected(selectedComps);
-      
+  // Handle adjustment changes
+  const handleAdjustmentChange = (
+    propertyId: number, 
+    category: string, 
+    value: number | boolean
+  ) => {
+    if (!subjectProperty) return;
+    
+    const selectedComp = selectedComps.find(comp => comp.id === propertyId);
+    if (!selectedComp) return;
+    
+    // Create a copy of the current adjustments for this property
+    const currentAdjustment = compAdjustments[propertyId] || {
+      propertyId,
+      adjustments: {},
+      adjustedPrice: selectedComp.price
+    };
+    
+    const newAdjustments = { ...currentAdjustment.adjustments };
+    
+    // Add or update the specific adjustment
+    if (typeof value === 'number') {
+      newAdjustments[category as keyof typeof newAdjustments] = value;
+    } else if (typeof value === 'boolean' && category === 'basement') {
+      newAdjustments.basement = value;
+    }
+    
+    // Calculate total adjustment amount
+    const totalAdjustment = Object.values(newAdjustments).reduce((sum, adjustmentValue) => {
+      return sum + (typeof adjustmentValue === 'number' ? adjustmentValue : 0);
+    }, 0);
+    
+    // Calculate adjusted price
+    const adjustedPrice = selectedComp.price + totalAdjustment;
+    
+    // Update adjustments for this property
+    setCompAdjustments({
+      ...compAdjustments,
+      [propertyId]: {
+        ...currentAdjustment,
+        adjustments: newAdjustments,
+        adjustedPrice
+      }
+    });
+  };
+  
+  // Handle saving adjustments
+  const handleSaveAdjustments = () => {
+    if (!subjectProperty) {
       toast({
-        title: "Comps selected",
-        description: `Selected ${selectedComps.length} comparable properties`,
-        variant: "default"
+        title: 'No Subject Property',
+        description: 'Please select a subject property first',
+        variant: 'destructive'
       });
+      return;
     }
-  };
-  
-  // Update matching criteria
-  const updateCriteria = (key: string, value: any) => {
-    setMatchCriteria({
-      ...matchCriteria,
-      [key]: value
+    
+    if (Object.keys(compAdjustments).length === 0) {
+      toast({
+        title: 'No Adjustments',
+        description: 'Please make adjustments to at least one comparable property',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    saveAdjustmentsMutation.mutate({
+      subjectPropertyId: subjectProperty.id,
+      adjustments: compAdjustments
     });
   };
   
-  // Toggle status filter
-  const toggleStatus = (status: 'active' | 'pending' | 'sold') => {
-    setStatusFilters({
-      ...statusFilters,
-      [status]: !statusFilters[status]
+  // Helper function to calculate the adjustment difference
+  const calculateAdjustmentDifference = (propertyId: number) => {
+    const adjustment = compAdjustments[propertyId];
+    if (!adjustment) return 0;
+    
+    const selectedComp = selectedComps.find(comp => comp.id === propertyId);
+    if (!selectedComp) return 0;
+    
+    return adjustment.adjustedPrice - selectedComp.price;
+  };
+  
+  // Generate a temporary property with sample comps for development
+  const generateTemporaryProperty = () => {
+    // Only use this for testing/development or when API is unavailable
+    const tempProperty: Property = {
+      id: 1,
+      address: '123 Main St',
+      city: 'Atlanta',
+      state: 'GA',
+      zipCode: '30303',
+      price: 450000,
+      bedrooms: 3,
+      bathrooms: 2,
+      squareFeet: 2200,
+      lotSize: 0.25,
+      yearBuilt: 2005,
+      propertyType: 'single-family',
+      status: 'active',
+      daysOnMarket: 15,
+      pricePerSqft: 205,
+      latitude: 33.7490,
+      longitude: -84.3880,
+      hasBasement: false,
+      hasGarage: true,
+      garageSpaces: 2
+    };
+    
+    setSubjectProperty(tempProperty);
+    setIsSubjectPropertySelected(true);
+    
+    // Update comp criteria based on subject property
+    setCompCriteria({
+      ...compCriteria,
+      propertyId: tempProperty.id,
+      address: tempProperty.address,
+      city: tempProperty.city,
+      state: tempProperty.state,
+      zipCode: tempProperty.zipCode,
+      minBeds: Math.max(1, tempProperty.bedrooms - 1),
+      maxBeds: tempProperty.bedrooms + 1,
+      minBaths: Math.max(1, Math.floor(tempProperty.bathrooms - 1)),
+      maxBaths: Math.ceil(tempProperty.bathrooms + 1),
+      minSqft: Math.round(tempProperty.squareFeet * 0.8),
+      maxSqft: Math.round(tempProperty.squareFeet * 1.2),
+      propertyType: tempProperty.propertyType
     });
+    
+    // Generate example comps
+    const exampleComps: Property[] = [
+      {
+        id: 2,
+        address: '456 Oak St',
+        city: 'Atlanta',
+        state: 'GA',
+        zipCode: '30303',
+        price: 435000,
+        bedrooms: 3,
+        bathrooms: 2,
+        squareFeet: 2100,
+        lotSize: 0.2,
+        yearBuilt: 2003,
+        propertyType: 'single-family',
+        status: 'sold',
+        daysOnMarket: 25,
+        pricePerSqft: 207,
+        hasBasement: false,
+        hasGarage: true,
+        garageSpaces: 1
+      },
+      {
+        id: 3,
+        address: '789 Pine St',
+        city: 'Atlanta',
+        state: 'GA',
+        zipCode: '30304',
+        price: 475000,
+        bedrooms: 4,
+        bathrooms: 2.5,
+        squareFeet: 2400,
+        lotSize: 0.3,
+        yearBuilt: 2007,
+        propertyType: 'single-family',
+        status: 'sold',
+        daysOnMarket: 18,
+        pricePerSqft: 198,
+        hasBasement: true,
+        hasGarage: true,
+        garageSpaces: 2
+      },
+      {
+        id: 4,
+        address: '101 Elm St',
+        city: 'Atlanta',
+        state: 'GA',
+        zipCode: '30305',
+        price: 425000,
+        bedrooms: 3,
+        bathrooms: 2,
+        squareFeet: 2000,
+        lotSize: 0.22,
+        yearBuilt: 2001,
+        propertyType: 'single-family',
+        status: 'sold',
+        daysOnMarket: 30,
+        pricePerSqft: 213,
+        hasBasement: false,
+        hasGarage: true,
+        garageSpaces: 2
+      },
+      {
+        id: 5,
+        address: '222 Maple St',
+        city: 'Atlanta',
+        state: 'GA',
+        zipCode: '30303',
+        price: 460000,
+        bedrooms: 4,
+        bathrooms: 2,
+        squareFeet: 2300,
+        lotSize: 0.25,
+        yearBuilt: 2005,
+        propertyType: 'single-family',
+        status: 'sold',
+        daysOnMarket: 22,
+        pricePerSqft: 200,
+        hasBasement: false,
+        hasGarage: true,
+        garageSpaces: 2
+      },
+      {
+        id: 6,
+        address: '333 Cedar St',
+        city: 'Atlanta',
+        state: 'GA',
+        zipCode: '30305',
+        price: 440000,
+        bedrooms: 3,
+        bathrooms: 2.5,
+        squareFeet: 2150,
+        lotSize: 0.23,
+        yearBuilt: 2006,
+        propertyType: 'single-family',
+        status: 'sold',
+        daysOnMarket: 20,
+        pricePerSqft: 205,
+        hasBasement: true,
+        hasGarage: true,
+        garageSpaces: 2
+      }
+    ];
+    
+    setComps(exampleComps);
+    setActiveTab('results');
   };
   
   return (
-    <div className="space-y-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-3 w-full">
-          <TabsTrigger value="setup">Setup</TabsTrigger>
-          <TabsTrigger value="results">Results</TabsTrigger>
-          <TabsTrigger value="analysis">Analysis</TabsTrigger>
-        </TabsList>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-2xl text-[#071224] flex items-center gap-2">
+          <Home className="h-6 w-6 text-[#FF7A00]" />
+          Comparable Property Matching Engine
+        </CardTitle>
+        <CardDescription>
+          Find, compare, and adjust comparable properties for accurate valuations
+        </CardDescription>
+      </CardHeader>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="px-6">
+          <TabsList className="grid grid-cols-4 w-full">
+            <TabsTrigger value="search" className="flex items-center gap-2">
+              <Search className="h-4 w-4" />
+              <span>Find Property</span>
+            </TabsTrigger>
+            <TabsTrigger value="criteria" className="flex items-center gap-2" disabled={!isSubjectPropertySelected}>
+              <Filter className="h-4 w-4" />
+              <span>Comp Criteria</span>
+            </TabsTrigger>
+            <TabsTrigger value="results" className="flex items-center gap-2" disabled={comps.length === 0}>
+              <SquareStack className="h-4 w-4" />
+              <span>Comp Results</span>
+            </TabsTrigger>
+            <TabsTrigger value="adjustments" className="flex items-center gap-2" disabled={selectedComps.length === 0}>
+              <Sliders className="h-4 w-4" />
+              <span>Adjustments</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
         
-        {/* Setup Tab */}
-        <TabsContent value="setup" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Subject Property</CardTitle>
-              <CardDescription>
-                {subjectProperty ? 
-                  `${subjectProperty.address}, ${subjectProperty.city}, ${subjectProperty.state}` : 
-                  "Select or enter the subject property details"}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isLoadingSubject ? (
-                <div className="flex justify-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : subjectProperty ? (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-lg font-semibold">{subjectProperty.address}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {subjectProperty.bedrooms} beds · {subjectProperty.bathrooms} baths · {Number(subjectProperty.squareFeet).toLocaleString()} sqft
-                      </p>
-                      <p className="text-lg font-semibold">${Number(subjectProperty.price).toLocaleString()}</p>
-                    </div>
-                    <Button variant="outline" onClick={() => setSubjectProperty(null as any)}>Change</Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Please select a subject property from the system or enter a property address to search.
-                  </p>
-                  <div className="flex gap-2">
-                    <Input 
-                      placeholder="Enter property address" 
-                      className="flex-1"
-                    />
-                    <Button variant="secondary">
-                      <Search className="h-4 w-4 mr-2" />
-                      Find Property
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Matching Criteria</CardTitle>
-              <CardDescription>
-                Adjust the criteria to find the best comparable properties
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                {/* Location Radius */}
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <label className="text-sm font-medium">Location Radius</label>
-                    <span className="text-sm text-muted-foreground">{matchCriteria.radius} miles</span>
-                  </div>
-                  <Slider
-                    value={[matchCriteria.radius]}
-                    min={1}
-                    max={25}
-                    step={1}
-                    onValueChange={(values) => updateCriteria('radius', values[0])}
+        <CardContent className="pt-6">
+          {/* Find Property Tab */}
+          <TabsContent value="search" className="mt-0">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="searchAddress">Property Address</Label>
+                  <Input 
+                    id="searchAddress" 
+                    placeholder="123 Main St" 
+                    value={searchAddress}
+                    onChange={(e) => setSearchAddress(e.target.value)}
                   />
                 </div>
-                
-                {/* Property Characteristics */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Bedrooms Range (±)</label>
-                    <Select 
-                      value={matchCriteria.bedsRange.toString()} 
-                      onValueChange={(value) => updateCriteria('bedsRange', parseInt(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">Exact match</SelectItem>
-                        <SelectItem value="1">±1 bedroom</SelectItem>
-                        <SelectItem value="2">±2 bedrooms</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Bathrooms Range (±)</label>
-                    <Select 
-                      value={matchCriteria.bathsRange.toString()} 
-                      onValueChange={(value) => updateCriteria('bathsRange', parseInt(value))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select range" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">Exact match</SelectItem>
-                        <SelectItem value="1">±1 bathroom</SelectItem>
-                        <SelectItem value="2">±2 bathrooms</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <label className="text-sm font-medium">Square Footage Range</label>
-                      <span className="text-sm text-muted-foreground">±{matchCriteria.sqftRange}%</span>
-                    </div>
-                    <Slider
-                      value={[matchCriteria.sqftRange]}
-                      min={5}
-                      max={50}
-                      step={5}
-                      onValueChange={(values) => updateCriteria('sqftRange', values[0])}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <label className="text-sm font-medium">Price Range</label>
-                      <span className="text-sm text-muted-foreground">±{matchCriteria.priceRange}%</span>
-                    </div>
-                    <Slider
-                      value={[matchCriteria.priceRange]}
-                      min={5}
-                      max={50}
-                      step={5}
-                      onValueChange={(values) => updateCriteria('priceRange', values[0])}
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="searchCity">City</Label>
+                  <Input 
+                    id="searchCity" 
+                    placeholder="Atlanta" 
+                    value={searchCity}
+                    onChange={(e) => setSearchCity(e.target.value)}
+                  />
                 </div>
-                
-                {/* Property Features */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Property Features</label>
-                  <div className="flex flex-col space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="require-basement" 
-                        checked={matchCriteria.requireBasement}
-                        onCheckedChange={(checked) => updateCriteria('requireBasement', !!checked)}
-                      />
-                      <label htmlFor="require-basement" className="text-sm">Require Basement</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="require-garage" 
-                        checked={matchCriteria.requireGarage}
-                        onCheckedChange={(checked) => updateCriteria('requireGarage', !!checked)}
-                      />
-                      <label htmlFor="require-garage" className="text-sm">Require Garage</label>
-                    </div>
-                  </div>
+                <div>
+                  <Label htmlFor="searchState">State</Label>
+                  <Input 
+                    id="searchState" 
+                    placeholder="GA" 
+                    value={searchState}
+                    onChange={(e) => setSearchState(e.target.value)}
+                  />
                 </div>
-                
-                {/* Property Type */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Property Type</label>
-                  <Select 
-                    value={matchCriteria.propertyType} 
-                    onValueChange={(value) => updateCriteria('propertyType', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select property type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Same">Same as subject property</SelectItem>
-                      <SelectItem value="Any">Any property type</SelectItem>
-                      <SelectItem value="Single Family">Single Family</SelectItem>
-                      <SelectItem value="Condo">Condo</SelectItem>
-                      <SelectItem value="Townhouse">Townhouse</SelectItem>
-                      <SelectItem value="Multi-Family">Multi-Family</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div>
+                  <Label htmlFor="searchZip">ZIP Code</Label>
+                  <Input 
+                    id="searchZip" 
+                    placeholder="30303" 
+                    value={searchZip}
+                    onChange={(e) => setSearchZip(e.target.value)}
+                  />
                 </div>
-                
-                {/* Status Filters */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Include Property Status</label>
-                  <div className="flex flex-wrap gap-2">
-                    <div 
-                      className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                        statusFilters.active 
-                          ? 'bg-primary text-white' 
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => toggleStatus('active')}
-                    >
-                      Active
-                    </div>
-                    <div 
-                      className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                        statusFilters.pending 
-                          ? 'bg-primary text-white' 
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => toggleStatus('pending')}
-                    >
-                      Pending
-                    </div>
-                    <div 
-                      className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                        statusFilters.sold 
-                          ? 'bg-primary text-white' 
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
-                      onClick={() => toggleStatus('sold')}
-                    >
-                      Sold
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Days on Market (for sold comps) */}
-                {statusFilters.sold && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <label className="text-sm font-medium">Sold Within (days)</label>
-                      <span className="text-sm text-muted-foreground">{matchCriteria.daysOnMarket} days</span>
-                    </div>
-                    <Slider
-                      value={[matchCriteria.daysOnMarket]}
-                      min={30}
-                      max={365}
-                      step={30}
-                      onValueChange={(values) => updateCriteria('daysOnMarket', values[0])}
-                    />
-                  </div>
-                )}
               </div>
               
-              <div className="flex justify-end mt-6">
-                <Button 
-                  onClick={searchComps} 
-                  disabled={!subjectProperty || isSearching}
-                  className="bg-primary hover:bg-primary/90"
+              <div className="flex justify-between mt-6">
+                <Button
+                  variant="outline"
+                  onClick={generateTemporaryProperty}
+                  className="gap-2"
                 >
-                  {isSearching ? (
+                  <Building className="h-4 w-4" />
+                  Demo Mode
+                </Button>
+                
+                <Button 
+                  onClick={handleSearch}
+                  className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                  disabled={searchPropertiesMutation.isPending}
+                >
+                  {searchPropertiesMutation.isPending ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Searching...
                     </>
                   ) : (
-                    <>Find Comparable Properties</>
+                    <>
+                      <Search className="h-4 w-4" />
+                      Search Properties
+                    </>
                   )}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Results Tab */}
-        <TabsContent value="results" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Comparable Properties</CardTitle>
-              <CardDescription>
-                {Object.values(searchResults).flat().length} properties found based on your criteria
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="active" className="w-full">
-                <TabsList className="w-full grid grid-cols-3">
-                  <TabsTrigger value="active" className="flex gap-2">
-                    Active
-                    <span className="bg-gray-100 text-xs rounded-full px-2 py-0.5">
-                      {searchResults.active.length}
-                    </span>
-                  </TabsTrigger>
-                  <TabsTrigger value="pending" className="flex gap-2">
-                    Pending
-                    <span className="bg-gray-100 text-xs rounded-full px-2 py-0.5">
-                      {searchResults.pending.length}
-                    </span>
-                  </TabsTrigger>
-                  <TabsTrigger value="sold" className="flex gap-2">
-                    Sold
-                    <span className="bg-gray-100 text-xs rounded-full px-2 py-0.5">
-                      {searchResults.sold.length}
-                    </span>
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="active" className="py-4">
-                  {searchResults.active.length > 0 ? (
-                    <PropertyTable 
-                      properties={searchResults.active} 
-                      title="Active Comparable Properties"
-                    />
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No active properties match your criteria
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="pending" className="py-4">
-                  {searchResults.pending.length > 0 ? (
-                    <PropertyTable 
-                      properties={searchResults.pending} 
-                      title="Pending Comparable Properties"
-                    />
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No pending properties match your criteria
-                    </div>
-                  )}
-                </TabsContent>
-                
-                <TabsContent value="sold" className="py-4">
-                  {searchResults.sold.length > 0 ? (
-                    <PropertyTable 
-                      properties={searchResults.sold} 
-                      title="Sold Comparable Properties"
-                    />
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No sold properties match your criteria
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
               
-              {Object.values(searchResults).flat().length > 0 && (
-                <div className="flex justify-between mt-6">
-                  <Button 
-                    variant="outline"
-                    onClick={() => setActiveTab("setup")}
-                  >
-                    Adjust Criteria
-                  </Button>
-                  <Button 
-                    onClick={() => setActiveTab("analysis")}
-                    disabled={searchResults.sold.length === 0}
-                  >
-                    Run Analysis
-                  </Button>
+              {searchPropertiesMutation.isSuccess && searchPropertiesMutation.data?.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-medium mb-4">Search Results</h3>
+                  <div className="border rounded-md">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Address</TableHead>
+                          <TableHead>Price</TableHead>
+                          <TableHead>Beds/Baths</TableHead>
+                          <TableHead>Sq Ft</TableHead>
+                          <TableHead>Year</TableHead>
+                          <TableHead>Action</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {searchPropertiesMutation.data.map((property: Property) => (
+                          <TableRow key={property.id}>
+                            <TableCell>
+                              {property.address}, {property.city}, {property.state} {property.zipCode}
+                            </TableCell>
+                            <TableCell>{formatCurrency(property.price)}</TableCell>
+                            <TableCell>{property.bedrooms}/{property.bathrooms}</TableCell>
+                            <TableCell>{property.squareFeet.toLocaleString()}</TableCell>
+                            <TableCell>{property.yearBuilt || 'N/A'}</TableCell>
+                            <TableCell>
+                              <Button 
+                                size="sm"
+                                onClick={() => handleSelectSubjectProperty(property)}
+                                className="gap-1"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                                Select
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        {/* Analysis Tab */}
-        <TabsContent value="analysis" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>CMA Analysis</CardTitle>
-              <CardDescription>
-                Valuation analysis based on comparable properties
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+              
+              {/* If subject property has been selected, show it */}
+              {subjectProperty && (
+                <div className="mt-6">
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <CheckCircle className="h-4 w-4 text-blue-600" />
+                    <AlertTitle>Subject Property Selected</AlertTitle>
+                    <AlertDescription>
+                      {subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}
+                      <div className="mt-2 text-sm text-muted-foreground">
+                        {formatCurrency(subjectProperty.price)} • 
+                        {subjectProperty.bedrooms} beds • 
+                        {subjectProperty.bathrooms} baths • 
+                        {subjectProperty.squareFeet.toLocaleString()} sq ft • 
+                        {subjectProperty.yearBuilt ? `Built ${subjectProperty.yearBuilt}` : ''}
+                      </div>
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+            </div>
+          </TabsContent>
+          
+          {/* Comp Criteria Tab */}
+          <TabsContent value="criteria" className="mt-0">
+            {subjectProperty ? (
               <div className="space-y-6">
-                {searchResults.sold.length > 0 ? (
-                  <>
-                    {/* ARV Calculation */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">ARV (After Repair Value)</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <div className="text-sm text-muted-foreground mb-1">
-                            Comparable Average
-                          </div>
-                          <div className="text-2xl font-bold">
-                            ${arv.value ? Math.round(arv.value).toLocaleString() : "N/A"}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Based on {searchResults.sold.length} sold properties
-                          </div>
+                <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-6">
+                  <div className="flex items-start gap-4">
+                    <Home className="h-5 w-5 text-blue-600 mt-1" />
+                    <div>
+                      <h3 className="font-medium">Subject Property</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}
+                      </p>
+                      <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm">
+                        <div className="flex items-center">
+                          <DollarSign className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                          {formatCurrency(subjectProperty.price)}
                         </div>
-                        
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex justify-between items-center mb-2">
-                            <div className="text-sm text-muted-foreground">
-                              ARV Multiplier
-                            </div>
-                            <div className="text-sm font-medium">
-                              {(arv.multiplier * 100).toFixed(0)}%
-                            </div>
-                          </div>
-                          <Slider
-                            value={[arv.multiplier * 100]}
-                            min={50}
-                            max={100}
-                            step={5}
-                            onValueChange={(values) => setArv({
-                              ...arv,
-                              multiplier: values[0] / 100,
-                              adjustedArv: arv.value ? arv.value * (values[0] / 100) : null
-                            })}
-                          />
-                          <div className="text-xs text-muted-foreground mt-2">
-                            Adjust the multiplier for your investment strategy
-                          </div>
+                        <div className="flex items-center">
+                          <Bed className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                          {subjectProperty.bedrooms} beds
                         </div>
-                        
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <div className="text-sm text-muted-foreground mb-1">
-                            Maximum Allowable Offer (MAO)
-                          </div>
-                          <div className="text-2xl font-bold text-primary">
-                            ${arv.adjustedArv ? Math.round(arv.adjustedArv).toLocaleString() : "N/A"}
-                          </div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            Based on {(arv.multiplier * 100).toFixed(0)}% of ARV
-                          </div>
+                        <div className="flex items-center">
+                          <Bath className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                          {subjectProperty.bathrooms} baths
                         </div>
+                        <div className="flex items-center">
+                          <Grid2X2 className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                          {subjectProperty.squareFeet.toLocaleString()} sq ft
+                        </div>
+                        {subjectProperty.yearBuilt && (
+                          <div className="flex items-center">
+                            <Calendar className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            Built {subjectProperty.yearBuilt}
+                          </div>
+                        )}
                       </div>
                     </div>
-                    
-                    {/* Property Comparison */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Property Comparison</h3>
-                      <div className="overflow-x-auto">
-                        <table className="w-full border-collapse">
-                          <thead>
-                            <tr className="bg-gray-100">
-                              <th className="px-4 py-2 text-left">Property</th>
-                              <th className="px-4 py-2 text-right">Price</th>
-                              <th className="px-4 py-2 text-right">Price/SqFt</th>
-                              <th className="px-4 py-2 text-center">Beds</th>
-                              <th className="px-4 py-2 text-center">Baths</th>
-                              <th className="px-4 py-2 text-right">SqFt</th>
-                              <th className="px-4 py-2 text-center">Year</th>
-                              <th className="px-4 py-2 text-center">Status</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {/* Subject Property */}
-                            {subjectProperty && (
-                              <tr className="bg-primary bg-opacity-10 font-medium">
-                                <td className="px-4 py-2 text-left">Subject</td>
-                                <td className="px-4 py-2 text-right">
-                                  ${Number(subjectProperty.price).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-2 text-right">
-                                  ${Number(subjectProperty.pricePerSqft).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {subjectProperty.bedrooms}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {subjectProperty.bathrooms}
-                                </td>
-                                <td className="px-4 py-2 text-right">
-                                  {Number(subjectProperty.squareFeet).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {subjectProperty.yearBuilt}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {subjectProperty.status}
-                                </td>
-                              </tr>
-                            )}
-                            
-                            {/* Top Comps */}
-                            {searchResults.sold.slice(0, 5).map((property, index) => (
-                              <tr key={property.id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
-                                <td className="px-4 py-2 text-left">
-                                  {property.address}
-                                </td>
-                                <td className="px-4 py-2 text-right">
-                                  ${Number(property.price).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-2 text-right">
-                                  ${Number(property.pricePerSqft).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {property.bedrooms}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {property.bathrooms}
-                                </td>
-                                <td className="px-4 py-2 text-right">
-                                  {Number(property.squareFeet).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {property.yearBuilt}
-                                </td>
-                                <td className="px-4 py-2 text-center">
-                                  {property.status}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label>Search Radius (miles)</Label>
+                    <div className="flex items-center gap-4">
+                      <Slider
+                        className="flex-1"
+                        min={0.5}
+                        max={10}
+                        step={0.5}
+                        value={[compCriteria.radius]}
+                        onValueChange={(value) => setCompCriteria({ ...compCriteria, radius: value[0] })}
+                      />
+                      <span className="w-12 text-right">{compCriteria.radius}</span>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label>Sale Timeframe</Label>
+                    <Select
+                      value={compCriteria.saleTimeframe?.toString()}
+                      onValueChange={(value) => setCompCriteria({ ...compCriteria, saleTimeframe: parseInt(value) })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select timeframe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {saleTimeframeOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label>Property Type</Label>
+                    <Select
+                      value={compCriteria.propertyType}
+                      onValueChange={(value) => setCompCriteria({ ...compCriteria, propertyType: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select property type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {propertyTypeOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label>Listing Status</Label>
+                    <Select
+                      value={compCriteria.status}
+                      onValueChange={(value) => setCompCriteria({ ...compCriteria, status: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                <Separator className="my-4" />
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label>Bedrooms Range</Label>
+                      <span className="text-sm text-muted-foreground">
+                        {compCriteria.minBeds} - {compCriteria.maxBeds}
+                      </span>
+                    </div>
+                    <div className="flex gap-4 mt-2">
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={compCriteria.minBeds}
+                          onChange={(e) => setCompCriteria({ 
+                            ...compCriteria, 
+                            minBeds: parseInt(e.target.value) 
+                          })}
+                        />
+                      </div>
+                      <span className="flex items-center">to</span>
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={compCriteria.maxBeds}
+                          onChange={(e) => setCompCriteria({ 
+                            ...compCriteria, 
+                            maxBeds: parseInt(e.target.value) 
+                          })}
+                        />
                       </div>
                     </div>
-                  </>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No sold comparable properties available for analysis. 
-                    <div className="mt-2">
-                      <Button 
-                        variant="outline"
-                        onClick={() => setActiveTab("setup")}
-                      >
-                        Adjust Search Criteria
-                      </Button>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label>Bathrooms Range</Label>
+                      <span className="text-sm text-muted-foreground">
+                        {compCriteria.minBaths} - {compCriteria.maxBaths}
+                      </span>
+                    </div>
+                    <div className="flex gap-4 mt-2">
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          step={0.5}
+                          value={compCriteria.minBaths}
+                          onChange={(e) => setCompCriteria({ 
+                            ...compCriteria, 
+                            minBaths: parseFloat(e.target.value) 
+                          })}
+                        />
+                      </div>
+                      <span className="flex items-center">to</span>
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          step={0.5}
+                          value={compCriteria.maxBaths}
+                          onChange={(e) => setCompCriteria({ 
+                            ...compCriteria, 
+                            maxBaths: parseFloat(e.target.value) 
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <Label>Square Footage Range</Label>
+                      <span className="text-sm text-muted-foreground">
+                        {compCriteria.minSqft.toLocaleString()} - {compCriteria.maxSqft.toLocaleString()} sq ft
+                      </span>
+                    </div>
+                    <div className="flex gap-4 mt-2">
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          min={500}
+                          max={10000}
+                          step={100}
+                          value={compCriteria.minSqft}
+                          onChange={(e) => setCompCriteria({ 
+                            ...compCriteria, 
+                            minSqft: parseInt(e.target.value) 
+                          })}
+                        />
+                      </div>
+                      <span className="flex items-center">to</span>
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          min={500}
+                          max={10000}
+                          step={100}
+                          value={compCriteria.maxSqft}
+                          onChange={(e) => setCompCriteria({ 
+                            ...compCriteria, 
+                            maxSqft: parseInt(e.target.value) 
+                          })}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label>Price Range (% of subject property)</Label>
+                    <div className="flex items-center gap-4">
+                      <Slider
+                        className="flex-1"
+                        min={5}
+                        max={50}
+                        step={5}
+                        value={[compCriteria.priceRange]}
+                        onValueChange={(value) => setCompCriteria({ ...compCriteria, priceRange: value[0] })}
+                      />
+                      <span className="w-12 text-right">±{compCriteria.priceRange}%</span>
+                    </div>
+                    {subjectProperty && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatCurrency(subjectProperty.price * (1 - compCriteria.priceRange / 100))} to {formatCurrency(subjectProperty.price * (1 + compCriteria.priceRange / 100))}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex justify-between mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setActiveTab('search')}
+                    className="gap-2"
+                  >
+                    <ArrowRight className="h-4 w-4 rotate-180" />
+                    Back
+                  </Button>
+                  
+                  <Button 
+                    onClick={handleFindComps}
+                    className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                    disabled={findCompsMutation.isPending}
+                  >
+                    {findCompsMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Finding comps...
+                      </>
+                    ) : (
+                      <>
+                        <Search className="h-4 w-4" />
+                        Find Comps
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium">No Subject Property Selected</h3>
+                <p className="text-muted-foreground mt-2 mb-4">
+                  Please find and select a subject property first
+                </p>
+                <Button onClick={() => setActiveTab('search')}>
+                  Find a Property
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Comp Results Tab */}
+          <TabsContent value="results" className="mt-0">
+            {comps.length > 0 ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Comparable Properties</h3>
+                  <span className="text-sm text-muted-foreground">
+                    {comps.length} properties found • Select up to 5 for detailed comparison
+                  </span>
+                </div>
+                
+                {/* Subject property summary */}
+                {subjectProperty && (
+                  <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                    <div className="flex items-start gap-4">
+                      <Home className="h-5 w-5 text-blue-600 mt-1" />
+                      <div>
+                        <h3 className="font-medium">Subject Property</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}
+                        </p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm">
+                          <div className="flex items-center">
+                            <DollarSign className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {formatCurrency(subjectProperty.price)}
+                          </div>
+                          <div className="flex items-center">
+                            <Bed className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {subjectProperty.bedrooms} beds
+                          </div>
+                          <div className="flex items-center">
+                            <Bath className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {subjectProperty.bathrooms} baths
+                          </div>
+                          <div className="flex items-center">
+                            <Grid2X2 className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {subjectProperty.squareFeet.toLocaleString()} sq ft
+                          </div>
+                          {subjectProperty.yearBuilt && (
+                            <div className="flex items-center">
+                              <Calendar className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                              Built {subjectProperty.yearBuilt}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
-              </div>
-              
-              {searchResults.sold.length > 0 && (
+                
+                {/* Comp results table */}
+                <div className="border rounded-md">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">Select</TableHead>
+                        <TableHead>Address</TableHead>
+                        <TableHead>Price</TableHead>
+                        <TableHead>Price/Sq.Ft</TableHead>
+                        <TableHead>Beds</TableHead>
+                        <TableHead>Baths</TableHead>
+                        <TableHead>Sq.Ft</TableHead>
+                        <TableHead>Year</TableHead>
+                        <TableHead>Distance</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {comps.map((property) => (
+                        <TableRow 
+                          key={property.id} 
+                          className={selectedComps.some(comp => comp.id === property.id) ? 'bg-blue-50' : ''}
+                        >
+                          <TableCell>
+                            <Button 
+                              size="sm" 
+                              variant={selectedComps.some(comp => comp.id === property.id) ? "default" : "outline"}
+                              className="w-8 h-8 p-0"
+                              onClick={() => handleSelectComp(property)}
+                            >
+                              {selectedComps.some(comp => comp.id === property.id) ? (
+                                <CheckCircle className="h-4 w-4" />
+                              ) : (
+                                <PencilRuler className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </TableCell>
+                          <TableCell>
+                            {property.address.length > 25 
+                              ? `${property.address.substring(0, 25)}...` 
+                              : property.address}
+                          </TableCell>
+                          <TableCell>{formatCurrency(property.price)}</TableCell>
+                          <TableCell>
+                            {property.pricePerSqft
+                              ? `$${property.pricePerSqft}`
+                              : `$${calculatePricePerSqFt(property.price, property.squareFeet)}`
+                            }
+                          </TableCell>
+                          <TableCell>{property.bedrooms}</TableCell>
+                          <TableCell>{property.bathrooms}</TableCell>
+                          <TableCell>{property.squareFeet.toLocaleString()}</TableCell>
+                          <TableCell>{property.yearBuilt || 'N/A'}</TableCell>
+                          <TableCell>
+                            {/* This would be calculated based on geolocation in a real implementation */}
+                            {Math.round(Math.random() * 20) / 10} mi
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                
                 <div className="flex justify-between mt-6">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setActiveTab('criteria')}
+                      className="gap-2"
+                    >
+                      <ArrowRight className="h-4 w-4 rotate-180" />
+                      Back to Criteria
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      onClick={handleFindComps}
+                      className="gap-2"
+                    >
+                      <Search className="h-4 w-4" />
+                      Refresh Results
+                    </Button>
+                  </div>
+                  
                   <Button 
-                    variant="outline"
-                    onClick={() => setActiveTab("results")}
-                  >
-                    Back to Results
-                  </Button>
-                  <Button 
-                    onClick={applySelection}
+                    onClick={() => setActiveTab('adjustments')}
+                    className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
                     disabled={selectedComps.length === 0}
                   >
-                    Generate CMA Report
+                    <Sliders className="h-4 w-4" />
+                    Adjust Selected Comps ({selectedComps.length})
                   </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium">No Comparable Properties Found</h3>
+                <p className="text-muted-foreground mt-2 mb-4">
+                  Please adjust your search criteria and try again
+                </p>
+                <Button onClick={() => setActiveTab('criteria')}>
+                  Adjust Criteria
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* Adjustments Tab */}
+          <TabsContent value="adjustments" className="mt-0">
+            {selectedComps.length > 0 ? (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium">Adjust Comparable Properties</h3>
+                  <span className="text-sm text-muted-foreground">
+                    {selectedComps.length} properties selected
+                  </span>
+                </div>
+                
+                {/* Subject property summary */}
+                {subjectProperty && (
+                  <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                    <div className="flex items-start gap-4">
+                      <Home className="h-5 w-5 text-blue-600 mt-1" />
+                      <div>
+                        <h3 className="font-medium">Subject Property</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}
+                        </p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2 text-sm">
+                          <div className="flex items-center">
+                            <DollarSign className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {formatCurrency(subjectProperty.price)}
+                          </div>
+                          <div className="flex items-center">
+                            <Bed className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {subjectProperty.bedrooms} beds
+                          </div>
+                          <div className="flex items-center">
+                            <Bath className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {subjectProperty.bathrooms} baths
+                          </div>
+                          <div className="flex items-center">
+                            <Grid2X2 className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                            {subjectProperty.squareFeet.toLocaleString()} sq ft
+                          </div>
+                          {subjectProperty.yearBuilt && (
+                            <div className="flex items-center">
+                              <Calendar className="h-4 w-4 mr-1 text-[#FF7A00]" />
+                              Built {subjectProperty.yearBuilt}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-muted/50">
+                        <th className="p-2 text-left font-medium text-muted-foreground w-[200px]">Feature</th>
+                        <th className="p-2 text-center font-medium text-blue-600 w-[150px]">
+                          {subjectProperty ? 'Subject' : 'Subject'}
+                        </th>
+                        {selectedComps.map((comp) => (
+                          <th key={comp.id} className="p-2 text-center font-medium text-muted-foreground w-[150px]">
+                            Comp #{selectedComps.findIndex(c => c.id === comp.id) + 1}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Address row */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">Address</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          {subjectProperty?.address.length > 20 
+                            ? `${subjectProperty?.address.substring(0, 20)}...` 
+                            : subjectProperty?.address}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            {comp.address.length > 20 
+                              ? `${comp.address.substring(0, 20)}...` 
+                              : comp.address}
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Price row */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">
+                          <div className="flex items-center">
+                            <span>Price</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 ml-1 text-muted-foreground/50" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Sale price or current listing price</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </td>
+                        <td className="p-2 text-center font-medium bg-blue-50">
+                          {formatCurrency(subjectProperty?.price || 0)}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            {formatCurrency(comp.price)}
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Beds row + adjustment */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">Bedrooms</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          {subjectProperty?.bedrooms}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <div className="flex flex-col items-center">
+                              <span>{comp.bedrooms}</span>
+                              {subjectProperty && subjectProperty.bedrooms !== comp.bedrooms && (
+                                <div className="mt-1">
+                                  <Input
+                                    type="number"
+                                    placeholder="$ Adj"
+                                    className="w-20 h-7 text-xs"
+                                    value={compAdjustments[comp.id]?.adjustments?.bedrooms || ''}
+                                    onChange={(e) => handleAdjustmentChange(
+                                      comp.id, 
+                                      'bedrooms', 
+                                      e.target.value === '' ? 0 : parseInt(e.target.value)
+                                    )}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Baths row + adjustment */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">Bathrooms</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          {subjectProperty?.bathrooms}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <div className="flex flex-col items-center">
+                              <span>{comp.bathrooms}</span>
+                              {subjectProperty && subjectProperty.bathrooms !== comp.bathrooms && (
+                                <div className="mt-1">
+                                  <Input
+                                    type="number"
+                                    placeholder="$ Adj"
+                                    className="w-20 h-7 text-xs"
+                                    value={compAdjustments[comp.id]?.adjustments?.bathrooms || ''}
+                                    onChange={(e) => handleAdjustmentChange(
+                                      comp.id, 
+                                      'bathrooms', 
+                                      e.target.value === '' ? 0 : parseInt(e.target.value)
+                                    )}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Sqft row + adjustment */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">Square Feet</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          {subjectProperty?.squareFeet.toLocaleString()}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <div className="flex flex-col items-center">
+                              <span>{comp.squareFeet.toLocaleString()}</span>
+                              {subjectProperty && subjectProperty.squareFeet !== comp.squareFeet && (
+                                <div className="mt-1">
+                                  <Input
+                                    type="number"
+                                    placeholder="$ Adj"
+                                    className="w-20 h-7 text-xs"
+                                    value={compAdjustments[comp.id]?.adjustments?.squareFeet || ''}
+                                    onChange={(e) => handleAdjustmentChange(
+                                      comp.id, 
+                                      'squareFeet', 
+                                      e.target.value === '' ? 0 : parseInt(e.target.value)
+                                    )}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Year built row + adjustment */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">Year Built</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          {subjectProperty?.yearBuilt || 'N/A'}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <div className="flex flex-col items-center">
+                              <span>{comp.yearBuilt || 'N/A'}</span>
+                              {subjectProperty && subjectProperty.yearBuilt && comp.yearBuilt && 
+                               subjectProperty.yearBuilt !== comp.yearBuilt && (
+                                <div className="mt-1">
+                                  <Input
+                                    type="number"
+                                    placeholder="$ Adj"
+                                    className="w-20 h-7 text-xs"
+                                    value={compAdjustments[comp.id]?.adjustments?.age || ''}
+                                    onChange={(e) => handleAdjustmentChange(
+                                      comp.id, 
+                                      'age', 
+                                      e.target.value === '' ? 0 : parseInt(e.target.value)
+                                    )}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Garage row + adjustment */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">Garage Spaces</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          {subjectProperty?.garageSpaces || 'N/A'}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <div className="flex flex-col items-center">
+                              <span>{comp.garageSpaces || 'N/A'}</span>
+                              {subjectProperty && subjectProperty.garageSpaces && comp.garageSpaces !== undefined && 
+                               subjectProperty.garageSpaces !== comp.garageSpaces && (
+                                <div className="mt-1">
+                                  <Input
+                                    type="number"
+                                    placeholder="$ Adj"
+                                    className="w-20 h-7 text-xs"
+                                    value={compAdjustments[comp.id]?.adjustments?.garage || ''}
+                                    onChange={(e) => handleAdjustmentChange(
+                                      comp.id, 
+                                      'garage', 
+                                      e.target.value === '' ? 0 : parseInt(e.target.value)
+                                    )}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Location adjustment row */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">
+                          <div className="flex items-center">
+                            <span>Location Adjustment</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 ml-1 text-muted-foreground/50" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Adjustment for location quality differences</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </td>
+                        <td className="p-2 text-center bg-blue-50">Base</td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <Input
+                              type="number"
+                              placeholder="$ Adj"
+                              className="w-20 h-7 text-xs mx-auto"
+                              value={compAdjustments[comp.id]?.adjustments?.location || ''}
+                              onChange={(e) => handleAdjustmentChange(
+                                comp.id, 
+                                'location', 
+                                e.target.value === '' ? 0 : parseInt(e.target.value)
+                              )}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Condition adjustment row */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">
+                          <div className="flex items-center">
+                            <span>Condition Adjustment</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 ml-1 text-muted-foreground/50" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Adjustment for property condition differences</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </td>
+                        <td className="p-2 text-center bg-blue-50">Base</td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <Input
+                              type="number"
+                              placeholder="$ Adj"
+                              className="w-20 h-7 text-xs mx-auto"
+                              value={compAdjustments[comp.id]?.adjustments?.condition || ''}
+                              onChange={(e) => handleAdjustmentChange(
+                                comp.id, 
+                                'condition', 
+                                e.target.value === '' ? 0 : parseInt(e.target.value)
+                              )}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Other adjustment row */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">
+                          <div className="flex items-center">
+                            <span>Other Adjustments</span>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-4 w-4 ml-1 text-muted-foreground/50" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Additional adjustments not covered above</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </td>
+                        <td className="p-2 text-center bg-blue-50">Base</td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            <Input
+                              type="number"
+                              placeholder="$ Adj"
+                              className="w-20 h-7 text-xs mx-auto"
+                              value={compAdjustments[comp.id]?.adjustments?.other || ''}
+                              onChange={(e) => handleAdjustmentChange(
+                                comp.id, 
+                                'other', 
+                                e.target.value === '' ? 0 : parseInt(e.target.value)
+                              )}
+                            />
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Total adjustments row */}
+                      <tr className="border-b bg-muted/20">
+                        <td className="p-2 font-medium">Total Adjustments</td>
+                        <td className="p-2 text-center font-medium bg-blue-50">-</td>
+                        {selectedComps.map((comp) => {
+                          const adjustmentDiff = calculateAdjustmentDifference(comp.id);
+                          return (
+                            <td key={comp.id} className="p-2 text-center font-medium">
+                              <span className={
+                                adjustmentDiff > 0 
+                                  ? 'text-green-600' 
+                                  : adjustmentDiff < 0 
+                                    ? 'text-red-600' 
+                                    : ''
+                              }>
+                                {adjustmentDiff > 0 ? '+' : ''}
+                                {formatCurrency(adjustmentDiff)}
+                              </span>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                      
+                      {/* Adjusted price row */}
+                      <tr className="border-b font-bold">
+                        <td className="p-2">Adjusted Price</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          {formatCurrency(subjectProperty?.price || 0)}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            {formatCurrency(compAdjustments[comp.id]?.adjustedPrice || comp.price)}
+                          </td>
+                        ))}
+                      </tr>
+                      
+                      {/* Price per sqft row */}
+                      <tr className="border-b">
+                        <td className="p-2 text-muted-foreground">Price per Sq.Ft</td>
+                        <td className="p-2 text-center bg-blue-50">
+                          ${calculatePricePerSqFt(subjectProperty?.price || 0, subjectProperty?.squareFeet || 1)}
+                        </td>
+                        {selectedComps.map((comp) => (
+                          <td key={comp.id} className="p-2 text-center">
+                            ${calculatePricePerSqFt(
+                              compAdjustments[comp.id]?.adjustedPrice || comp.price, 
+                              comp.squareFeet
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="flex justify-between mt-6">
+                  <Button
+                    variant="outline"
+                    onClick={() => setActiveTab('results')}
+                    className="gap-2"
+                  >
+                    <ArrowRight className="h-4 w-4 rotate-180" />
+                    Back to Results
+                  </Button>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        // This would open a PDF or print view in a real implementation
+                        toast({
+                          title: 'Export Feature',
+                          description: 'CMA Report export will be available in the next update',
+                        });
+                      }}
+                      className="gap-2"
+                    >
+                      <FileOutput className="h-4 w-4" />
+                      Export CMA Report
+                    </Button>
+                    
+                    <Button 
+                      onClick={handleSaveAdjustments}
+                      className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                      disabled={saveAdjustmentsMutation.isPending}
+                    >
+                      {saveAdjustmentsMutation.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4" />
+                          Save Adjustments
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Summary card */}
+                <Card className="mt-8 bg-[#071224]/5">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">Comparable Market Analysis Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Comps Price Range</p>
+                        <p className="text-2xl font-bold">
+                          {formatCurrency(Math.min(...selectedComps.map(c => c.price)))} - {formatCurrency(Math.max(...selectedComps.map(c => c.price)))}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Based on {selectedComps.length} comparable properties</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Adjusted Price Range</p>
+                        <p className="text-2xl font-bold">
+                          {formatCurrency(Math.min(...selectedComps.map(c => compAdjustments[c.id]?.adjustedPrice || c.price)))} - {formatCurrency(Math.max(...selectedComps.map(c => compAdjustments[c.id]?.adjustedPrice || c.price)))}
+                        </p>
+                        <p className="text-xs text-muted-foreground">After applying all adjustments</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">Estimated Market Value</p>
+                        <p className="text-2xl font-bold text-[#FF7A00]">
+                          {formatCurrency(Math.round(selectedComps.reduce((sum, comp) => sum + (compAdjustments[comp.id]?.adjustedPrice || comp.price), 0) / selectedComps.length / 1000) * 1000)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">Average of adjusted comp prices</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <div className="text-center py-10">
+                <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium">No Properties Selected for Comparison</h3>
+                <p className="text-muted-foreground mt-2 mb-4">
+                  Please select comparable properties to make adjustments
+                </p>
+                <Button onClick={() => setActiveTab('results')}>
+                  Select Comps
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+        </CardContent>
       </Tabs>
-    </div>
+      
+      <CardFooter className="border-t px-6 py-4 flex justify-between">
+        <div className="flex items-center text-xs text-muted-foreground">
+          <Info className="h-4 w-4 mr-2 text-blue-600" />
+          <span>
+            Adjustments are made to comparable properties to account for differences from the subject property.
+          </span>
+        </div>
+      </CardFooter>
+    </Card>
   );
-};
-
-export default CompMatchingEngine;
+}
