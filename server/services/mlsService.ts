@@ -4,6 +4,7 @@
 import { Property, InsertProperty } from '@shared/schema';
 import { db } from '../db';
 import { properties } from '@shared/schema';
+import { eq } from 'drizzle-orm';
 
 // API response types for MLS data
 interface MLSApiResponse {
