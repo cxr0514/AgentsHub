@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from "recharts";
 import MarketOverview from "@/components/MarketOverview";
+import PriceHistoryChart from "@/components/PriceHistoryChart";
+import MarketVolatilityGauge from "@/components/MarketVolatilityGauge";
 
 const MarketAnalysis = () => {
   const [location, setLocation] = useState<string>("San Francisco, CA");
@@ -92,109 +94,129 @@ const MarketAnalysis = () => {
             </Card>
           </div>
         ) : sortedData.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 mb-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Median Price Trend (in thousands)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={priceChartData}
-                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip 
-                        formatter={(value, name) => {
-                          if (name === 'price') return [`$${value}k`, 'Median Price'];
-                          return [value, name];
-                        }} 
-                      />
-                      <Legend />
-                      <Area 
-                        type="monotone" 
-                        dataKey="price" 
-                        name="Median Price" 
-                        stroke="hsl(var(--chart-1))" 
-                        fill="hsla(var(--chart-1), 0.1)" 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="space-y-8">
+            {/* Enhanced market analysis with new sections */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="md:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Price History Analysis</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PriceHistoryChart data={sortedData} height={300} />
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div className="md:col-span-1">
+                <MarketVolatilityGauge data={sortedData} />
+              </div>
+            </div>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Price per Sq Ft Trend</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart
-                      data={priceChartData}
-                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip 
-                        formatter={(value, name) => {
-                          if (name === 'sqft') return [`$${value}`, 'Price per Sq Ft'];
-                          return [value, name];
-                        }}
-                      />
-                      <Legend />
-                      <Area 
-                        type="monotone" 
-                        dataKey="sqft" 
-                        name="Price per Sq Ft" 
-                        stroke="hsl(var(--chart-2))" 
-                        fill="hsla(var(--chart-2), 0.1)" 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Inventory Levels & Active Listings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={inventoryChartData}
-                      margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis yAxisId="left" orientation="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Legend />
-                      <Bar 
-                        yAxisId="left" 
-                        dataKey="inventory" 
-                        name="Inventory (months)" 
-                        fill="hsl(var(--chart-3))" 
-                      />
-                      <Bar 
-                        yAxisId="right" 
-                        dataKey="listings" 
-                        name="Active Listings" 
-                        fill="hsl(var(--chart-5))" 
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 gap-6 mb-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Median Price Trend (in thousands)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={priceChartData}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip 
+                          formatter={(value, name) => {
+                            if (name === 'price') return [`$${value}k`, 'Median Price'];
+                            return [value, name];
+                          }} 
+                        />
+                        <Legend />
+                        <Area 
+                          type="monotone" 
+                          dataKey="price" 
+                          name="Median Price" 
+                          stroke="#FF7A00" 
+                          fill="rgba(255, 122, 0, 0.1)" 
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Price per Sq Ft Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={priceChartData}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip 
+                          formatter={(value, name) => {
+                            if (name === 'sqft') return [`$${value}`, 'Price per Sq Ft'];
+                            return [value, name];
+                          }}
+                        />
+                        <Legend />
+                        <Area 
+                          type="monotone" 
+                          dataKey="sqft" 
+                          name="Price per Sq Ft" 
+                          stroke="#071224" 
+                          fill="rgba(7, 18, 36, 0.1)" 
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Inventory Levels & Active Listings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={inventoryChartData}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis yAxisId="left" orientation="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <Tooltip />
+                        <Legend />
+                        <Bar 
+                          yAxisId="left" 
+                          dataKey="inventory" 
+                          name="Inventory (months)" 
+                          fill="#FF7A00" 
+                        />
+                        <Bar 
+                          yAxisId="right" 
+                          dataKey="listings" 
+                          name="Active Listings" 
+                          fill="#071224" 
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         ) : (
           <Card className="p-6 text-center mb-6">
