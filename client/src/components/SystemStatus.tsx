@@ -43,7 +43,7 @@ export default function SystemStatus() {
   }, []);
 
   return (
-    <Card className="shadow-md">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <InfoCircledIcon className="h-5 w-5" />
@@ -55,40 +55,40 @@ export default function SystemStatus() {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-sm text-white">
             <span>Database Connection:</span>
             <div className="flex items-center gap-1">
               {dbStatus.connected ? (
                 <>
-                  <CheckCircledIcon className="h-4 w-4 text-green-500" />
-                  <span className="text-green-500 font-medium">Connected</span>
+                  <CheckCircledIcon className="h-4 w-4 text-green-400" />
+                  <span className="text-green-400 font-medium">Connected</span>
                 </>
               ) : (
                 <>
-                  <CrossCircledIcon className="h-4 w-4 text-red-500" />
-                  <span className="text-red-500 font-medium">Disconnected</span>
+                  <CrossCircledIcon className="h-4 w-4 text-red-400" />
+                  <span className="text-red-400 font-medium">Disconnected</span>
                 </>
               )}
             </div>
           </div>
           
           {dbStatus.version && (
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between text-sm text-white">
               <span>Database Version:</span>
               <span className="font-medium">{dbStatus.version}</span>
             </div>
           )}
           
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-sm text-white">
             <span>API Server:</span>
             <div className="flex items-center gap-1">
-              <CheckCircledIcon className="h-4 w-4 text-green-500" />
-              <span className="text-green-500 font-medium">Running</span>
+              <CheckCircledIcon className="h-4 w-4 text-green-400" />
+              <span className="text-green-400 font-medium">Running</span>
             </div>
           </div>
           
           {dbStatus.error && (
-            <div className="mt-2 text-sm text-red-500 border border-red-200 bg-red-50 p-2 rounded">
+            <div className="mt-2 text-sm text-red-400 border border-red-900 bg-red-900/30 p-2 rounded">
               {dbStatus.error}
             </div>
           )}
@@ -100,7 +100,7 @@ export default function SystemStatus() {
           size="sm" 
           onClick={checkDatabaseStatus}
           disabled={isChecking}
-          className="flex items-center gap-1 w-full"
+          className="flex items-center gap-1 w-full border-gray-700 text-white hover:bg-gray-700"
         >
           <ReloadIcon className="h-3.5 w-3.5" />
           {isChecking ? 'Checking Status...' : 'Check System Status'}

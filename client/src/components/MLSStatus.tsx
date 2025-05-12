@@ -68,7 +68,7 @@ export default function MLSStatus() {
   }, []);
 
   return (
-    <Card className="shadow-md">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
           <InfoCircledIcon className="h-5 w-5" />
@@ -80,29 +80,29 @@ export default function MLSStatus() {
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-sm text-white">
             <span>Connection Status:</span>
             <div className="flex items-center gap-1">
               {status.connected ? (
                 <>
-                  <CheckCircledIcon className="h-4 w-4 text-green-500" />
-                  <span className="text-green-500 font-medium">Connected</span>
+                  <CheckCircledIcon className="h-4 w-4 text-green-400" />
+                  <span className="text-green-400 font-medium">Connected</span>
                 </>
               ) : (
                 <>
-                  <CrossCircledIcon className="h-4 w-4 text-red-500" />
-                  <span className="text-red-500 font-medium">Disconnected</span>
+                  <CrossCircledIcon className="h-4 w-4 text-red-400" />
+                  <span className="text-red-400 font-medium">Disconnected</span>
                 </>
               )}
             </div>
           </div>
           
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-sm text-white">
             <span>Properties in System:</span>
             <span className="font-medium">{status.propertyCount}</span>
           </div>
           
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center justify-between text-sm text-white">
             <span>Last Synchronized:</span>
             <span className="font-medium">
               {status.lastSync ? new Date(status.lastSync).toLocaleString() : 'Never'}
@@ -110,7 +110,7 @@ export default function MLSStatus() {
           </div>
           
           {status.error && (
-            <div className="mt-2 text-sm text-red-500 border border-red-200 bg-red-50 p-2 rounded">
+            <div className="mt-2 text-sm text-red-400 border border-red-900 bg-red-900/30 p-2 rounded">
               {status.error}
             </div>
           )}
@@ -122,6 +122,7 @@ export default function MLSStatus() {
           size="sm" 
           onClick={fetchStatus}
           disabled={isLoading}
+          className="border-gray-700 text-white hover:bg-gray-700"
         >
           {isLoading ? 'Checking...' : 'Check Status'}
         </Button>
@@ -130,7 +131,7 @@ export default function MLSStatus() {
           size="sm" 
           onClick={handleSync} 
           disabled={isSyncing || !status.connected}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 bg-blue-600 hover:bg-blue-700"
         >
           <UpdateIcon className="h-3.5 w-3.5" />
           {isSyncing ? 'Syncing...' : 'Sync Now'}
