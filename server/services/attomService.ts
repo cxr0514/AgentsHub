@@ -450,15 +450,16 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
           continue;
         } else if (endpoint === ENDPOINTS.MARKET_SNAPSHOT) {
           // Sale snapshot endpoint requires specific parameters
-          // The error shows "Invalid Parameter(s) in Request - CITY,STATE"
-          // Let's try a different approach using date range parameters which are commonly required
+          // The error shows "Invalid Parameter(s) in Request - STARTDATE,ENDDATE"
+          // Let's try with correct parameter name format: sale date
           
           const today = new Date();
           const oneYearAgo = new Date();
           oneYearAgo.setFullYear(today.getFullYear() - 1);
           
-          queryParams.append("startdate", oneYearAgo.toISOString().split('T')[0]);
-          queryParams.append("enddate", today.toISOString().split('T')[0]);
+          // Using proper date parameter names based on ATTOM API documentation
+          queryParams.append("startsaledate", oneYearAgo.toISOString().split('T')[0]);
+          queryParams.append("endsaledate", today.toISOString().split('T')[0]);
           
           // Add minimum and maximum sale amounts
           queryParams.append("minsaleamt", "100000");
@@ -467,6 +468,10 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
           // Use postal code if available
           if (zipCode) {
             queryParams.append("postalcode", zipCode);
+          } else {
+            // Try with specified format requirements
+            queryParams.append("saleType", "resale");
+            queryParams.append("propertyType", "SFR");
           }
         } else if (endpoint === ENDPOINTS.AREA_DETAIL) {
           // Area full details endpoint

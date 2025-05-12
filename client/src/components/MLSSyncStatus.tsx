@@ -2,12 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, RefreshCw, AlertCircle, Check, Clock } from "lucide-react";
+import { Loader2, RefreshCw, AlertCircle, Check, Clock, AlertTriangle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function MLSSyncStatus() {
   const { toast } = useToast();
@@ -212,6 +213,19 @@ export default function MLSSyncStatus() {
               </div>
             </div>
           </CardContent>
+          
+          {attomIntegrationInProgress && (
+            <div className="px-6 pb-2">
+              <Alert variant="warning" className="bg-amber-50 border-amber-200">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertTitle className="text-amber-800 text-sm font-medium">ATTOM API Integration In Progress</AlertTitle>
+                <AlertDescription className="text-amber-700 text-xs">
+                  We're currently updating the ATTOM API integration to ensure accurate market data. 
+                  Temporary fallback data is being used while we complete this process.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
           
           <CardFooter className="flex justify-between">
             <TooltipProvider>
