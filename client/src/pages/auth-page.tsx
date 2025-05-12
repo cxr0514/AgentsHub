@@ -73,12 +73,12 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center bg-black text-white overflow-hidden">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#071224] text-white overflow-hidden">
       {/* Background gradient waves */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-teal-400 to-teal-200 opacity-20"></div>
-        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-indigo-500 via-purple-500 to-pink-400 opacity-20"></div>
-        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-fuchsia-400 to-purple-400 opacity-10"></div>
+        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0a1b32] to-[#061020] opacity-30"></div>
+        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#0d1728] to-[#050d1c] opacity-30"></div>
+        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#081526] to-[#040c1b] opacity-20"></div>
         <div className="animate-pulse absolute left-1/4 top-1/4 w-2 h-2 rounded-full bg-white opacity-50"></div>
         <div className="animate-pulse-slow absolute right-1/3 top-1/2 w-1 h-1 rounded-full bg-white opacity-80"></div>
         <div className="animate-pulse-slower absolute left-1/2 top-1/3 w-1 h-1 rounded-full bg-white opacity-70"></div>
@@ -101,11 +101,13 @@ export default function AuthPage() {
       <div className="relative z-10 flex flex-col items-center justify-center p-8 w-full max-w-md">
         {/* Logo */}
         <div className="mb-12">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto">
-            <path d="M60 10L110 90H10L60 10Z" fill="white"/>
-            <path d="M60 45L77.5 75H42.5L60 45Z" fill="black"/>
-          </svg>
-          <h1 className="text-2xl font-bold tracking-wider text-center mt-4">DATAFINITI</h1>
+          <div className="flex items-center justify-center gap-2">
+            <div className="text-[#FF7A00] text-6xl">⌂</div>
+            <div className="text-3xl font-bold text-white tracking-tight">
+              Prop<span className="text-[#FF7A00]">Invest</span>AI
+            </div>
+          </div>
+          <p className="text-[#8A93A6] text-center mt-2">Real Estate Intelligence Platform</p>
         </div>
         
         {activeView === "login" ? (
@@ -119,8 +121,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-gray-600 rounded-md px-3 bg-black/30 backdrop-blur-sm focus-within:ring-1 focus-within:ring-purple-400">
-                            <UserRound className="h-4 w-4 mr-2 text-gray-300" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
+                            <UserRound className="h-4 w-4 mr-2 text-[#8A93A6]" />
                             <Input
                               placeholder="Username"
                               {...field}
@@ -139,8 +141,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-gray-600 rounded-md px-3 bg-black/30 backdrop-blur-sm focus-within:ring-1 focus-within:ring-purple-400">
-                            <Lock className="h-4 w-4 mr-2 text-gray-300" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
+                            <Lock className="h-4 w-4 mr-2 text-[#8A93A6]" />
                             <Input
                               type="password"
                               placeholder="Password"
@@ -158,7 +160,7 @@ export default function AuthPage() {
                 <div className="mt-6 flex flex-col space-y-4">
                   <Button
                     type="submit"
-                    className="w-full bg-indigo-700 hover:bg-indigo-600 text-white py-2"
+                    className="w-full bg-[#FF7A00] hover:bg-[#FF9832] text-white py-2"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? "Logging in..." : "Login"}
@@ -167,7 +169,7 @@ export default function AuthPage() {
                   <Button
                     type="button"
                     variant="outline" 
-                    className="w-full border-gray-600 text-white hover:bg-gray-800 hover:text-white"
+                    className="w-full border-[#0f1d31] text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"
                     onClick={() => setActiveView("signup")}
                   >
                     Sign up
@@ -187,8 +189,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-gray-600 rounded-md px-3 bg-black/30 backdrop-blur-sm focus-within:ring-1 focus-within:ring-purple-400">
-                            <UserRound className="h-4 w-4 mr-2 text-gray-300" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
+                            <UserRound className="h-4 w-4 mr-2 text-[#8A93A6]" />
                             <Input
                               placeholder="Username"
                               {...field}
@@ -207,7 +209,7 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-gray-600 rounded-md px-3 bg-black/30 backdrop-blur-sm focus-within:ring-1 focus-within:ring-purple-400">
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
                             <Input
                               type="email"
                               placeholder="Email"
@@ -227,7 +229,7 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-gray-600 rounded-md px-3 bg-black/30 backdrop-blur-sm focus-within:ring-1 focus-within:ring-purple-400">
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
                             <Input
                               placeholder="Full Name"
                               {...field}
@@ -246,8 +248,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-gray-600 rounded-md px-3 bg-black/30 backdrop-blur-sm focus-within:ring-1 focus-within:ring-purple-400">
-                            <Lock className="h-4 w-4 mr-2 text-gray-300" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
+                            <Lock className="h-4 w-4 mr-2 text-[#8A93A6]" />
                             <Input
                               type="password"
                               placeholder="Password"
@@ -267,8 +269,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-gray-600 rounded-md px-3 bg-black/30 backdrop-blur-sm focus-within:ring-1 focus-within:ring-purple-400">
-                            <Lock className="h-4 w-4 mr-2 text-gray-300" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
+                            <Lock className="h-4 w-4 mr-2 text-[#8A93A6]" />
                             <Input
                               type="password"
                               placeholder="Confirm Password"
@@ -286,7 +288,7 @@ export default function AuthPage() {
                 <div className="mt-6 flex flex-col space-y-4">
                   <Button
                     type="submit"
-                    className="w-full bg-teal-700 hover:bg-teal-600 text-white py-2"
+                    className="w-full bg-[#FF7A00] hover:bg-[#FF9832] text-white py-2"
                     disabled={registerMutation.isPending}
                   >
                     {registerMutation.isPending ? "Creating account..." : "Sign up"}
@@ -295,7 +297,7 @@ export default function AuthPage() {
                   <Button
                     type="button"
                     variant="outline" 
-                    className="w-full border-gray-600 text-white hover:bg-gray-800 hover:text-white"
+                    className="w-full border-[#0f1d31] text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"
                     onClick={() => setActiveView("login")}
                   >
                     Login
@@ -307,9 +309,9 @@ export default function AuthPage() {
         )}
         
         {/* Links */}
-        <div className="mt-8 flex justify-center space-x-4 text-sm text-gray-400">
-          <a href="#" className="hover:text-white transition-colors">Terms of use</a>
-          <a href="#" className="hover:text-white transition-colors">Privacy policy</a>
+        <div className="mt-8 flex justify-center space-x-4 text-sm text-[#8A93A6]">
+          <a href="#" className="hover:text-[#FF7A00] transition-colors">Terms of use</a>
+          <a href="#" className="hover:text-[#FF7A00] transition-colors">Privacy policy</a>
         </div>
       </div>
     </div>
