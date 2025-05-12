@@ -142,7 +142,12 @@ export default function ApiKeyManagement() {
 
   // Handle form submission
   const onSubmit = (data: ApiKeyFormValues) => {
-    addKeyMutation.mutate(data);
+    // If custom service is selected, use the custom service value
+    const submissionData = {
+      ...data,
+      service: data.service === "custom" && data.customService ? data.customService : data.service
+    };
+    addKeyMutation.mutate(submissionData);
   };
 
   // Handle key deletion
@@ -206,14 +211,59 @@ export default function ApiKeyManagement() {
                     <FormItem>
                       <FormLabel className="text-white">Service</FormLabel>
                       <FormControl>
-                        <Input placeholder="mls" {...field} className="bg-[#162233] border-gray-700 text-white placeholder:text-gray-500" />
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            setSelectedService(value);
+                            field.onChange(value);
+                          }}
+                        >
+                          <SelectTrigger className="bg-[#162233] border-gray-700 text-white focus:ring-[#FF7A00] focus:ring-1">
+                            <SelectValue placeholder="Select a service" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-[#162233] border-gray-700 text-white">
+                            {AVAILABLE_SERVICES.map((service) => (
+                              <SelectItem 
+                                key={service.id} 
+                                value={service.id}
+                                className="focus:bg-[#0f1d31] focus:text-white"
+                              >
+                                {service.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
-                      <FormMessage className="text-xs">
-                        This will be used as environment variable prefix (e.g., MLS_API_KEY)
-                      </FormMessage>
+                      <FormDescription className="text-xs text-gray-400">
+                        This service name will be used to create the API key environment variable
+                      </FormDescription>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
+                
+                {selectedService === "custom" && (
+                  <FormField
+                    control={form.control}
+                    name="customService"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-white">Custom Service Name</FormLabel>
+                        <FormControl>
+                          <Input 
+                            placeholder="custom-service" 
+                            {...field} 
+                            className="bg-[#162233] border-gray-700 text-white placeholder:text-gray-500" 
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs text-gray-400">
+                          Enter a custom service name (lowercase, no spaces)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
                 <div className="flex justify-end">
                   <Button
                     type="submit"
