@@ -323,11 +323,11 @@ export default function MarketAnalysisPage() {
       
       {selectedLocation && (
         <Tabs defaultValue="predictions" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 mb-8 bg-[#0F1D32] p-1">
-            <TabsTrigger value="predictions" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Market Predictions</TabsTrigger>
-            <TabsTrigger value="report" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Market Report</TabsTrigger>
-            <TabsTrigger value="recommendations" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Recommendations</TabsTrigger>
-            <TabsTrigger value="anomalies" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Anomaly Detection</TabsTrigger>
+          <TabsList className="grid grid-cols-4 mb-8 bg-[#0F1D32] p-1 border border-gray-700">
+            <TabsTrigger value="predictions" className="text-gray-300 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Market Predictions</TabsTrigger>
+            <TabsTrigger value="report" className="text-gray-300 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Market Report</TabsTrigger>
+            <TabsTrigger value="recommendations" className="text-gray-300 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Recommendations</TabsTrigger>
+            <TabsTrigger value="anomalies" className="text-gray-300 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Anomaly Detection</TabsTrigger>
           </TabsList>
           
           <TabsContent value="predictions">
@@ -746,25 +746,26 @@ export default function MarketAnalysisPage() {
           </TabsContent>
           
           <TabsContent value="recommendations">
-            <Card>
+            <Card className="bg-[#0F1D32] border border-gray-700 text-white">
               <CardHeader>
-                <CardTitle>Personalized Property Recommendations</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white">Personalized Property Recommendations</CardTitle>
+                <CardDescription className="text-gray-300">
                   AI-powered property recommendations based on your preferences
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <PermissionGuard permission={Permission.VIEW_PROPERTIES}>
-                  <div className="text-center py-12 border border-dashed rounded-lg mb-8">
-                    <Building className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">Get Personalized Recommendations</h3>
-                    <p className="text-muted-foreground mb-4">
+                  <div className="text-center py-12 border border-dashed border-gray-700 rounded-lg mb-8 bg-[#131F32]">
+                    <Building className="h-12 w-12 mx-auto mb-4 text-gray-500" />
+                    <h3 className="text-lg font-semibold mb-2 text-white">Get Personalized Recommendations</h3>
+                    <p className="text-gray-400 mb-4">
                       Our AI will analyze your preferences and the current market to find the best properties for you.
                     </p>
                     
                     <Button 
                       onClick={getRecommendations}
                       disabled={propertyRecommendationsMutation.isPending || !selectedLocation}
+                      className="bg-[#FF7A00] hover:bg-[#E56C00] text-white"
                     >
                       {propertyRecommendationsMutation.isPending && (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -775,8 +776,8 @@ export default function MarketAnalysisPage() {
                   
                   {/* Display recommendations (mocked for now) */}
                   {propertyRecommendationsMutation.isPending ? (
-                    <div className="flex justify-center items-center h-64">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <div className="flex justify-center items-center h-64 text-gray-300">
+                      <Loader2 className="h-8 w-8 animate-spin text-[#FF7A00]" />
                       <span className="ml-2">Generating personalized recommendations...</span>
                     </div>
                   ) : null}
@@ -786,25 +787,26 @@ export default function MarketAnalysisPage() {
           </TabsContent>
           
           <TabsContent value="anomalies">
-            <Card>
+            <Card className="bg-[#0F1D32] border border-gray-700 text-white">
               <CardHeader>
-                <CardTitle>Property Anomaly Detection</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white">Property Anomaly Detection</CardTitle>
+                <CardDescription className="text-gray-300">
                   AI-powered analysis to detect anomalies in property listings
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <PermissionGuard permission={Permission.VIEW_PROPERTIES}>
-                  <div className="text-center py-12 border border-dashed rounded-lg mb-8">
-                    <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">Detect Market Anomalies</h3>
-                    <p className="text-muted-foreground mb-4">
+                  <div className="text-center py-12 border border-dashed border-gray-700 rounded-lg mb-8 bg-[#131F32]">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-yellow-500" />
+                    <h3 className="text-lg font-semibold mb-2 text-white">Detect Market Anomalies</h3>
+                    <p className="text-gray-400 mb-4">
                       Our AI will analyze property listings to detect mispricing, fraud, or unusual patterns.
                     </p>
                     
                     <Button 
                       onClick={detectAnomalies}
                       disabled={!selectedLocation}
+                      className="bg-[#FF7A00] hover:bg-[#E56C00] text-white"
                     >
                       Analyze Properties
                     </Button>
