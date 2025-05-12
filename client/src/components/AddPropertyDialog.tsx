@@ -459,6 +459,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                           <Switch
                             checked={field.value}
                             onCheckedChange={field.onChange}
+                            className="data-[state=checked]:bg-[#FF7A00]"
                           />
                         </FormControl>
                         <FormLabel className="cursor-pointer">Has Basement</FormLabel>
