@@ -13,6 +13,7 @@ import ApiKeyManagement from "@/pages/api-key-management";
 import PropertiesPage from "@/pages/properties-page";
 import SearchPage from "@/pages/search-page";
 import MarketAnalysisPage from "@/pages/market-analysis-page";
+import PropertyComparisonPage from "@/pages/property-comparison-page";
 import ReportsPage from "@/pages/reports-page";
 import SettingsPage from "@/pages/settings-page";
 import NotFound from "@/pages/not-found";
@@ -24,6 +25,7 @@ function Router() {
       <ProtectedRoute path="/properties" component={PropertiesPage} />
       <ProtectedRoute path="/search" component={SearchPage} />
       <ProtectedRoute path="/market-analysis" component={MarketAnalysisPage} />
+      <ProtectedRoute path="/property-comparison" component={PropertyComparisonPage} />
       <ProtectedRoute path="/reports" component={ReportsPage} />
       <ProtectedRoute path="/settings" component={SettingsPage} />
       <ProtectedRoute path="/api-keys" component={ApiKeyManagement} />
