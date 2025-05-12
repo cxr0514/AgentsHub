@@ -16,10 +16,15 @@ const ENDPOINTS = {
 };
 
 // Headers for ATTOM API requests
-const getHeaders = () => ({
-  "apikey": ATTOM_API_KEY,
-  "Accept": "application/json",
-});
+const getHeaders = () => {
+  if (!ATTOM_API_KEY) {
+    throw new Error("ATTOM API Key is not configured");
+  }
+  return {
+    "apikey": ATTOM_API_KEY,
+    "Accept": "application/json",
+  };
+};
 
 /**
  * Fetches property details from ATTOM API
