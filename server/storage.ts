@@ -633,20 +633,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMarketPredictionsByLocation(city: string, state: string, zipCode?: string): Promise<MarketPrediction[]> {
+    // Build the initial query with city and state filter
     let query = db.select().from(marketPredictions)
       .where(
         and(
           eq(marketPredictions.city, city),
           eq(marketPredictions.state, state)
         )
-      )
-      .orderBy(desc(marketPredictions.predictionDate));
-      
+      );
+    
+    // Add zipCode filter if provided
     if (zipCode) {
       query = query.where(eq(marketPredictions.zipCode, zipCode));
     }
     
-    return query;
+    // Execute the query and sort the results by prediction date descending
+    const results = await query;
+    return results.sort((a, b) => 
+      new Date(b.predictionDate).getTime() - new Date(a.predictionDate).getTime()
+    );
   }
 
   async createMarketPrediction(prediction: InsertMarketPrediction): Promise<MarketPrediction> {
@@ -909,7 +914,9 @@ export class DatabaseStorage implements IStorage {
         )
       );
     
+    // Use the correct column name (zip_code) instead of the camelCase property name (zipCode)
     if (zipCode) {
+      // marketData.zipCode maps to the database column zip_code
       query = query.where(eq(marketData.zipCode, zipCode));
     }
     
