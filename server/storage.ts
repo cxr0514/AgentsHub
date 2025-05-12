@@ -59,6 +59,35 @@ export interface IStorage {
   getPropertyRecommendation(id: number): Promise<PropertyRecommendation | undefined>;
   getPropertyRecommendationsByUser(userId: number): Promise<PropertyRecommendation[]>;
   createPropertyRecommendation(recommendation: InsertPropertyRecommendation): Promise<PropertyRecommendation>;
+  
+  // Collaboration - Shared Properties methods
+  getSharedProperty(id: number): Promise<SharedProperty | undefined>;
+  getSharedPropertyByToken(token: string): Promise<SharedProperty | undefined>;
+  getSharedPropertiesByOwner(ownerId: number): Promise<SharedProperty[]>;
+  getSharedPropertiesByEmail(email: string): Promise<SharedProperty[]>; 
+  createSharedProperty(property: InsertSharedProperty): Promise<SharedProperty>;
+  updateSharedProperty(id: number, updates: Partial<SharedProperty>): Promise<SharedProperty | undefined>;
+  deleteSharedProperty(id: number): Promise<boolean>;
+  
+  // Collaboration - Property Comments methods
+  getPropertyComment(id: number): Promise<PropertyComment | undefined>;
+  getPropertyCommentsByProperty(propertyId: number): Promise<PropertyComment[]>;
+  getPropertyCommentsBySharedProperty(sharedPropertyId: number): Promise<PropertyComment[]>;
+  createPropertyComment(comment: InsertPropertyComment): Promise<PropertyComment>;
+  deletePropertyComment(id: number): Promise<boolean>;
+  
+  // Collaboration - Teams methods
+  getCollaborationTeam(id: number): Promise<CollaborationTeam | undefined>;
+  getTeamsByUserId(userId: number): Promise<CollaborationTeam[]>;
+  createCollaborationTeam(team: InsertCollaborationTeam): Promise<CollaborationTeam>;
+  updateCollaborationTeam(id: number, updates: Partial<CollaborationTeam>): Promise<CollaborationTeam | undefined>;
+  deleteCollaborationTeam(id: number): Promise<boolean>;
+  addTeamMember(member: InsertTeamMember): Promise<TeamMember>;
+  removeTeamMember(teamId: number, userId: number): Promise<boolean>;
+  getTeamMembers(teamId: number): Promise<TeamMember[]>;
+  addPropertyToTeam(teamProperty: InsertTeamProperty): Promise<TeamProperty>;
+  removePropertyFromTeam(teamId: number, propertyId: number): Promise<boolean>;
+  getTeamProperties(teamId: number): Promise<Property[]>;
 }
 
 export interface PropertyFilters {
@@ -98,6 +127,13 @@ export class MemStorage implements IStorage {
   private propertyHistory: Map<number, PropertyHistory>;
   private marketPredictions: Map<number, MarketPrediction>;
   private propertyRecommendations: Map<number, PropertyRecommendation>;
+  
+  // New collaboration maps
+  private sharedProperties: Map<number, SharedProperty>;
+  private propertyComments: Map<number, PropertyComment>;
+  private collaborationTeams: Map<number, CollaborationTeam>;
+  private teamMembers: Map<string, TeamMember>; // key is teamId-userId
+  private teamProperties: Map<string, TeamProperty>; // key is teamId-propertyId
 
   private userId: number;
   private propertyId: number;
@@ -108,6 +144,9 @@ export class MemStorage implements IStorage {
   private propertyHistoryId: number;
   private marketPredictionId: number;
   private propertyRecommendationId: number;
+  private sharedPropertyId: number;
+  private propertyCommentId: number;
+  private collaborationTeamId: number;
 
   constructor() {
     this.users = new Map();
