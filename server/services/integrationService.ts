@@ -374,5 +374,4 @@ export async function getMarketData(city: string, state: string, zipCode?: strin
   }
 }
 
-// Import missing dependency
-import { or } from 'drizzle-orm';
+// Remove duplicate import since or is already imported at the top

@@ -17,9 +17,9 @@ const PropertySearch = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [showCsvUploadDialog, setShowCsvUploadDialog] = useState(false);
   
-  // Fetch properties
+  // Fetch properties with integrated search that combines local DB and MLS data
   const { data: fetchedProperties, isLoading, refetch } = useQuery({
-    queryKey: ['/api/properties', searchFilters],
+    queryKey: ['/api/properties/search', searchFilters],
     queryFn: async () => {
       // If we have filters, use them to filter properties
       if (Object.keys(searchFilters).length > 0) {
@@ -31,7 +31,8 @@ const PropertySearch = () => {
           }
         }
         
-        const url = `/api/properties?${queryParams.toString()}`;
+        // Use the dedicated search endpoint that combines local DB and MLS data
+        const url = `/api/properties/search?${queryParams.toString()}`;
         const response = await fetch(url);
         
         if (!response.ok) {
@@ -40,8 +41,9 @@ const PropertySearch = () => {
         
         return await response.json();
       } else {
-        // Otherwise, get all properties
-        const response = await fetch('/api/properties');
+        // Otherwise, get all properties, but still use search endpoint with empty params
+        // to take advantage of the integrated search functionality
+        const response = await fetch('/api/properties/search');
         
         if (!response.ok) {
           throw new Error('Failed to fetch properties');

@@ -37,9 +37,9 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
   const queryString = new URLSearchParams(filters).toString();
   
   const { data: properties, isLoading } = useQuery({
-    queryKey: [`/api/properties${queryString ? `?${queryString}` : ''}`],
+    queryKey: [`/api/properties/search${queryString ? `?${queryString}` : ''}`],
     queryFn: async () => {
-      const response = await fetch(`/api/properties${queryString ? `?${queryString}` : ''}`);
+      const response = await fetch(`/api/properties/search${queryString ? `?${queryString}` : ''}`);
       if (!response.ok) {
         throw new Error('Failed to fetch properties');
       }
