@@ -3,7 +3,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { storage } from '../storage';
-import jsPDF from 'jspdf';
+// Import jsPDF correctly
+import { jsPDF } from 'jspdf';
 // Need to add 'jspdf-autotable' for PDF table generation
 import 'jspdf-autotable';
 import { log } from '../vite';
@@ -224,9 +225,9 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       // Property specifications
       doc.setFontSize(12);
       const specs = [
-        [`Price: $${subjectProperty.price.toLocaleString()}`, `Bedrooms: ${subjectProperty.bedrooms}`],
-        [`Square Feet: ${subjectProperty.squareFeet.toLocaleString()}`, `Bathrooms: ${subjectProperty.bathrooms}`],
-        [`Price/Sq.Ft: $${(subjectProperty.price / subjectProperty.squareFeet).toFixed(2)}`, `Year Built: ${subjectProperty.yearBuilt || 'N/A'}`],
+        [`Price: $${Number(subjectProperty.price).toLocaleString()}`, `Bedrooms: ${subjectProperty.bedrooms}`],
+        [`Square Feet: ${Number(subjectProperty.squareFeet).toLocaleString()}`, `Bathrooms: ${subjectProperty.bathrooms}`],
+        [`Price/Sq.Ft: $${(Number(subjectProperty.price) / Number(subjectProperty.squareFeet)).toFixed(2)}`, `Year Built: ${subjectProperty.yearBuilt || 'N/A'}`],
         [`Property Type: ${subjectProperty.propertyType}`, `Status: ${subjectProperty.status}`],
         [`Lot Size: ${subjectProperty.lotSize ? subjectProperty.lotSize + ' acres' : 'N/A'}`, `Days on Market: ${subjectProperty.daysOnMarket || 'N/A'}`]
       ];
@@ -254,11 +255,11 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       const tableHeader = [['Address', 'Price', 'Sq.Ft', 'Beds', 'Baths', 'Price/Sq.Ft', 'Year', 'Status']];
       const tableData = comps.map(comp => [
         `${comp.address}, ${comp.city}`,
-        `$${comp.price.toLocaleString()}`,
-        comp.squareFeet.toLocaleString(),
+        `$${Number(comp.price).toLocaleString()}`,
+        Number(comp.squareFeet).toLocaleString(),
         comp.bedrooms.toString(),
         comp.bathrooms.toString(),
-        `$${(comp.price / comp.squareFeet).toFixed(2)}`,
+        `$${(Number(comp.price) / Number(comp.squareFeet)).toFixed(2)}`,
         comp.yearBuilt?.toString() || 'N/A',
         comp.status
       ]);
