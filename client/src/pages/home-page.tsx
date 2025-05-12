@@ -15,11 +15,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-card border-r border-border h-screen flex flex-col">
-        <div className="p-6 border-b border-border">
+      <aside className="w-64 bg-[#071224] border-r border-[#0f1d31] h-screen flex flex-col">
+        <div className="p-6 border-b border-[#0f1d31]">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold">Real Estate Pro</h1>
+            <Building2 className="h-6 w-6 text-[#FF7A00]" />
+            <h1 className="text-xl font-bold text-white">Real Estate Pro</h1>
           </div>
         </div>
 
@@ -66,17 +66,17 @@ export default function HomePage() {
           </PermissionGuard>
         </nav>
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-[#0f1d31]">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <span className="text-sm font-medium text-primary">
+              <div className="h-8 w-8 rounded-full bg-[#FF7A00]/10 flex items-center justify-center">
+                <span className="text-sm font-medium text-[#FF7A00]">
                   {user?.username.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div>
-                <p className="text-sm font-medium">{user?.username}</p>
-                <p className="text-xs text-muted-foreground capitalize">{user?.role}</p>
+                <p className="text-sm font-medium text-white">{user?.username}</p>
+                <p className="text-xs text-slate-400 capitalize">{user?.role}</p>
               </div>
             </div>
             <Button
@@ -150,7 +150,7 @@ export default function HomePage() {
 
               <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-6 text-white">
                 <Settings className="h-10 w-10 text-[#FF7A00] mb-4" />
-                <h2 className="text-xl font-bold mb-2">System Settings</h2>
+                <h2 className="text-xl font-bold mb-2 text-white">System Settings</h2>
                 <p className="text-slate-400 mb-4">
                   Configure application settings and manage user accounts.
                 </p>
