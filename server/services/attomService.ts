@@ -147,9 +147,10 @@ export async function fetchPropertySaleHistory(address: string, city: string, st
     
     // Try multiple ways to get property sale history
     const endpoints = [
-      ENDPOINTS.PROPERTY_SALE_HISTORY,
-      ENDPOINTS.PROPERTY_EXPAND_DETAIL, // Also try the expanded details, which should include sales
-      ENDPOINTS.PROPERTY_DETAILS       // Try the full property details as a backup
+      ENDPOINTS.PROPERTY_ADDRESS_SEARCH, // Try address search first to get property ID
+      ENDPOINTS.PROPERTY_SALE_HISTORY,   // Then try direct property sale history
+      ENDPOINTS.PROPERTY_EXPAND_DETAIL,  // Also try the expanded details
+      ENDPOINTS.PROPERTY_DETAILS         // Try the full property details as a backup
     ];
     
     let response = null;
@@ -160,19 +161,19 @@ export async function fetchPropertySaleHistory(address: string, city: string, st
       try {
         const queryParams = new URLSearchParams();
         
-        // Different parameters for different endpoints based on documentation
-        if (endpoint === ENDPOINTS.PROPERTY_SALE_HISTORY) {
+        // Different parameters for different endpoints based on ATTOM API v1.0.0 documentation
+        if (endpoint === ENDPOINTS.PROPERTY_ADDRESS_SEARCH) {
+          // address search endpoint
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
+        } else if (endpoint === ENDPOINTS.PROPERTY_SALE_HISTORY) {
           // Sale history endpoint
-          queryParams.append("address", address);
-          queryParams.append("cityname", city);
-          queryParams.append("stateabbr", state);
-          queryParams.append("postalcode", zipCode);
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
         } else if (endpoint === ENDPOINTS.PROPERTY_EXPAND_DETAIL) {
-          // Expand detail endpoint
-          queryParams.append("address", address);
-          queryParams.append("cityname", city);
-          queryParams.append("stateabbr", state);
-          queryParams.append("postalcode", zipCode);
+          // Expanded profile endpoint
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
         } else if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
           // Details endpoint
           queryParams.append("address1", address);
@@ -231,8 +232,7 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
       return getFallbackMarketData(city, state, zipCode);
     }
     
-    // Try to fetch from different ATTOM endpoints based on documentation
-    // https://api.developer.attomdata.com/docs
+    // Try to fetch from different ATTOM endpoints based on latest API documentation
     const endpoints = [
       ENDPOINTS.MARKET_STATS,      // First try area stats endpoint
       ENDPOINTS.MARKET_SNAPSHOT,   // Then try snapshot endpoint
@@ -247,26 +247,24 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
       try {
         const queryParams = new URLSearchParams();
         
-        // Different endpoints need different parameters
+        // Different endpoints need different parameters for ATTOM API v1.0.0
         if (endpoint === ENDPOINTS.MARKET_STATS) {
           // Area stats endpoint
           if (zipCode) {
+            // If we have a zip code, use it
             queryParams.append("postalcode", zipCode);
           } else {
-            // If no zip code, use geolocation parameters
-            // These are example values and should be adjusted based on actual city coordinates
-            queryParams.append("minlatitude", "33.5");
-            queryParams.append("maxlatitude", "34.5");
-            queryParams.append("minlongitude", "-84.8");
-            queryParams.append("maxlongitude", "-83.8");
+            // If no zip code, use city and state
+            queryParams.append("city", city);
+            queryParams.append("state", state);
           }
         } else if (endpoint === ENDPOINTS.MARKET_SNAPSHOT) {
           // Snapshot endpoint
           if (zipCode) {
             queryParams.append("postalcode", zipCode);
           } else {
-            queryParams.append("cityname", city);
-            queryParams.append("stateabbr", state);
+            queryParams.append("city", city);
+            queryParams.append("state", state);
           }
         } else if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
           // Property details endpoint - try with a generic address in the city

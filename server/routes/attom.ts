@@ -1,245 +1,295 @@
 import { Router } from "express";
-import { 
-  fetchMarketStatistics, 
-  updateMarketData, 
-  syncMarketData,
-  fetchPropertyDetails,
-  fetchPropertySaleHistory
-} from "../services/attomService";
 import { requirePermission } from "../middleware/permissions";
-import { Permission } from "../../shared/permissions";
+import { Permission } from "@shared/permissions";
+import {
+  fetchPropertyDetails,
+  fetchPropertySaleHistory,
+  fetchMarketStatistics,
+  updateMarketData,
+  syncMarketData
+} from "../services/attomService";
 
 const router = Router();
 
-// Get market statistics for a location (protected route)
-router.get("/market-stats", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
+// Require authentication for all routes in this router
+router.use(requirePermission(Permission.VIEW_PROPERTIES));
+
+// Property details endpoint
+router.get("/property-details", async (req, res) => {
   try {
-    const { city, state, zipCode } = req.query;
-
-    if (!city || !state) {
-      return res.status(400).json({ error: "City and state are required parameters" });
+    const { address, city, state, zipCode } = req.query;
+    
+    if (!address || !city || !state) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing required parameters: address, city, and state are required" 
+      });
     }
-
-    const data = await fetchMarketStatistics(
-      city as string, 
-      state as string,
-      zipCode as string | undefined
+    
+    const result = await fetchPropertyDetails(
+      String(address),
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : ""
     );
-
-    return res.json(data);
-  } catch (error: any) {
-    console.error("Error fetching ATTOM market statistics:", error);
-    return res.status(500).json({ error: error.message || "Error fetching market statistics" });
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching property details:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
   }
 });
 
-// Update market data for a location (protected route)
+// Property sale history endpoint
+router.get("/property-history", async (req, res) => {
+  try {
+    const { address, city, state, zipCode } = req.query;
+    
+    if (!address || !city || !state) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing required parameters: address, city, and state are required" 
+      });
+    }
+    
+    const result = await fetchPropertySaleHistory(
+      String(address),
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : ""
+    );
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching property sale history:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
+  }
+});
+
+// Market statistics endpoint
+router.get("/market-statistics", async (req, res) => {
+  try {
+    const { city, state, zipCode } = req.query;
+    
+    if (!city || !state) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing required parameters: city and state are required" 
+      });
+    }
+    
+    const result = await fetchMarketStatistics(
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : undefined
+    );
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching market statistics:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
+  }
+});
+
+// Update market data endpoint
 router.post("/update-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRATION), async (req, res) => {
   try {
     const { city, state, zipCode } = req.body;
-
+    
     if (!city || !state) {
-      return res.status(400).json({ error: "City and state are required parameters" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing required parameters: city and state are required" 
+      });
     }
-
-    const result = await updateMarketData(city, state, zipCode);
-    return res.json(result);
-  } catch (error: any) {
+    
+    const result = await updateMarketData(
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : undefined
+    );
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
     console.error("Error updating market data:", error);
-    return res.status(500).json({ error: error.message || "Error updating market data" });
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
   }
 });
 
-// Test endpoint for updating market data (unprotected for testing)
-router.post("/test-update-market-data", async (req, res) => {
-  try {
-    const { city, state, zipCode } = req.body;
-
-    if (!city || !state) {
-      return res.status(400).json({ error: "City and state are required parameters" });
-    }
-
-    console.log(`Test endpoint: Updating market data for ${city}, ${state}${zipCode ? ` ${zipCode}` : ''}`);
-    const result = await updateMarketData(city, state, zipCode);
-    return res.json(result);
-  } catch (error: any) {
-    console.error("Error updating market data (test endpoint):", error);
-    return res.status(500).json({ error: error.message || "Error updating market data" });
-  }
-});
-
-// Sync market data for multiple locations (protected route)
+// Sync market data for multiple locations
 router.post("/sync-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRATION), async (req, res) => {
   try {
     const { locations } = req.body;
-
-    if (!Array.isArray(locations) || locations.length === 0) {
-      return res.status(400).json({ error: "Locations array is required" });
+    
+    if (!locations || !Array.isArray(locations) || locations.length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing or invalid locations parameter. Expected an array of {city, state, zipCode} objects." 
+      });
     }
-
+    
     const result = await syncMarketData(locations);
-    return res.json(result);
-  } catch (error: any) {
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
     console.error("Error syncing market data:", error);
-    return res.status(500).json({ error: error.message || "Error syncing market data" });
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
   }
 });
 
-// Test endpoint for syncing market data for multiple locations (unprotected for testing)
-router.post("/test-sync-market-data", async (req, res) => {
+// Health check endpoint (does not require authentication)
+router.get("/health", async (req, res) => {
   try {
-    const { locations } = req.body;
-
-    if (!Array.isArray(locations) || locations.length === 0) {
-      return res.status(400).json({ error: "Locations array is required" });
+    const ATTOM_API_KEY = process.env.ATTOM_API_KEY;
+    
+    if (!ATTOM_API_KEY) {
+      return res.status(503).json({ 
+        success: false, 
+        message: "ATTOM API key is not configured" 
+      });
     }
-
-    console.log(`Test endpoint: Syncing market data for ${locations.length} locations`);
-    const result = await syncMarketData(locations);
-    return res.json(result);
-  } catch (error: any) {
-    console.error("Error syncing market data (test endpoint):", error);
-    return res.status(500).json({ error: error.message || "Error syncing market data" });
-  }
-});
-
-// Test route for ATTOM API connection (unprotected for testing)
-router.get("/test-connection", async (req, res) => {
-  const city = req.query.city as string || "Canton";
-  const state = req.query.state as string || "GA";
-  const zipCode = req.query.zipCode as string || "30115";
-
-  try {
-    // Test the connection to ATTOM API
-    const data = await fetchMarketStatistics(city, state, zipCode);
     
-    // Check if this is fallback data
-    const isFallback = !data.status || !data.area || data.area.length === 0;
+    // Simple health check for ATTOM API
+    const response = await fetch("https://api.gateway.attomdata.com/propertyapi/v1.0.0/property/id", {
+      method: "GET",
+      headers: {
+        "apikey": ATTOM_API_KEY,
+        "Accept": "application/json"
+      }
+    });
     
-    if (isFallback) {
-      return res.json({
-        success: true,
-        message: "Connected to ATTOM API with fallback data",
-        source: "fallback",
-        data
+    if (response.ok) {
+      res.json({ 
+        success: true, 
+        message: "ATTOM API is accessible",
+        status: "ok"
       });
     } else {
-      return res.json({
-        success: true,
-        message: "Successfully connected to ATTOM API",
-        source: "api",
-        data
+      const errorData = await response.json().catch(() => ({}));
+      res.status(503).json({ 
+        success: false, 
+        message: "ATTOM API is not responding correctly",
+        status: "error",
+        details: {
+          statusCode: response.status,
+          statusText: response.statusText,
+          error: errorData
+        }
       });
     }
-  } catch (error: any) {
-    console.error("Error testing ATTOM API connection:", error);
-    
-    // Even if there's an error, we should have fallback data
-    const fallbackData = {
-      status: { code: 0, success: true },
-      area: [
-        {
-          city,
-          state,
-          zipCode: zipCode || "",
-          marketstat: [
-            { MedianSalePrice: "450000" },
-            { AverageDaysOnMarket: "30" },
-            { ActiveListingCount: "145" },
-            { MedianPricePerSqft: "250" },
-            { SalesVolume: "25" },
-            { MonthsOfInventory: "3.5" }
-          ]
-        }
-      ]
-    };
-    
-    return res.json({ 
-      success: true,
-      message: "Error connecting to ATTOM API, using fallback data",
-      error: error.message,
-      source: "fallback_error",
-      data: fallbackData
+  } catch (error) {
+    console.error("ATTOM API health check failed:", error);
+    res.status(503).json({ 
+      success: false, 
+      message: "ATTOM API health check failed", 
+      status: "error",
+      details: error instanceof Error ? error.message : "Unknown error"
     });
   }
 });
 
-// Test route for property details (unprotected for testing)
-router.get("/test-property-details", async (req, res) => {
-  const address = req.query.address as string || "123 Main St";
-  const city = req.query.city as string || "Canton";
-  const state = req.query.state as string || "GA";
-  const zipCode = req.query.zipCode as string || "30115";
+// Test endpoints that don't require authentication (for development only)
+if (process.env.NODE_ENV === 'development') {
+  // Test property details endpoint
+  router.get("/test/property-details", async (req, res) => {
+    try {
+      const { address, city, state, zipCode } = req.query;
+      
+      if (!address || !city || !state) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Missing required parameters: address, city, and state are required" 
+        });
+      }
+      
+      const result = await fetchPropertyDetails(
+        String(address),
+        String(city),
+        String(state),
+        zipCode ? String(zipCode) : ""
+      );
+      
+      res.json({ success: true, data: result });
+    } catch (error) {
+      console.error("Error fetching property details:", error);
+      res.status(500).json({ 
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error occurred" 
+      });
+    }
+  });
 
-  try {
-    console.log(`Testing property details for ${address}, ${city}, ${state} ${zipCode}`);
-    
-    // Test the connection to ATTOM API for property details
-    const data = await fetchPropertyDetails(address, city, state, zipCode);
-    
-    return res.json({
-      success: true,
-      message: "Successfully fetched property details from ATTOM API",
-      endpoint: "test-property-details",
-      address,
-      city,
-      state,
-      zipCode,
-      data
-    });
-  } catch (error: any) {
-    console.error("Error testing ATTOM API property details:", error);
-    
-    return res.json({ 
-      success: false,
-      message: "Error fetching property details from ATTOM API",
-      endpoint: "test-property-details",
-      error: error.message,
-      address,
-      city,
-      state,
-      zipCode
-    });
-  }
-});
+  // Test property sale history endpoint
+  router.get("/test/property-history", async (req, res) => {
+    try {
+      const { address, city, state, zipCode } = req.query;
+      
+      if (!address || !city || !state) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Missing required parameters: address, city, and state are required" 
+        });
+      }
+      
+      const result = await fetchPropertySaleHistory(
+        String(address),
+        String(city),
+        String(state),
+        zipCode ? String(zipCode) : ""
+      );
+      
+      res.json({ success: true, data: result });
+    } catch (error) {
+      console.error("Error fetching property sale history:", error);
+      res.status(500).json({ 
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error occurred" 
+      });
+    }
+  });
 
-// Test route for property sale history (unprotected for testing)
-router.get("/test-property-history", async (req, res) => {
-  const address = req.query.address as string || "123 Main St";
-  const city = req.query.city as string || "Canton";
-  const state = req.query.state as string || "GA";
-  const zipCode = req.query.zipCode as string || "30115";
-
-  try {
-    console.log(`Testing property sale history for ${address}, ${city}, ${state} ${zipCode}`);
-    
-    // Test the connection to ATTOM API for property sale history
-    const data = await fetchPropertySaleHistory(address, city, state, zipCode);
-    
-    return res.json({
-      success: true,
-      message: "Successfully fetched property sale history from ATTOM API",
-      endpoint: "test-property-history",
-      address,
-      city,
-      state,
-      zipCode,
-      data
-    });
-  } catch (error: any) {
-    console.error("Error testing ATTOM API property sale history:", error);
-    
-    return res.json({ 
-      success: false,
-      message: "Error fetching property sale history from ATTOM API",
-      endpoint: "test-property-history",
-      error: error.message,
-      address,
-      city,
-      state,
-      zipCode
-    });
-  }
-});
+  // Test market statistics endpoint
+  router.get("/test/market-statistics", async (req, res) => {
+    try {
+      const { city, state, zipCode } = req.query;
+      
+      if (!city || !state) {
+        return res.status(400).json({ 
+          success: false,
+          message: "Missing required parameters: city and state are required" 
+        });
+      }
+      
+      const result = await fetchMarketStatistics(
+        String(city),
+        String(state),
+        zipCode ? String(zipCode) : undefined
+      );
+      
+      res.json({ success: true, data: result });
+    } catch (error) {
+      console.error("Error fetching market statistics:", error);
+      res.status(500).json({ 
+        success: false,
+        message: error instanceof Error ? error.message : "Unknown error occurred" 
+      });
+    }
+  });
+}
 
 export default router;
