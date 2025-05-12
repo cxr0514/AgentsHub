@@ -142,8 +142,8 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
         </div>
         <Card className="animate-pulse">
           <div className="p-8 text-center">
-            <div className="h-6 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+            <div className="h-6 bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto"></div>
           </div>
         </Card>
       </div>
@@ -157,7 +157,7 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
           <h2 className="text-xl font-semibold">{title}</h2>
         </div>
         <Card className="p-8 text-center">
-          <p className="text-text-secondary">No properties found matching your criteria.</p>
+          <p className="text-white">No properties found matching your criteria.</p>
         </Card>
       </div>
     );
@@ -169,18 +169,26 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
         <h2 className="text-xl font-semibold">{title}</h2>
         {showExport && (
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm" className="flex items-center">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center border-gray-700 text-white hover:bg-gray-700"
+            >
               <ArrowDownNarrowWide className="h-4 w-4 mr-1" />
               Sort
             </Button>
-            <Button variant="outline" size="sm" className="flex items-center">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center border-gray-700 text-white hover:bg-gray-700"
+            >
               <Trash2 className="h-4 w-4 mr-1" />
               Clear
             </Button>
             <Button 
               variant="default" 
               size="sm" 
-              className="flex items-center bg-accent hover:bg-accent/90"
+              className="flex items-center bg-blue-600 hover:bg-blue-700"
               onClick={handleExportReport}
               disabled={isExporting || !properties || properties.length === 0}
             >
@@ -200,26 +208,26 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
         )}
       </div>
       
-      <Card className="bg-white rounded-lg shadow-md overflow-hidden">
+      <Card className="overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead onClick={() => handleSort("address")} className="cursor-pointer">Property</TableHead>
-                <TableHead onClick={() => handleSort("price")} className="cursor-pointer">Price</TableHead>
-                <TableHead onClick={() => handleSort("squareFeet")} className="cursor-pointer">Size</TableHead>
-                <TableHead onClick={() => handleSort("pricePerSqft")} className="cursor-pointer">$/SqFt</TableHead>
-                <TableHead>Beds/Baths</TableHead>
-                <TableHead onClick={() => handleSort("yearBuilt")} className="cursor-pointer">Year Built</TableHead>
-                <TableHead onClick={() => handleSort("status")} className="cursor-pointer">Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead onClick={() => handleSort("address")} className="cursor-pointer text-white">Property</TableHead>
+                <TableHead onClick={() => handleSort("price")} className="cursor-pointer text-white">Price</TableHead>
+                <TableHead onClick={() => handleSort("squareFeet")} className="cursor-pointer text-white">Size</TableHead>
+                <TableHead onClick={() => handleSort("pricePerSqft")} className="cursor-pointer text-white">$/SqFt</TableHead>
+                <TableHead className="text-white">Beds/Baths</TableHead>
+                <TableHead onClick={() => handleSort("yearBuilt")} className="cursor-pointer text-white">Year Built</TableHead>
+                <TableHead onClick={() => handleSort("status")} className="cursor-pointer text-white">Status</TableHead>
+                <TableHead className="text-right text-white">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedProperties.map((property: Property) => (
                 <TableRow 
                   key={property.id} 
-                  className="hover:bg-gray-50 cursor-pointer"
+                  className="hover:bg-gray-700 cursor-pointer text-white"
                   onClick={() => handleViewDetails(property.id)}
                 >
                   <TableCell>
@@ -233,27 +241,27 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
                         }}
                       />
                       <div>
-                        <div className="font-medium text-primary">{property.address}</div>
-                        <div className="text-sm text-text-secondary">
+                        <div className="font-medium text-white">{property.address}</div>
+                        <div className="text-sm text-gray-300">
                           {property.neighborhood}, {property.city}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm font-medium">${Number(property.price).toLocaleString()}</div>
+                    <div className="text-sm font-medium text-white">${Number(property.price).toLocaleString()}</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{Number(property.squareFeet).toLocaleString()} sqft</div>
+                    <div className="text-sm text-white">{Number(property.squareFeet).toLocaleString()} sqft</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">${property.pricePerSqft}</div>
+                    <div className="text-sm text-white">${property.pricePerSqft}</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{property.bedrooms} bed / {property.bathrooms} bath</div>
+                    <div className="text-sm text-white">{property.bedrooms} bed / {property.bathrooms} bath</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm">{property.yearBuilt}</div>
+                    <div className="text-sm text-white">{property.yearBuilt}</div>
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={property.status} />
@@ -261,7 +269,7 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
                   <TableCell className="text-right text-sm font-medium">
                     <Button 
                       variant="link" 
-                      className="text-accent hover:text-accent/80"
+                      className="text-blue-400 hover:text-blue-300"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleViewDetails(property.id);
@@ -287,25 +295,25 @@ const StatusBadge = ({ status }: { status: string }) => {
   switch (statusText.toLowerCase()) {
     case 'active':
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-800 text-green-200">
           Active
         </span>
       );
     case 'pending':
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-yellow-800 text-yellow-200">
           Pending
         </span>
       );
     case 'sold':
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-gray-600 text-gray-200">
           Sold
         </span>
       );
     default:
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-blue-800 text-blue-200">
           {statusText}
         </span>
       );
