@@ -7,7 +7,7 @@ import { apiRequest } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { PermissionGuard } from '@/components/PermissionGuard';
-import { Permission } from '@/lib/permissions';
+import { Permission } from '@shared/permissions';
 
 // Components
 import {
