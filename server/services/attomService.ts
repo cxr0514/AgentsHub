@@ -6,25 +6,29 @@ import { eq, and } from "drizzle-orm";
 const ATTOM_API_KEY = process.env.ATTOM_API_KEY;
 const ATTOM_API_BASE_URL = "https://api.gateway.attomdata.com"; // Primary endpoint URL
 
-// ATTOM API Endpoints - updated based on testing and available endpoints
+// ATTOM API Endpoints - updated based on latest documentation and testing
 const ENDPOINTS = {
-  // Property endpoints
+  // Property information endpoints
   PROPERTY_DETAILS: "/propertyapi/v1.0.0/property/detail",
-  PROPERTY_VALUATION: "/propertyapi/v1.0.0/property/valuation",
-  PROPERTY_SALE_HISTORY: "/propertyapi/v1.0.0/property/salehistory",
-  
-  // Market data endpoints
-  MARKET_STATS: "/propertyapi/v1.0.0/property/areastats",
-  MARKET_SNAPSHOT: "/propertyapi/v1.0.0/property/snapshot",
-  
-  // Additional property detail endpoints
-  PROPERTY_DETAIL_MGET: "/propertyapi/v1.0.0/property/detailmget",
   PROPERTY_EXPAND_DETAIL: "/propertyapi/v1.0.0/property/expandedprofile",
   PROPERTY_BASIC_DETAIL: "/propertyapi/v1.0.0/property/basicprofile",
+  PROPERTY_SALE_HISTORY: "/propertyapi/v1.0.0/property/salehistory",
+  PROPERTY_DETAIL_MGET: "/propertyapi/v1.0.0/property/detailmget",
   
-  // Alternative property search endpoints
+  // Property valuation endpoints
+  PROPERTY_VALUATION: "/propertyapi/v1.0.0/property/valuation",
+  PROPERTY_AVMDETAIL: "/propertyapi/v1.0.0/property/avmdetail",
+  
+  // Property search endpoints
   PROPERTY_ADDRESS_SEARCH: "/propertyapi/v1.0.0/property/address",
   PROPERTY_ID_SEARCH: "/propertyapi/v1.0.0/property/id",
+  PROPERTY_GEO_SEARCH: "/propertyapi/v1.0.0/property/geo",
+  
+  // Area information endpoints
+  MARKET_STATS: "/propertyapi/v1.0.0/assessment/snapshot",
+  MARKET_SNAPSHOT: "/propertyapi/v1.0.0/sale/snapshot",
+  AREA_DETAIL: "/propertyapi/v1.0.0/area/full",
+  AREA_SEARCH: "/propertyapi/v1.0.0/area/basic",
 };
 
 // Headers for ATTOM API requests - updated based on latest documentation
@@ -147,10 +151,10 @@ export async function fetchPropertySaleHistory(address: string, city: string, st
     
     // Try multiple ways to get property sale history
     const endpoints = [
-      ENDPOINTS.PROPERTY_ADDRESS_SEARCH, // Try address search first to get property ID
-      ENDPOINTS.PROPERTY_SALE_HISTORY,   // Then try direct property sale history
-      ENDPOINTS.PROPERTY_EXPAND_DETAIL,  // Also try the expanded details
-      ENDPOINTS.PROPERTY_DETAILS         // Try the full property details as a backup
+      ENDPOINTS.PROPERTY_SALE_HISTORY,   // Try direct property sale history first
+      ENDPOINTS.PROPERTY_EXPAND_DETAIL,  // Then try expanded profile which includes history
+      ENDPOINTS.PROPERTY_ADDRESS_SEARCH, // Then try address search to get property ID
+      ENDPOINTS.PROPERTY_DETAILS         // Finally try the basic property details
     ];
     
     let response = null;
@@ -234,9 +238,10 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
     
     // Try to fetch from different ATTOM endpoints based on latest API documentation
     const endpoints = [
-      ENDPOINTS.MARKET_STATS,      // First try area stats endpoint
-      ENDPOINTS.MARKET_SNAPSHOT,   // Then try snapshot endpoint
-      ENDPOINTS.PROPERTY_DETAILS   // Finally try property details with schools
+      ENDPOINTS.MARKET_STATS,      // First try assessment snapshot
+      ENDPOINTS.MARKET_SNAPSHOT,   // Then try sales snapshot
+      ENDPOINTS.AREA_DETAIL,       // Then try area full details
+      ENDPOINTS.AREA_SEARCH        // Finally try basic area search
     ];
     
     let response = null;
@@ -249,7 +254,7 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
         
         // Different endpoints need different parameters for ATTOM API v1.0.0
         if (endpoint === ENDPOINTS.MARKET_STATS) {
-          // Area stats endpoint
+          // Assessment snapshot endpoint
           if (zipCode) {
             // If we have a zip code, use it
             queryParams.append("postalcode", zipCode);
@@ -259,17 +264,29 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
             queryParams.append("state", state);
           }
         } else if (endpoint === ENDPOINTS.MARKET_SNAPSHOT) {
-          // Snapshot endpoint
+          // Sale snapshot endpoint
           if (zipCode) {
             queryParams.append("postalcode", zipCode);
           } else {
             queryParams.append("city", city);
             queryParams.append("state", state);
           }
-        } else if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
-          // Property details endpoint - try with a generic address in the city
-          queryParams.append("address1", "123 Main St"); // Generic address
-          queryParams.append("address2", `${city}, ${state} ${zipCode || ""}`);
+        } else if (endpoint === ENDPOINTS.AREA_DETAIL) {
+          // Area full details endpoint
+          if (zipCode) {
+            queryParams.append("postal1", zipCode);
+          } else {
+            queryParams.append("areaname", city);
+            queryParams.append("stateid", state);
+          }
+        } else if (endpoint === ENDPOINTS.AREA_SEARCH) {
+          // Area basic search endpoint
+          if (zipCode) {
+            queryParams.append("zipcode", zipCode);
+          } else {
+            queryParams.append("areaname", city);
+            queryParams.append("stateid", state);
+          }
         }
         
         console.log(`Trying ATTOM API endpoint: ${endpoint} with params: ${queryParams.toString()}`);
