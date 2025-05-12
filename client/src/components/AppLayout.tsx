@@ -60,12 +60,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
   
   // For logged-in users, apply the new consistent design to all pages
   return (
-    <div className="relative min-h-screen bg-[#0a1526] text-white overflow-hidden">
+    <div className="relative min-h-screen bg-[#071224] text-white overflow-hidden">
       {/* Background gradient effects */}
       <div className="fixed inset-0 overflow-hidden -z-10">
-        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0e2b4a] to-[#0f1e38] opacity-30"></div>
-        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#141d35] to-[#091124] opacity-30"></div>
-        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#0c1a30] to-[#0f172a] opacity-20"></div>
+        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0a1b32] to-[#061020] opacity-30"></div>
+        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#0d1728] to-[#050d1c] opacity-30"></div>
+        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#081526] to-[#040c1b] opacity-20"></div>
         
         {/* Particle effects */}
         {Array.from({ length: 20 }).map((_, index) => (
@@ -83,7 +83,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </div>
       
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-30 w-full bg-transparent backdrop-blur-md border-b border-white/10">
+      <header className="sticky top-0 z-30 w-full bg-[#050e1d] border-b border-[#0f1d31]">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-2">
             {/* Mobile Menu Trigger */}
@@ -93,9 +93,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-64 border-r border-white/10 bg-black/90 backdrop-blur-xl p-0">
+              <SheetContent side="left" className="w-64 border-r border-[#0f1d31] bg-[#050e1d] p-0">
                 <div className="flex flex-col h-full">
-                  <div className="p-4 border-b border-white/10">
+                  <div className="p-4 border-b border-[#0f1d31]">
                     <h2 className="text-xl font-semibold">Menu</h2>
                   </div>
                   <nav className="flex-1 py-4">
@@ -106,8 +106,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
                             className={cn(
                               "flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer",
                               location === item.path 
-                                ? "bg-white/10 text-white" 
-                                : "hover:bg-white/5 text-white/70 hover:text-white"
+                                ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
+                                : "hover:bg-white/5 text-white/80 hover:text-white"
                             )}
                             onClick={() => {
                               setOpen(false);
@@ -121,9 +121,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
                       ))}
                     </ul>
                   </nav>
-                  <div className="p-4 border-t border-white/10">
+                  <div className="p-4 border-t border-[#0f1d31]">
                     <Button 
-                      variant="destructive" 
+                      variant="default" 
                       className="w-full flex items-center gap-2"
                       onClick={handleLogout}
                     >
@@ -136,8 +136,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </Sheet>
 
             {/* Logo */}
-            <div className="text-xl font-semibold tracking-tighter cursor-pointer" onClick={() => window.location.href = "/"}>
-              PropInvest<span className="text-[#ff9832]">AI</span>
+            <div className="flex items-center gap-1 text-xl font-bold tracking-tighter cursor-pointer" onClick={() => window.location.href = "/"}>
+              <div className="text-[#FF7A00] text-2xl">⌂</div>
+              <div>Prop<span className="text-[#FF7A00]">Invest</span>AI</div>
             </div>
           </div>
 
@@ -147,13 +148,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <div
                 key={item.path}
                 className={cn(
-                  "px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer",
+                  "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer",
                   location === item.path 
-                    ? "bg-white/10 text-white" 
-                    : "hover:bg-white/5 text-white/70 hover:text-white"
+                    ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
+                    : "hover:bg-white/5 text-white/80 hover:text-white"
                 )}
                 onClick={() => window.location.href = item.path}
               >
+                <item.icon className="h-4 w-4" />
                 {item.label}
               </div>
             ))}
@@ -163,7 +165,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#ff8000] to-[#ff9832] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#FF7A00] to-[#FF9832] flex items-center justify-center">
                   <span className="text-xs font-semibold text-white">
                     {user?.username?.substring(0, 2).toUpperCase()}
                   </span>
@@ -171,15 +173,15 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <span className="hidden md:inline-block">{user?.username}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-black/90 backdrop-blur-xl border border-white/10 text-white">
+            <DropdownMenuContent align="end" className="w-56 bg-[#050e1d] border border-[#0f1d31] text-white">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem className="cursor-pointer" onClick={() => window.location.href = "/settings"}>
+              <DropdownMenuSeparator className="bg-[#0f1d31]" />
+              <DropdownMenuItem className="cursor-pointer hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]" onClick={() => window.location.href = "/settings"}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive" onClick={handleLogout}>
+              <DropdownMenuSeparator className="bg-[#0f1d31]" />
+              <DropdownMenuItem className="cursor-pointer hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
