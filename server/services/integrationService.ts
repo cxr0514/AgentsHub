@@ -97,9 +97,17 @@ export async function searchProperties(filters: PropertyFilters = {}): Promise<a
       query = query.where(eq(properties.status, filters.status));
     }
     
-    if (filters.yearBuilt && filters.yearBuilt !== 'any_year') {
+    if (filters.yearBuilt) {
       // Skip the yearBuilt filter if it's set to "any_year"
-      query = query.where(eq(properties.yearBuilt, filters.yearBuilt));
+      const yearBuiltStr = String(filters.yearBuilt);
+      if (yearBuiltStr !== 'any_year') {
+        // Parse to number if it's a string number
+        const yearBuiltValue = 
+          typeof filters.yearBuilt === 'string' && !isNaN(parseInt(filters.yearBuilt)) 
+            ? parseInt(filters.yearBuilt) 
+            : filters.yearBuilt;
+        query = query.where(eq(properties.yearBuilt, yearBuiltValue));
+      }
     }
     
     // Execute the query
