@@ -136,37 +136,4 @@
   scroll-behavior: smooth;
 }
 
-/* Animation styles for AppLayout */
-@keyframes wave {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-30px);
-  }
-}
-
-@keyframes pulse-stars {
-  0%, 100% {
-    opacity: 0.1;
-  }
-  50% {
-    opacity: 0.3;
-  }
-}
-
-.animate-wave {
-  animation: wave 15s ease-in-out infinite;
-}
-
-.animate-wave-slow {
-  animation: wave 20s ease-in-out infinite;
-}
-
-.animate-wave-slower {
-  animation: wave 25s ease-in-out infinite;
-}
-
-.animate-pulse {
-  animation: pulse-stars 3s ease-in-out infinite;
-}
+/* Removed animation styles to ensure consistent UI */
