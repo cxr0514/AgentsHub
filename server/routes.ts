@@ -10,6 +10,12 @@ import {
   insertReportSchema
 } from "../shared/schema";
 import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService";
+import { 
+  getMarketPredictions, 
+  getPropertyRecommendations, 
+  detectAnomalies, 
+  generateAIMarketReport 
+} from "./routes/market-ai";
 import { testDatabaseConnection } from "./db";
 import { addApiKey, getApiKeysList, deleteApiKey, loadApiKeysIntoEnv } from "./routes/api-keys";
 import { requireAdmin, requirePermission, loadUser } from "./middleware/permissions";
@@ -158,6 +164,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch market data" });
     }
   });
+
+  // AI-powered market analysis routes
+  apiRouter.get("/market-predictions", requirePermission(Permission.GENERATE_REPORTS), getMarketPredictions);
+  
+  apiRouter.get("/market-report", requirePermission(Permission.GENERATE_REPORTS), generateAIMarketReport);
+  
+  apiRouter.post("/property-recommendations/:userId", requirePermission(Permission.VIEW_PROPERTIES), getPropertyRecommendations);
+  
+  apiRouter.post("/property-anomalies", requirePermission(Permission.VIEW_PROPERTIES), detectAnomalies);
 
   // User routes
   apiRouter.post("/users", async (req, res) => {

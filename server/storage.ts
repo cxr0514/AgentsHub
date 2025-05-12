@@ -46,6 +46,16 @@ export interface IStorage {
   // Property history methods
   getPropertyHistory(propertyId: number): Promise<PropertyHistory[]>;
   createPropertyHistory(history: InsertPropertyHistory): Promise<PropertyHistory>;
+  
+  // AI prediction methods
+  getMarketPrediction(id: number): Promise<MarketPrediction | undefined>;
+  getMarketPredictionsByLocation(city: string, state: string, zipCode?: string): Promise<MarketPrediction[]>;
+  createMarketPrediction(prediction: InsertMarketPrediction): Promise<MarketPrediction>;
+  
+  // Property recommendation methods
+  getPropertyRecommendation(id: number): Promise<PropertyRecommendation | undefined>;
+  getPropertyRecommendationsByUser(userId: number): Promise<PropertyRecommendation[]>;
+  createPropertyRecommendation(recommendation: InsertPropertyRecommendation): Promise<PropertyRecommendation>;
 }
 
 export interface PropertyFilters {
