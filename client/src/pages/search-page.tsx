@@ -395,13 +395,13 @@ export default function SearchPage() {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-900 text-green-100 border-green-800';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-amber-900 text-amber-100 border-amber-800';
       case 'sold':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-900 text-blue-100 border-blue-800';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-slate-800 text-slate-200 border-slate-700';
     }
   };
   
