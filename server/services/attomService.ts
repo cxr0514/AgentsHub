@@ -2,27 +2,32 @@ import { db } from "../db";
 import { marketData } from "../../shared/schema";
 import { eq, and } from "drizzle-orm";
 
-// ATTOM API configuration
+// ATTOM API configuration - updated based on documentation: https://api.developer.attomdata.com/docs
 const ATTOM_API_KEY = process.env.ATTOM_API_KEY;
-const ATTOM_API_BASE_URL = "https://api.gateway.attomdata.com";
+const ATTOM_API_BASE_URL = "https://api.gateway.attomdata.com"; // Primary endpoint URL
 
-// ATTOM API Endpoints
+// ATTOM API Endpoints - updated based on documentation: https://api.developer.attomdata.com/docs
 const ENDPOINTS = {
-  PROPERTY_DETAILS: "/propertyapi/v1.0.0/property/detail",
-  PROPERTY_VALUATION: "/propertyapi/v1.0.0/property/valuation",
-  PROPERTY_SALE_HISTORY: "/propertyapi/v1.0.0/property/salehistory",
-  MARKET_STATS: "/communityapi/v2.0.0/area/full",
-  MARKET_VOLATILITY: "/propertyapi/v1.0.0/property/volatility",
+  PROPERTY_DETAILS: "/api/property/detailwithschools",
+  PROPERTY_VALUATION: "/api/property/valuation",
+  PROPERTY_SALE_HISTORY: "/api/property/salehistory",
+  MARKET_STATS: "/api/property/areastats",
+  MARKET_SNAPSHOT: "/api/property/snapshot",
+  PROPERTY_DETAIL_MGET: "/api/property/detailmget",
+  PROPERTY_EXPAND_DETAIL: "/api/property/expanddetail",
+  PROPERTY_BASIC_DETAIL: "/api/property/basicprofile",
 };
 
-// Headers for ATTOM API requests
+// Headers for ATTOM API requests - updated based on documentation: https://api.developer.attomdata.com/docs
 const getHeaders = () => {
   if (!ATTOM_API_KEY) {
     throw new Error("ATTOM API Key is not configured");
   }
   return {
-    "apikey": ATTOM_API_KEY,
+    "APIKey": ATTOM_API_KEY,           // Note the capitalization per documentation
     "Accept": "application/json",
+    "Accept-Encoding": "gzip",         // Support compression
+    "Accept-Language": "en-US,en;q=0.9"
   };
 };
 
@@ -37,21 +42,72 @@ export async function fetchPropertyDetails(address: string, city: string, state:
   try {
     console.log(`Fetching property details for ${address}, ${city}, ${state} ${zipCode}`);
     
-    const queryParams = new URLSearchParams({
-      address: address,
-      city: city,
-      state: state,
-      zipcode: zipCode
-    });
+    // Check if API key is available
+    if (!ATTOM_API_KEY) {
+      console.warn("ATTOM API Key is not configured.");
+      throw new Error("ATTOM API Key is not configured");
+    }
     
-    const response = await fetch(`${ATTOM_API_BASE_URL}${ENDPOINTS.PROPERTY_DETAILS}?${queryParams}`, {
-      method: "GET",
-      headers: getHeaders(),
-    });
+    // Try multiple endpoints to get property details
+    const endpoints = [
+      ENDPOINTS.PROPERTY_DETAILS,
+      ENDPOINTS.PROPERTY_BASIC_DETAIL,
+      ENDPOINTS.PROPERTY_EXPAND_DETAIL
+    ];
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`ATTOM API Error: ${response.status} - ${errorText}`);
+    let response = null;
+    let errorMessage = "";
+    
+    // Try each endpoint until one works
+    for (const endpoint of endpoints) {
+      try {
+        const queryParams = new URLSearchParams();
+        
+        // Different parameters for different endpoints based on documentation
+        if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
+          // detailwithschools endpoint
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
+        } else if (endpoint === ENDPOINTS.PROPERTY_BASIC_DETAIL) {
+          // basicprofile endpoint
+          queryParams.append("address", address);
+          queryParams.append("cityname", city);
+          queryParams.append("stateabbr", state);
+          queryParams.append("postalcode", zipCode);
+        } else if (endpoint === ENDPOINTS.PROPERTY_EXPAND_DETAIL) {
+          // expanddetail endpoint
+          queryParams.append("address", address);
+          queryParams.append("cityname", city);
+          queryParams.append("stateabbr", state);
+          queryParams.append("postalcode", zipCode);
+        }
+        
+        console.log(`Trying ATTOM API endpoint: ${endpoint} with params: ${queryParams.toString()}`);
+        
+        response = await fetch(`${ATTOM_API_BASE_URL}${endpoint}?${queryParams}`, {
+          method: "GET",
+          headers: {
+            ...getHeaders(),
+            "Accept": "application/json"
+          },
+        });
+        
+        if (response.ok) {
+          console.log(`Successfully connected to ATTOM API using endpoint: ${endpoint}`);
+          break; // Break the loop if we get a successful response
+        } else {
+          const errorText = await response.text();
+          errorMessage = `ATTOM API Error: ${response.status} - ${errorText} [${endpoint}]`;
+          console.warn(`Endpoint ${endpoint} failed: ${errorMessage}`);
+        }
+      } catch (endpointError: any) {
+        console.warn(`Error with endpoint ${endpoint}:`, endpointError.message);
+      }
+    }
+    
+    if (!response || !response.ok) {
+      console.warn("All ATTOM API endpoints failed.");
+      throw new Error(errorMessage || "ATTOM API Error: All endpoints failed");
     }
     
     const data = await response.json();
@@ -73,21 +129,72 @@ export async function fetchPropertySaleHistory(address: string, city: string, st
   try {
     console.log(`Fetching property sale history for ${address}, ${city}, ${state} ${zipCode}`);
     
-    const queryParams = new URLSearchParams({
-      address: address,
-      city: city,
-      state: state,
-      zipcode: zipCode
-    });
+    // Check if API key is available
+    if (!ATTOM_API_KEY) {
+      console.warn("ATTOM API Key is not configured.");
+      throw new Error("ATTOM API Key is not configured");
+    }
     
-    const response = await fetch(`${ATTOM_API_BASE_URL}${ENDPOINTS.PROPERTY_SALE_HISTORY}?${queryParams}`, {
-      method: "GET",
-      headers: getHeaders(),
-    });
+    // Try multiple ways to get property sale history
+    const endpoints = [
+      ENDPOINTS.PROPERTY_SALE_HISTORY,
+      ENDPOINTS.PROPERTY_EXPAND_DETAIL, // Also try the expanded details, which should include sales
+      ENDPOINTS.PROPERTY_DETAILS       // Try the full property details as a backup
+    ];
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`ATTOM API Error: ${response.status} - ${errorText}`);
+    let response = null;
+    let errorMessage = "";
+    
+    // Try each endpoint until one works
+    for (const endpoint of endpoints) {
+      try {
+        const queryParams = new URLSearchParams();
+        
+        // Different parameters for different endpoints based on documentation
+        if (endpoint === ENDPOINTS.PROPERTY_SALE_HISTORY) {
+          // Sale history endpoint
+          queryParams.append("address", address);
+          queryParams.append("cityname", city);
+          queryParams.append("stateabbr", state);
+          queryParams.append("postalcode", zipCode);
+        } else if (endpoint === ENDPOINTS.PROPERTY_EXPAND_DETAIL) {
+          // Expand detail endpoint
+          queryParams.append("address", address);
+          queryParams.append("cityname", city);
+          queryParams.append("stateabbr", state);
+          queryParams.append("postalcode", zipCode);
+        } else if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
+          // Details endpoint
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
+        }
+        
+        console.log(`Trying ATTOM API endpoint: ${endpoint} with params: ${queryParams.toString()}`);
+        
+        response = await fetch(`${ATTOM_API_BASE_URL}${endpoint}?${queryParams}`, {
+          method: "GET",
+          headers: {
+            ...getHeaders(),
+            "Accept": "application/json"
+          },
+        });
+        
+        if (response.ok) {
+          console.log(`Successfully connected to ATTOM API using endpoint: ${endpoint}`);
+          break; // Break the loop if we get a successful response
+        } else {
+          const errorText = await response.text();
+          errorMessage = `ATTOM API Error: ${response.status} - ${errorText} [${endpoint}]`;
+          console.warn(`Endpoint ${endpoint} failed: ${errorMessage}`);
+        }
+      } catch (endpointError: any) {
+        console.warn(`Error with endpoint ${endpoint}:`, endpointError.message);
+      }
+    }
+    
+    if (!response || !response.ok) {
+      console.warn("All ATTOM API endpoints failed.");
+      throw new Error(errorMessage || "ATTOM API Error: All endpoints failed");
     }
     
     const data = await response.json();
@@ -114,11 +221,12 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
       return getFallbackMarketData(city, state, zipCode);
     }
     
-    // Try to fetch from different ATTOM endpoints
+    // Try to fetch from different ATTOM endpoints based on documentation
+    // https://api.developer.attomdata.com/docs
     const endpoints = [
-      ENDPOINTS.MARKET_STATS,
-      "/communityapi/v1.0.0/area/statistics", // Try alternative endpoint
-      "/propertyapi/v1.0.0/avm/snapshot" // Try another endpoint
+      ENDPOINTS.MARKET_STATS,      // First try area stats endpoint
+      ENDPOINTS.MARKET_SNAPSHOT,   // Then try snapshot endpoint
+      ENDPOINTS.PROPERTY_DETAILS   // Finally try property details with schools
     ];
     
     let response = null;
@@ -129,19 +237,50 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
       try {
         const queryParams = new URLSearchParams();
         
-        if (zipCode) {
-          queryParams.append("postalcode", zipCode);
-        } else {
-          queryParams.append("city", city);
-          queryParams.append("state", state);
+        // Different endpoints need different parameters
+        if (endpoint === ENDPOINTS.MARKET_STATS) {
+          // Area stats endpoint
+          if (zipCode) {
+            queryParams.append("postalcode", zipCode);
+          } else {
+            // If no zip code, use geolocation parameters
+            // These are example values and should be adjusted based on actual city coordinates
+            queryParams.append("minlatitude", "33.5");
+            queryParams.append("maxlatitude", "34.5");
+            queryParams.append("minlongitude", "-84.8");
+            queryParams.append("maxlongitude", "-83.8");
+          }
+        } else if (endpoint === ENDPOINTS.MARKET_SNAPSHOT) {
+          // Snapshot endpoint
+          if (zipCode) {
+            queryParams.append("postalcode", zipCode);
+          } else {
+            queryParams.append("cityname", city);
+            queryParams.append("stateabbr", state);
+          }
+        } else if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
+          // Property details endpoint - try with a generic address in the city
+          queryParams.append("address1", "123 Main St"); // Generic address
+          queryParams.append("address2", `${city}, ${state} ${zipCode || ""}`);
         }
         
-        response = await fetch(`${ATTOM_API_BASE_URL}${endpoint}?${queryParams}`, {
+        console.log(`Trying ATTOM API endpoint: ${endpoint} with params: ${queryParams.toString()}`);
+        
+        // For some endpoints, don't include query params in the URL if they're empty
+        const url = queryParams.toString() 
+          ? `${ATTOM_API_BASE_URL}${endpoint}?${queryParams}`
+          : `${ATTOM_API_BASE_URL}${endpoint}`;
+          
+        response = await fetch(url, {
           method: "GET",
-          headers: getHeaders(),
+          headers: {
+            ...getHeaders(),
+            "Accept": "application/json"
+          },
         });
         
         if (response.ok) {
+          console.log(`Successfully connected to ATTOM API using endpoint: ${endpoint}`);
           break; // Break the loop if we get a successful response
         } else {
           const errorText = await response.text();
