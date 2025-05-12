@@ -1,109 +1,119 @@
 import { db } from "../server/db";
-import { marketData } from "@shared/schema";
+import { marketData } from "../shared/schema";
+import { eq, and } from "drizzle-orm";
+
+function getBasePrice(city: string): number {
+  // Base price mapping for different cities
+  const basePriceMap: Record<string, number> = {
+    "Canton": 370000,
+    "Woodstock": 420000,
+    "Alpharetta": 550000,
+    "Roswell": 480000,
+    "Duluth": 395000
+  };
+  
+  return basePriceMap[city] || 400000;
+}
 
 async function seedMoreMarketData() {
   console.log("Seeding additional market data...");
 
-  // Array of popular locations to add data for
-  const locations = [
-    { city: "San Francisco", state: "CA", zipCode: "94105" },
-    { city: "New York", state: "NY", zipCode: "10001" },
-    { city: "Seattle", state: "WA", zipCode: "98101" },
-    { city: "Boston", state: "MA", zipCode: "02108" },
-    { city: "Miami", state: "FL", zipCode: "33101" },
-    { city: "Austin", state: "TX", zipCode: "78701" },
-    { city: "Chicago", state: "IL", zipCode: "60601" },
-    { city: "Denver", state: "CO", zipCode: "80202" },
-    { city: "Portland", state: "OR", zipCode: "97201" },
+  // Generate data for Canton, GA
+  const citiesToAdd = [
+    {
+      city: "Canton",
+      state: "GA",
+      zipCode: "30115",
+      basePrice: getBasePrice("Canton")
+    },
+    {
+      city: "Woodstock",
+      state: "GA",
+      zipCode: "30188",
+      basePrice: getBasePrice("Woodstock")
+    },
+    {
+      city: "Alpharetta",
+      state: "GA",
+      zipCode: "30004",
+      basePrice: getBasePrice("Alpharetta")
+    }
   ];
 
-  // Generate market data for each location for the past 12 months
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
+  // Current month and year
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1; // JavaScript months are 0-indexed
   
-  for (const location of locations) {
-    console.log(`Adding market data for ${location.city}, ${location.state}`);
+  // Generate data for the last 12 months
+  const allMarketData = [];
+  
+  for (const cityInfo of citiesToAdd) {
+    // Clear existing data for this city/state
+    await db.delete(marketData)
+      .where(
+        and(
+          eq(marketData.city, cityInfo.city),
+          eq(marketData.state, cityInfo.state)
+        )
+      );
+    console.log(`Cleared existing market data for ${cityInfo.city}, ${cityInfo.state}`);
     
     for (let i = 0; i < 12; i++) {
-      // Calculate month and year, going backwards from current month
+      // Calculate month and year (going backwards from current date)
       let month = currentMonth - i;
       let year = currentYear;
+      
+      // Handle month rollover
       if (month <= 0) {
         month += 12;
         year -= 1;
       }
       
-      // Generate synthetic market data with realistic variations
-      const basePrice = getBasePrice(location.city);
-      const priceMultiplier = 1 + (i * 0.01) + (Math.random() * 0.04 - 0.02); // Small random variation
-      const medianPrice = Math.round(basePrice * priceMultiplier);
-      const avgPricePerSqft = Math.round(medianPrice / 1000);
+      // Adjust price based on trends and randomness
+      const monthlyChange = (Math.random() * 0.03) - 0.01; // -1% to +2% change
+      const priceMultiplier = 1 + (monthlyChange * i);
+      const price = Math.round(cityInfo.basePrice * priceMultiplier);
       
-      // Make days on market trend downward slightly for desirable markets
-      const daysOnMarket = Math.max(15, Math.round(40 - i * 0.5 + (Math.random() * 5 - 2.5)));
-      
-      // Generate other market indicators with realistic values
-      const activeListings = Math.round(100 + Math.random() * 200);
-      const inventoryMonths = parseFloat((2 + Math.random() * 3).toFixed(1));
-      const saleToListRatio = parseFloat((0.95 + Math.random() * 0.05).toFixed(2));
-      const priceReductions = Math.round(10 + Math.random() * 25);
-      
-      // Determine market type based on metrics
-      let marketType = "Balanced";
-      if (saleToListRatio > 0.98 && daysOnMarket < 30) {
-        marketType = "Seller's Market";
-      } else if (saleToListRatio < 0.96 && daysOnMarket > 35) {
-        marketType = "Buyer's Market";
-      }
-      
-      // Insert the market data record
-      await db.insert(marketData).values({
-        city: location.city,
-        state: location.state,
-        zipCode: location.zipCode,
+      // Create data point
+      allMarketData.push({
+        city: cityInfo.city,
+        state: cityInfo.state,
+        zipCode: cityInfo.zipCode,
         month,
         year,
-        medianPrice: medianPrice.toString(),
-        averagePricePerSqft: avgPricePerSqft.toString(),
-        daysOnMarket,
-        activeListings,
-        inventoryMonths: inventoryMonths.toString(),
-        saleToListRatio: saleToListRatio.toString(),
-        priceReductions: priceReductions.toString(),
-        marketType,
+        daysOnMarket: Math.round(25 + (Math.random() * 15)), // 25-40 days
+        medianPrice: price.toString(),
+        averagePricePerSqft: Math.round(price / 1600).toString(), // Approximate price per sqft
+        activeListings: Math.round(100 + (Math.random() * 100)), // 100-200 listings
+        inventoryMonths: 2.5 + (Math.random() * 2), // 2.5-4.5 months
+        saleToListRatio: 0.95 + (Math.random() * 0.04), // 95-99%
+        priceReductions: Math.round(10 + (Math.random() * 15)), // 10-25%
+        marketType: price > cityInfo.basePrice ? "Seller's Market" : "Buyer's Market"
       });
     }
   }
 
-  console.log("Additional market data seeding complete!");
+  // Add createdAt field to each data entry
+  const now = new Date();
+  const dataWithTimestamp = allMarketData.map(data => ({
+    ...data,
+    createdAt: now
+  }));
+
+  // Insert market data
+  await db.insert(marketData).values(dataWithTimestamp);
+
+  console.log(`Seeded ${dataWithTimestamp.length} additional market data entries`);
 }
 
-// Helper function to get base prices for different cities
-function getBasePrice(city: string): number {
-  const basePrices: Record<string, number> = {
-    "San Francisco": 1250000,
-    "New York": 950000,
-    "Seattle": 850000,
-    "Boston": 750000,
-    "Miami": 550000,
-    "Austin": 650000,
-    "Chicago": 450000,
-    "Denver": 650000,
-    "Portland": 600000,
-    // Default for any city not listed
-    "default": 500000
-  };
-  
-  return basePrices[city] || basePrices.default;
-}
-
-// Run the seed function
+// Execute the seed function
 seedMoreMarketData()
-  .catch(e => {
-    console.error("Error seeding market data:", e);
-    process.exit(1);
+  .then(() => {
+    console.log("Additional market data seeding completed");
+    process.exit(0);
   })
-  .finally(async () => {
-    await db.end();
-    console.log("Database connection closed");
+  .catch((error) => {
+    console.error("Error seeding additional market data:", error);
+    process.exit(1);
   });
