@@ -1048,11 +1048,11 @@ export default function SearchPage() {
             
             {/* Map view (placeholder) */}
             {!isLoading && viewMode === "map" && (
-              <Card>
+              <Card className="bg-[#050e1d] border-[#0f1d31]">
                 <CardContent className="p-6 text-center">
-                  <MapIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium mb-2">Map View Coming Soon</h3>
-                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  <MapIcon className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                  <h3 className="text-lg font-medium mb-2 text-white">Map View Coming Soon</h3>
+                  <p className="text-slate-400 mb-6 max-w-md mx-auto">
                     We're working on an interactive map view to help you visualize property locations. Please check back soon!
                   </p>
                 </CardContent>
