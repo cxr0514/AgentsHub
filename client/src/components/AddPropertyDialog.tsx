@@ -211,7 +211,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>City</FormLabel>
                         <FormControl>
-                          <Input placeholder="Atlanta" {...field} />
+                          <Input placeholder="Atlanta" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -225,7 +225,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>State</FormLabel>
                         <FormControl>
-                          <Input placeholder="GA" {...field} />
+                          <Input placeholder="GA" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -241,7 +241,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Zip Code</FormLabel>
                         <FormControl>
-                          <Input placeholder="30066" {...field} />
+                          <Input placeholder="30066" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -255,7 +255,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Neighborhood</FormLabel>
                         <FormControl>
-                          <Input placeholder="Optional" {...field} />
+                          <Input placeholder="Optional" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -271,7 +271,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Latitude</FormLabel>
                         <FormControl>
-                          <Input placeholder="Optional" {...field} />
+                          <Input placeholder="Optional" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -285,7 +285,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Longitude</FormLabel>
                         <FormControl>
-                          <Input placeholder="Optional" {...field} />
+                          <Input placeholder="Optional" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -304,7 +304,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                     <FormItem>
                       <FormLabel>Price ($)</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="450000" {...field} />
+                        <Input type="number" placeholder="450000" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -319,7 +319,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Bedrooms</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="3" {...field} />
+                          <Input type="number" placeholder="3" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -333,7 +333,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Bathrooms</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="2" step="0.5" {...field} />
+                          <Input type="number" placeholder="2" step="0.5" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -347,7 +347,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Sq Ft</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="2000" {...field} />
+                          <Input type="number" placeholder="2000" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -363,7 +363,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Year Built</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="Optional" {...field} />
+                          <Input type="number" placeholder="Optional" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -377,7 +377,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Lot Size (acres)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="Optional" step="0.01" {...field} />
+                          <Input type="number" placeholder="Optional" step="0.01" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
