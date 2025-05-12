@@ -407,15 +407,28 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
     
     if (!response || !response.ok) {
       console.warn("All ATTOM API endpoints failed. Using fallback data.");
-      throw new Error(errorMessage || "ATTOM API Error: All endpoints failed");
+      // Return fallback data with error information
+      const fallbackData = getFallbackMarketData(city, state, zipCode);
+      return {
+        ...fallbackData,
+        message: "Market statistics could not be retrieved from ATTOM API. Using fallback data.",
+        error: errorMessage || "ATTOM API Error: All endpoints failed",
+        isFallback: true
+      };
     }
     
     const data = await response.json();
     return data;
   } catch (error: any) {
     console.error("Error fetching market statistics:", error);
-    // Return fallback data instead of throwing an error
-    return getFallbackMarketData(city, state, zipCode);
+    // Return fallback data with error information
+    const fallbackData = getFallbackMarketData(city, state, zipCode);
+    return {
+      ...fallbackData,
+      message: "An error occurred while fetching market statistics. Using fallback data.",
+      error: error instanceof Error ? error.message : String(error),
+      isFallback: true
+    };
   }
 }
 

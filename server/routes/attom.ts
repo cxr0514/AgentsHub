@@ -304,6 +304,17 @@ testRouter.get("/market-statistics", async (req, res) => {
       zipCode ? String(zipCode) : undefined
     );
     
+    // If the result contains an error property, it's a fallback response
+    if (result.error || result.isFallback) {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.message || "Used fallback data due to API error",
+        error: result.error
+      });
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching market statistics:", error);
