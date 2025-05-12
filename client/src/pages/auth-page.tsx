@@ -74,27 +74,11 @@ export default function AuthPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-[#071224] text-white overflow-hidden">
-      {/* Background gradient waves */}
+      {/* Background gradient */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0a1b32] to-[#061020] opacity-30"></div>
-        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#0d1728] to-[#050d1c] opacity-30"></div>
-        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#081526] to-[#040c1b] opacity-20"></div>
-        <div className="animate-pulse absolute left-1/4 top-1/4 w-2 h-2 rounded-full bg-white opacity-50"></div>
-        <div className="animate-pulse-slow absolute right-1/3 top-1/2 w-1 h-1 rounded-full bg-white opacity-80"></div>
-        <div className="animate-pulse-slower absolute left-1/2 top-1/3 w-1 h-1 rounded-full bg-white opacity-70"></div>
-        {/* Add more particle dots across the background */}
-        {Array.from({ length: 20 }).map((_, index) => (
-          <div 
-            key={index} 
-            className="animate-pulse absolute w-1 h-1 rounded-full bg-white opacity-30"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 10}s`,
-              animationDuration: `${3 + Math.random() * 7}s`
-            }}
-          ></div>
-        ))}
+        <div className="absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0a1b32] to-[#061020] opacity-30"></div>
+        <div className="absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#0d1728] to-[#050d1c] opacity-30"></div>
+        <div className="absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#081526] to-[#040c1b] opacity-20"></div>
       </div>
       
       {/* Logo and content container */}
@@ -160,7 +144,7 @@ export default function AuthPage() {
                 <div className="mt-6 flex flex-col space-y-4">
                   <Button
                     type="submit"
-                    className="w-full bg-[#FF7A00] hover:bg-[#FF9832] text-white py-2"
+                    className="w-full bg-[#FF7A00] text-white py-2"
                     disabled={loginMutation.isPending}
                   >
                     {loginMutation.isPending ? "Logging in..." : "Login"}
@@ -169,7 +153,7 @@ export default function AuthPage() {
                   <Button
                     type="button"
                     variant="outline" 
-                    className="w-full border-[#0f1d31] text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"
+                    className="w-full border-[#0f1d31] text-white bg-[#071224]"
                     onClick={() => setActiveView("signup")}
                   >
                     Sign up
@@ -288,7 +272,7 @@ export default function AuthPage() {
                 <div className="mt-6 flex flex-col space-y-4">
                   <Button
                     type="submit"
-                    className="w-full bg-[#FF7A00] hover:bg-[#FF9832] text-white py-2"
+                    className="w-full bg-[#FF7A00] text-white py-2"
                     disabled={registerMutation.isPending}
                   >
                     {registerMutation.isPending ? "Creating account..." : "Sign up"}
@@ -297,7 +281,7 @@ export default function AuthPage() {
                   <Button
                     type="button"
                     variant="outline" 
-                    className="w-full border-[#0f1d31] text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"
+                    className="w-full border-[#0f1d31] text-white bg-[#071224]"
                     onClick={() => setActiveView("login")}
                   >
                     Login
@@ -310,8 +294,8 @@ export default function AuthPage() {
         
         {/* Links */}
         <div className="mt-8 flex justify-center space-x-4 text-sm text-[#8A93A6]">
-          <a href="#" className="hover:text-[#FF7A00] transition-colors">Terms of use</a>
-          <a href="#" className="hover:text-[#FF7A00] transition-colors">Privacy policy</a>
+          <a href="#" className="text-[#FF7A00]">Terms of use</a>
+          <a href="#" className="text-[#FF7A00]">Privacy policy</a>
         </div>
       </div>
     </div>

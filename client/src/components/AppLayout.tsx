@@ -63,23 +63,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <div className="relative min-h-screen bg-[#071224] text-white overflow-hidden">
       {/* Background gradient effects */}
       <div className="fixed inset-0 overflow-hidden -z-10">
-        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0a1b32] to-[#061020] opacity-30"></div>
-        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#0d1728] to-[#050d1c] opacity-30"></div>
-        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#081526] to-[#040c1b] opacity-20"></div>
-        
-        {/* Particle effects */}
-        {Array.from({ length: 20 }).map((_, index) => (
-          <div 
-            key={index} 
-            className="animate-pulse absolute w-1 h-1 rounded-full bg-white opacity-20"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 10}s`,
-              animationDuration: `${3 + Math.random() * 7}s`
-            }}
-          ></div>
-        ))}
+        <div className="absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0a1b32] to-[#061020] opacity-30"></div>
+        <div className="absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#0d1728] to-[#050d1c] opacity-30"></div>
+        <div className="absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#081526] to-[#040c1b] opacity-20"></div>
       </div>
       
       {/* Top Navigation Bar */}
@@ -107,7 +93,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                               "flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer",
                               location === item.path 
                                 ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
-                                : "text-white/80"
+                                : "text-white"
                             )}
                             onClick={() => {
                               setOpen(false);
@@ -124,7 +110,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   <div className="p-4 border-t border-[#0f1d31]">
                     <Button 
                       variant="default" 
-                      className="w-full flex items-center gap-2"
+                      className="w-full flex items-center gap-2 bg-[#FF7A00]"
                       onClick={handleLogout}
                     >
                       <LogOut className="h-4 w-4" />
@@ -151,7 +137,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
                   location === item.path 
                     ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
-                    : "text-white/80"
+                    : "text-white"
                 )}
                 onClick={() => window.location.href = item.path}
               >
