@@ -427,11 +427,11 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white">
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
                             <SelectItem value="Active">Active</SelectItem>
                             <SelectItem value="Pending">Pending</SelectItem>
                             <SelectItem value="Sold">Sold</SelectItem>
