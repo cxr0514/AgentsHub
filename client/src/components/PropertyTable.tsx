@@ -140,10 +140,10 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{title}</h2>
         </div>
-        <Card className="animate-pulse">
+        <Card className="animate-pulse bg-white">
           <div className="p-8 text-center">
-            <div className="h-6 bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
-            <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
           </div>
         </Card>
       </div>
@@ -156,8 +156,8 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">{title}</h2>
         </div>
-        <Card className="p-8 text-center">
-          <p className="text-white">No properties found matching your criteria.</p>
+        <Card className="p-8 text-center bg-white">
+          <p className="text-gray-700">No properties found matching your criteria.</p>
         </Card>
       </div>
     );
@@ -208,26 +208,26 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
         )}
       </div>
       
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden bg-white">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead onClick={() => handleSort("address")} className="cursor-pointer text-white">Property</TableHead>
-                <TableHead onClick={() => handleSort("price")} className="cursor-pointer text-white">Price</TableHead>
-                <TableHead onClick={() => handleSort("squareFeet")} className="cursor-pointer text-white">Size</TableHead>
-                <TableHead onClick={() => handleSort("pricePerSqft")} className="cursor-pointer text-white">$/SqFt</TableHead>
-                <TableHead className="text-white">Beds/Baths</TableHead>
-                <TableHead onClick={() => handleSort("yearBuilt")} className="cursor-pointer text-white">Year Built</TableHead>
-                <TableHead onClick={() => handleSort("status")} className="cursor-pointer text-white">Status</TableHead>
-                <TableHead className="text-right text-white">Actions</TableHead>
+              <TableRow className="bg-gray-50 border-b border-gray-200">
+                <TableHead onClick={() => handleSort("address")} className="cursor-pointer text-gray-700">Property</TableHead>
+                <TableHead onClick={() => handleSort("price")} className="cursor-pointer text-gray-700">Price</TableHead>
+                <TableHead onClick={() => handleSort("squareFeet")} className="cursor-pointer text-gray-700">Size</TableHead>
+                <TableHead onClick={() => handleSort("pricePerSqft")} className="cursor-pointer text-gray-700">$/SqFt</TableHead>
+                <TableHead className="text-gray-700">Beds/Baths</TableHead>
+                <TableHead onClick={() => handleSort("yearBuilt")} className="cursor-pointer text-gray-700">Year Built</TableHead>
+                <TableHead onClick={() => handleSort("status")} className="cursor-pointer text-gray-700">Status</TableHead>
+                <TableHead className="text-right text-gray-700">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sortedProperties.map((property: Property) => (
                 <TableRow 
                   key={property.id} 
-                  className="hover:bg-gray-700 cursor-pointer text-white"
+                  className="hover:bg-gray-50 cursor-pointer border-b border-gray-100"
                   onClick={() => handleViewDetails(property.id)}
                 >
                   <TableCell>
@@ -241,27 +241,27 @@ const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExpo
                         }}
                       />
                       <div>
-                        <div className="font-medium text-white">{property.address}</div>
-                        <div className="text-sm text-gray-300">
+                        <div className="font-medium text-gray-800">{property.address}</div>
+                        <div className="text-sm text-gray-600">
                           {property.neighborhood}, {property.city}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm font-medium text-white">${Number(property.price).toLocaleString()}</div>
+                    <div className="text-sm font-medium text-gray-800">${Number(property.price).toLocaleString()}</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-white">{Number(property.squareFeet).toLocaleString()} sqft</div>
+                    <div className="text-sm text-gray-700">{Number(property.squareFeet).toLocaleString()} sqft</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-white">${property.pricePerSqft}</div>
+                    <div className="text-sm text-gray-700">${property.pricePerSqft}</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-white">{property.bedrooms} bed / {property.bathrooms} bath</div>
+                    <div className="text-sm text-gray-700">{property.bedrooms} bed / {property.bathrooms} bath</div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-white">{property.yearBuilt}</div>
+                    <div className="text-sm text-gray-700">{property.yearBuilt}</div>
                   </TableCell>
                   <TableCell>
                     <StatusBadge status={property.status} />
@@ -295,25 +295,25 @@ const StatusBadge = ({ status }: { status: string }) => {
   switch (statusText.toLowerCase()) {
     case 'active':
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-800 text-green-200">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
           Active
         </span>
       );
     case 'pending':
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-yellow-800 text-yellow-200">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800">
           Pending
         </span>
       );
     case 'sold':
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-gray-600 text-gray-200">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-slate-100 text-slate-800">
           Sold
         </span>
       );
     default:
       return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-blue-800 text-blue-200">
+        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
           {statusText}
         </span>
       );
