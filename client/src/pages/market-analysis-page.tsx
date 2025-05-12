@@ -613,30 +613,30 @@ export default function MarketAnalysisPage() {
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <h3 className="text-xl font-semibold mb-4">Market Health Indicators</h3>
-                          <Card>
+                          <h3 className="text-xl font-semibold mb-4 text-white">Market Health Indicators</h3>
+                          <Card className="bg-[#162233] border border-gray-700">
                             <CardContent className="pt-6">
                               <div className="space-y-4">
                                 <div className="flex justify-between items-center">
-                                  <span className="font-medium">Overall Market Health:</span>
-                                  <span className="px-3 py-1 rounded-full bg-muted text-secondary-foreground">
+                                  <span className="font-medium text-white">Overall Market Health:</span>
+                                  <span className="px-3 py-1 rounded-full bg-[#071224] text-[#FF7A00] font-medium">
                                     {marketReport.marketHealthIndicators.overall}
                                   </span>
                                 </div>
-                                <Separator />
+                                <Separator className="bg-gray-700" />
                                 <div className="flex justify-between items-center">
-                                  <span>Affordability:</span>
-                                  <span>{marketReport.marketHealthIndicators.affordability}</span>
+                                  <span className="text-gray-300">Affordability:</span>
+                                  <span className="text-white">{marketReport.marketHealthIndicators.affordability}</span>
                                 </div>
-                                <Separator />
+                                <Separator className="bg-gray-700" />
                                 <div className="flex justify-between items-center">
-                                  <span>Competitiveness:</span>
-                                  <span>{marketReport.marketHealthIndicators.competitiveness}</span>
+                                  <span className="text-gray-300">Competitiveness:</span>
+                                  <span className="text-white">{marketReport.marketHealthIndicators.competitiveness}</span>
                                 </div>
-                                <Separator />
+                                <Separator className="bg-gray-700" />
                                 <div className="flex justify-between items-center">
-                                  <span>Stability:</span>
-                                  <span>{marketReport.marketHealthIndicators.stability}</span>
+                                  <span className="text-gray-300">Stability:</span>
+                                  <span className="text-white">{marketReport.marketHealthIndicators.stability}</span>
                                 </div>
                               </div>
                             </CardContent>
@@ -644,35 +644,41 @@ export default function MarketAnalysisPage() {
                         </div>
                         
                         <div>
-                          <h3 className="text-xl font-semibold mb-4">Opportunity Analysis</h3>
-                          <Card>
+                          <h3 className="text-xl font-semibold mb-4 text-white">Opportunity Analysis</h3>
+                          <Card className="bg-[#162233] border border-gray-700">
                             <CardContent className="pt-6">
                               <div className="space-y-3">
                                 <div>
-                                  <h4 className="text-sm font-medium mb-1">For Buyers:</h4>
-                                  <ul className="text-sm list-disc pl-5 space-y-1">
+                                  <h4 className="text-sm font-medium mb-1 text-white flex items-center">
+                                    <Home className="h-4 w-4 mr-1 text-blue-400" /> For Buyers:
+                                  </h4>
+                                  <ul className="text-sm list-disc pl-5 space-y-1 text-gray-300">
                                     {marketReport.opportunityAnalysis.buyerOpportunities.map((opp: string, i: number) => (
                                       <li key={i}>{opp}</li>
                                     ))}
                                   </ul>
                                 </div>
                                 
-                                <Separator />
+                                <Separator className="bg-gray-700" />
                                 
                                 <div>
-                                  <h4 className="text-sm font-medium mb-1">For Sellers:</h4>
-                                  <ul className="text-sm list-disc pl-5 space-y-1">
+                                  <h4 className="text-sm font-medium mb-1 text-white flex items-center">
+                                    <Building className="h-4 w-4 mr-1 text-green-400" /> For Sellers:
+                                  </h4>
+                                  <ul className="text-sm list-disc pl-5 space-y-1 text-gray-300">
                                     {marketReport.opportunityAnalysis.sellerOpportunities.map((opp: string, i: number) => (
                                       <li key={i}>{opp}</li>
                                     ))}
                                   </ul>
                                 </div>
                                 
-                                <Separator />
+                                <Separator className="bg-gray-700" />
                                 
                                 <div>
-                                  <h4 className="text-sm font-medium mb-1">For Investors:</h4>
-                                  <ul className="text-sm list-disc pl-5 space-y-1">
+                                  <h4 className="text-sm font-medium mb-1 text-white flex items-center">
+                                    <Award className="h-4 w-4 mr-1 text-[#FF7A00]" /> For Investors:
+                                  </h4>
+                                  <ul className="text-sm list-disc pl-5 space-y-1 text-gray-300">
                                     {marketReport.opportunityAnalysis.investorOpportunities.map((opp: string, i: number) => (
                                       <li key={i}>{opp}</li>
                                     ))}
@@ -685,14 +691,14 @@ export default function MarketAnalysisPage() {
                       </div>
                       
                       <div>
-                        <h3 className="text-xl font-semibold mb-4">Local Factors</h3>
+                        <h3 className="text-xl font-semibold mb-4 text-white">Local Factors</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                          <Card>
+                          <Card className="bg-[#162233] border border-gray-700">
                             <CardHeader className="pb-2">
-                              <CardTitle className="text-lg">Economic Indicators</CardTitle>
+                              <CardTitle className="text-lg text-white">Economic Indicators</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <ul className="text-sm list-disc pl-5 space-y-1">
+                              <ul className="text-sm list-disc pl-5 space-y-1 text-gray-300">
                                 {marketReport.localFactors.economicIndicators.map((indicator: string, i: number) => (
                                   <li key={i}>{indicator}</li>
                                 ))}
@@ -700,12 +706,12 @@ export default function MarketAnalysisPage() {
                             </CardContent>
                           </Card>
                           
-                          <Card>
+                          <Card className="bg-[#162233] border border-gray-700">
                             <CardHeader className="pb-2">
-                              <CardTitle className="text-lg">Demographic Trends</CardTitle>
+                              <CardTitle className="text-lg text-white">Demographic Trends</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <ul className="text-sm list-disc pl-5 space-y-1">
+                              <ul className="text-sm list-disc pl-5 space-y-1 text-gray-300">
                                 {marketReport.localFactors.demographicTrends.map((trend: string, i: number) => (
                                   <li key={i}>{trend}</li>
                                 ))}
@@ -715,12 +721,12 @@ export default function MarketAnalysisPage() {
                         </div>
                       </div>
                       
-                      <div className="bg-muted/30 p-4 rounded-lg">
-                        <h3 className="text-xl font-semibold mb-2">Conclusion</h3>
-                        <p>{marketReport.conclusion}</p>
+                      <div className="bg-[#071224] p-4 rounded-lg border border-gray-700">
+                        <h3 className="text-xl font-semibold mb-2 text-white">Conclusion</h3>
+                        <p className="text-gray-300">{marketReport.conclusion}</p>
                       </div>
                       
-                      <div className="text-sm text-muted-foreground text-right">
+                      <div className="text-sm text-gray-500 text-right">
                         <p>Report generated on {new Date(marketReport.generatedAt).toLocaleDateString()}</p>
                         <p>Based on data from {marketReport.timeRange?.start} to {marketReport.timeRange?.end}</p>
                       </div>
