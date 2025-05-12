@@ -35,7 +35,7 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
 
   return (
     <Link href={`/properties/${property.id}`}>
-      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full border border-gray-700 bg-gray-800">
+      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full border border-gray-200 bg-white">
         <div className="relative">
           {mainImage ? (
             <img
@@ -44,15 +44,15 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
               className="h-48 w-full object-cover"
             />
           ) : (
-            <div className="h-48 w-full bg-gray-700 flex items-center justify-center">
-              <Home className="h-12 w-12 text-gray-500" />
+            <div className="h-48 w-full bg-gray-100 flex items-center justify-center">
+              <Home className="h-12 w-12 text-gray-400" />
             </div>
           )}
           <div className="absolute top-2 right-2">
             <Button
               variant="secondary"
               size="icon"
-              className={`rounded-full ${isSaved ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white border border-gray-600'}`}
+              className={`rounded-full ${isSaved ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'}`}
               onClick={handleSaveClick}
             >
               <Bookmark className="h-4 w-4" />
@@ -61,25 +61,25 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
         </div>
         <CardContent className="p-4">
           <div className="flex justify-between mb-2">
-            <div className="font-semibold text-lg text-white">${Number(property.price).toLocaleString()}</div>
+            <div className="font-semibold text-lg text-gray-800">${Number(property.price).toLocaleString()}</div>
             <StatusBadge status={property.status} />
           </div>
 
-          <h3 className="font-medium text-white truncate">{property.address}</h3>
-          <p className="text-sm text-gray-300 truncate">
+          <h3 className="font-medium text-gray-800 truncate">{property.address}</h3>
+          <p className="text-sm text-gray-600 truncate">
             {property.neighborhood ? `${property.neighborhood}, ` : ''}
             {property.city}, {property.state}
           </p>
 
-          <div className="flex justify-between mt-3 text-sm text-white font-medium">
+          <div className="flex justify-between mt-3 text-sm text-gray-700 font-medium">
             <div className="flex items-center">
-              <span className="bg-gray-700 px-2 py-1 rounded">{property.bedrooms} bed</span>
+              <span className="bg-gray-100 px-2 py-1 rounded">{property.bedrooms} bed</span>
             </div>
             <div className="flex items-center">
-              <span className="bg-gray-700 px-2 py-1 rounded">{property.bathrooms} bath</span>
+              <span className="bg-gray-100 px-2 py-1 rounded">{property.bathrooms} bath</span>
             </div>
             <div className="flex items-center">
-              <span className="bg-gray-700 px-2 py-1 rounded">{Number(property.squareFeet).toLocaleString()} sqft</span>
+              <span className="bg-gray-100 px-2 py-1 rounded">{Number(property.squareFeet).toLocaleString()} sqft</span>
             </div>
           </div>
         </CardContent>
@@ -95,25 +95,25 @@ const StatusBadge = ({ status }: { status: string }) => {
   switch (statusText.toLowerCase()) {
     case 'active':
       return (
-        <Badge className="bg-green-600 text-white hover:bg-green-700">
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
           Active
         </Badge>
       );
     case 'pending':
       return (
-        <Badge className="bg-amber-500 text-white hover:bg-amber-600">
+        <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
           Pending
         </Badge>
       );
     case 'sold':
       return (
-        <Badge className="bg-slate-600 text-white hover:bg-slate-700">
+        <Badge className="bg-slate-100 text-slate-800 hover:bg-slate-200">
           Sold
         </Badge>
       );
     default:
       return (
-        <Badge className="bg-blue-600 text-white hover:bg-blue-700">
+        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
           {statusText}
         </Badge>
       );
