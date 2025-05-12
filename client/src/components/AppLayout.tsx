@@ -60,12 +60,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
   
   // For logged-in users, apply the new consistent design to all pages
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden">
+    <div className="relative min-h-screen bg-[#0a1526] text-white overflow-hidden">
       {/* Background gradient effects */}
       <div className="fixed inset-0 overflow-hidden -z-10">
-        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-teal-400 to-teal-200 opacity-10"></div>
-        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-indigo-500 via-purple-500 to-pink-400 opacity-10"></div>
-        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-fuchsia-400 to-purple-400 opacity-5"></div>
+        <div className="animate-wave absolute -left-24 -bottom-24 w-96 h-96 rounded-full bg-gradient-to-r from-[#0e2b4a] to-[#0f1e38] opacity-30"></div>
+        <div className="animate-wave-slow absolute right-0 bottom-0 w-[800px] h-[800px] rounded-full bg-gradient-to-l from-[#141d35] to-[#091124] opacity-30"></div>
+        <div className="animate-wave-slower absolute right-1/3 bottom-1/3 w-64 h-64 rounded-full bg-gradient-to-r from-[#0c1a30] to-[#0f172a] opacity-20"></div>
         
         {/* Particle effects */}
         {Array.from({ length: 20 }).map((_, index) => (
@@ -137,7 +137,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
             {/* Logo */}
             <div className="text-xl font-semibold tracking-tighter cursor-pointer" onClick={() => window.location.href = "/"}>
-              PropInvest<span className="text-blue-400">AI</span>
+              PropInvest<span className="text-[#ff9832]">AI</span>
             </div>
           </div>
 
@@ -163,7 +163,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#ff8000] to-[#ff9832] flex items-center justify-center">
                   <span className="text-xs font-semibold text-white">
                     {user?.username?.substring(0, 2).toUpperCase()}
                   </span>
