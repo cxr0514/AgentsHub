@@ -213,8 +213,8 @@ export default function PropertiesPage() {
           <div className="flex gap-2">
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-1">
-                  <ListFilter className="h-4 w-4" />
+                <Button variant="outline" className="flex items-center gap-1 border-[#0f1d31] bg-[#050e1d] text-white">
+                  <ListFilter className="h-4 w-4 text-[#FF7A00]" />
                   Filters
                 </Button>
               </SheetTrigger>
@@ -366,8 +366,8 @@ export default function PropertiesPage() {
                 </div>
                 
                 <div className="flex justify-between">
-                  <Button variant="outline" onClick={resetFilters}>Reset All</Button>
-                  <Button onClick={applyFilters}>Apply Filters</Button>
+                  <Button variant="outline" onClick={resetFilters} className="border-[#0f1d31] bg-[#050e1d] text-white">Reset All</Button>
+                  <Button onClick={applyFilters} className="bg-[#FF7A00]">Apply Filters</Button>
                 </div>
               </SheetContent>
             </Sheet>
@@ -382,7 +382,7 @@ export default function PropertiesPage() {
         {/* Search and view options */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between mb-6">
           <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-3 h-4 w-4 text-[#FF7A00]" />
             <Input 
               placeholder="Search properties by address, city, or zip" 
               className="pl-10 bg-[#050e1d] border-[#0f1d31] text-white placeholder:text-[#8A93A6] focus-visible:ring-0 focus-visible:border-[#FF7A00]"

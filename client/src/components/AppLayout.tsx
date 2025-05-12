@@ -162,12 +162,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <DropdownMenuContent align="end" className="w-56 bg-[#050e1d] border border-[#0f1d31] text-white">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-[#0f1d31]" />
-              <DropdownMenuItem className="cursor-pointer bg-[#050e1d]/80 text-white hover:text-[#FF7A00]" onClick={() => window.location.href = "/settings"}>
+              <DropdownMenuItem className="cursor-pointer bg-[#050e1d] text-white hover:bg-[#071224]" onClick={() => window.location.href = "/settings"}>
                 <Settings className="mr-2 h-4 w-4 text-[#FF7A00]" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-[#0f1d31]" />
-              <DropdownMenuItem className="cursor-pointer bg-[#050e1d]/80 text-white hover:text-[#FF7A00]" onClick={handleLogout}>
+              <DropdownMenuItem className="cursor-pointer bg-[#050e1d] text-white hover:bg-[#071224]" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4 text-[#FF7A00]" />
                 <span>Log out</span>
               </DropdownMenuItem>
