@@ -497,4 +497,4 @@ export async function refreshMLSData(limit: number = 100): Promise<number> {
 }
 
 // Import missing dependencies
-import { sql, eq } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';

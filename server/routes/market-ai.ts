@@ -39,7 +39,18 @@ export async function getMarketPredictions(req: Request, res: Response) {
     });
 
     if (recentPrediction) {
-      return res.json(JSON.parse(recentPrediction.predictions.toString()));
+      // Handle both stringified JSON and object formats
+      try {
+        // If it's already a string representation of JSON, parse it
+        if (typeof recentPrediction.predictions === 'string') {
+          return res.json(JSON.parse(recentPrediction.predictions));
+        } 
+        // If it's stored as an object (not a string), return directly
+        return res.json(recentPrediction.predictions);
+      } catch (error) {
+        console.error("Error parsing prediction data:", error);
+        return res.json(recentPrediction.predictions);
+      }
     }
 
     // Otherwise, generate new prediction
