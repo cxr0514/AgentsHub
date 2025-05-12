@@ -30,6 +30,7 @@ import marketHeatmapRoutes from "./routes/market-heatmap";
 import marketAnalysisRoutes from "./routes/market-analysis";
 import mfaRoutes from "./routes/mfa";
 import propertyCompsRoutes from "./routes/property-comps";
+import cmaReportsRoutes from "./routes/cma-reports";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
