@@ -142,25 +142,25 @@ export default function ApiKeyManagement() {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 bg-[#071224] min-h-screen text-white">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">API Key Management</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold text-white">API Key Management</h1>
+          <p className="text-gray-400">
             Manage your integration with external data providers
           </p>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-[#FF7A00] hover:bg-[#E56C00] text-white">
               <Plus className="h-4 w-4 mr-2" />
               Add API Key
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="bg-[#0F1D32] border border-gray-700 text-white">
             <DialogHeader>
-              <DialogTitle>Add API Key</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Add API Key</DialogTitle>
+              <DialogDescription className="text-gray-300">
                 Create a new API key to integrate with external services.
               </DialogDescription>
             </DialogHeader>
@@ -171,9 +171,9 @@ export default function ApiKeyManagement() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel className="text-white">Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="MLS Provider" {...field} />
+                        <Input placeholder="MLS Provider" {...field} className="bg-[#162233] border-gray-700 text-white placeholder:text-gray-500" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -184,9 +184,9 @@ export default function ApiKeyManagement() {
                   name="service"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Service</FormLabel>
+                      <FormLabel className="text-white">Service</FormLabel>
                       <FormControl>
-                        <Input placeholder="mls" {...field} />
+                        <Input placeholder="mls" {...field} className="bg-[#162233] border-gray-700 text-white placeholder:text-gray-500" />
                       </FormControl>
                       <FormMessage className="text-xs">
                         This will be used as environment variable prefix (e.g., MLS_API_KEY)
@@ -198,6 +198,7 @@ export default function ApiKeyManagement() {
                   <Button
                     type="submit"
                     disabled={addKeyMutation.isPending}
+                    className="bg-[#FF7A00] hover:bg-[#E56C00] text-white"
                   >
                     {addKeyMutation.isPending && (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -211,28 +212,28 @@ export default function ApiKeyManagement() {
         </Dialog>
       </div>
 
-      <Card>
+      <Card className="bg-[#0F1D32] border border-gray-700">
         <CardHeader>
-          <CardTitle>API Keys</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-white">API Keys</CardTitle>
+          <CardDescription className="text-gray-300">
             Manage external service API keys for data integration
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <Loader2 className="h-8 w-8 animate-spin text-[#FF7A00]" />
             </div>
           ) : apiKeys.length === 0 ? (
-            <div className="text-center py-12 border rounded-md">
-              <Key className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium">No API Keys</h3>
-              <p className="text-muted-foreground">
+            <div className="text-center py-12 border border-gray-700 rounded-md bg-[#131F32]">
+              <Key className="h-12 w-12 mx-auto text-[#FF7A00] mb-4" />
+              <h3 className="text-lg font-medium text-white">No API Keys</h3>
+              <p className="text-gray-400">
                 You haven't added any API keys yet. Add one to get started.
               </p>
               <Button
                 variant="outline"
-                className="mt-4"
+                className="mt-4 border-gray-700 text-gray-300 hover:text-[#FF7A00] hover:bg-[#162233]"
                 onClick={() => setIsAddDialogOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -241,28 +242,28 @@ export default function ApiKeyManagement() {
             </div>
           ) : (
             <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Key</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHeader className="bg-[#162233]">
+                <TableRow className="border-gray-700 hover:bg-[#162233]">
+                  <TableHead className="text-gray-300">Name</TableHead>
+                  <TableHead className="text-gray-300">Service</TableHead>
+                  <TableHead className="text-gray-300">Key</TableHead>
+                  <TableHead className="text-gray-300">Created</TableHead>
+                  <TableHead className="w-[100px] text-gray-300">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {apiKeys.map((apiKey: ApiKey) => (
-                  <TableRow key={apiKey.id}>
-                    <TableCell className="font-medium">{apiKey.name}</TableCell>
-                    <TableCell className="uppercase">{apiKey.service}</TableCell>
-                    <TableCell>
+                  <TableRow key={apiKey.id} className="border-gray-700 hover:bg-[#162233]">
+                    <TableCell className="font-medium text-white">{apiKey.name}</TableCell>
+                    <TableCell className="uppercase text-gray-300">{apiKey.service}</TableCell>
+                    <TableCell className="text-gray-300">
                       <div className="flex items-center space-x-2">
-                        <code className="bg-muted px-2 py-1 rounded text-xs">
+                        <code className="bg-[#131F32] px-2 py-1 rounded text-xs text-gray-300">
                           {apiKey.key}
                         </code>
                       </div>
                     </TableCell>
-                    <TableCell>{formatDate(apiKey.createdAt)}</TableCell>
+                    <TableCell className="text-gray-300">{formatDate(apiKey.createdAt)}</TableCell>
                     <TableCell>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
@@ -270,27 +271,31 @@ export default function ApiKeyManagement() {
                             variant="ghost"
                             size="icon"
                             onClick={() => setKeyToDelete(apiKey)}
+                            className="hover:bg-[#162233] text-red-500 hover:text-red-400"
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </AlertDialogTrigger>
-                        <AlertDialogContent>
+                        <AlertDialogContent className="bg-[#0F1D32] border border-gray-700 text-white">
                           <AlertDialogHeader>
-                            <AlertDialogTitle>
+                            <AlertDialogTitle className="text-white">
                               Are you sure you want to delete this API key?
                             </AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogDescription className="text-gray-300">
                               This action cannot be undone. Any services using this API key will
                               stop working immediately.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setKeyToDelete(null)}>
+                            <AlertDialogCancel 
+                              onClick={() => setKeyToDelete(null)}
+                              className="bg-[#162233] border-gray-700 text-white hover:bg-[#131F32] hover:text-gray-300"
+                            >
                               Cancel
                             </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={onDeleteKey}
-                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              className="bg-red-600 text-white hover:bg-red-700"
                             >
                               {deleteKeyMutation.isPending && (
                                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
