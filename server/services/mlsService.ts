@@ -47,6 +47,63 @@ const normalizedEndpoint = MLS_CONFIG.API_ENDPOINT.endsWith('/')
   ? MLS_CONFIG.API_ENDPOINT.slice(0, -1) 
   : MLS_CONFIG.API_ENDPOINT;
 
+/**
+ * Build a Datafiniti query string from search parameters
+ * @param params Search parameters to convert to Datafiniti query format
+ * @returns Datafiniti query string
+ */
+function buildDatafinitiQuery(params: Record<string, any>): string {
+  const queryParts: string[] = [];
+  
+  // Map our search params to Datafiniti query format
+  if (params.city) {
+    queryParts.push(`address.city:"${params.city}"`);
+  }
+  
+  if (params.state) {
+    queryParts.push(`address.state:"${params.state}"`);
+  }
+  
+  if (params.zipCode) {
+    queryParts.push(`address.postalCode:"${params.zipCode}"`);
+  }
+  
+  if (params.propertyType) {
+    queryParts.push(`type:"${params.propertyType}"`);
+  }
+  
+  if (params.minPrice) {
+    queryParts.push(`prices.amountMin:>=${params.minPrice}`);
+  }
+  
+  if (params.maxPrice) {
+    queryParts.push(`prices.amountMax:<=${params.maxPrice}`);
+  }
+  
+  if (params.minBeds) {
+    queryParts.push(`bedrooms:>=${params.minBeds}`);
+  }
+  
+  if (params.minBaths) {
+    queryParts.push(`bathrooms:>=${params.minBaths}`);
+  }
+  
+  if (params.minSqft) {
+    queryParts.push(`building.squareFootage:>=${params.minSqft}`);
+  }
+  
+  if (params.status) {
+    queryParts.push(`status:"${params.status}"`);
+  }
+  
+  // Default query if nothing else specified
+  if (queryParts.length === 0) {
+    queryParts.push('type:"Single Family"');
+  }
+  
+  return queryParts.join(' AND ');
+}
+
 // Cache to reduce API calls
 let propertyCache: Map<string, { data: any; timestamp: number }> = new Map();
 
@@ -104,12 +161,24 @@ async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLS
       }
     });
 
-    // Make request to MLS API - Datafiniti API structure requires different endpoints
-    const response = await fetch(`${normalizedEndpoint}/properties?${queryParams.toString()}`, {
+    // For Datafiniti API, we need to use their search endpoint with JSON body
+    // They use POST requests with a JSON body containing query parameters
+    const requestData = {
+      query: buildDatafinitiQuery(searchParams),
+      format: "JSON",
+      num_records: searchParams.limit || 10,
+      download: false
+    };
+    
+    console.log('Sending query to Datafiniti API:', JSON.stringify(requestData));
+    
+    const response = await fetch(`${normalizedEndpoint}/properties/search`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify(requestData)
     });
 
     if (!response.ok) {
@@ -225,11 +294,23 @@ export async function getMLSPropertyDetails(propertyId: string): Promise<Propert
   }
   
   try {
-    const response = await fetch(`${normalizedEndpoint}/properties/${propertyId}`, {
+    // Datafiniti API uses search with ID instead of direct ID lookup
+    const requestData = {
+      query: `id:"${propertyId}"`,
+      format: "JSON",
+      num_records: 1,
+      download: false
+    };
+    
+    console.log('Sending property lookup to Datafiniti API:', JSON.stringify(requestData));
+    
+    const response = await fetch(`${normalizedEndpoint}/properties/search`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify(requestData)
     });
     
     if (!response.ok) {
