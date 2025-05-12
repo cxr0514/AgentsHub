@@ -7,7 +7,7 @@ import {
   type InsertReport, type InsertPropertyHistory, type InsertMarketPrediction, type InsertPropertyRecommendation
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, or, like, gte, lte, desc } from "drizzle-orm";
+import { eq, and, or, like, gte, lte, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -752,10 +752,10 @@ export class DatabaseStorage implements IStorage {
       const locationLower = `%${filters.location.toLowerCase()}%`;
       conditions.push(
         or(
-          like(properties.city.toLowerCase(), locationLower),
-          like(properties.state.toLowerCase(), locationLower),
-          like(properties.zipCode.toLowerCase(), locationLower),
-          like((properties.neighborhood as any)?.toLowerCase() || '', locationLower)
+          sql`LOWER(${properties.city}) LIKE ${locationLower}`,
+          sql`LOWER(${properties.state}) LIKE ${locationLower}`,
+          sql`LOWER(${properties.zipCode}) LIKE ${locationLower}`,
+          sql`LOWER(COALESCE(${properties.neighborhood}, '')) LIKE ${locationLower}`
         )
       );
     }
@@ -854,12 +854,12 @@ export class DatabaseStorage implements IStorage {
       const milesPerDegree = 69; // ~69 miles per degree of latitude
       const degreeDelta = filters.radius / milesPerDegree;
       
-      conditions.push(gte(properties.latitude, filters.lat - degreeDelta));
-      conditions.push(lte(properties.latitude, filters.lat + degreeDelta));
+      conditions.push(sql`${properties.latitude}::numeric >= ${(filters.lat - degreeDelta).toString()}`);
+      conditions.push(sql`${properties.latitude}::numeric <= ${(filters.lat + degreeDelta).toString()}`);
       
       // Longitude degrees vary based on latitude, this is a simplification
-      conditions.push(gte(properties.longitude, filters.lng - degreeDelta));
-      conditions.push(lte(properties.longitude, filters.lng + degreeDelta));
+      conditions.push(sql`${properties.longitude}::numeric >= ${(filters.lng - degreeDelta).toString()}`);
+      conditions.push(sql`${properties.longitude}::numeric <= ${(filters.lng + degreeDelta).toString()}`);
     }
 
     // Apply conditions if any exist
