@@ -226,9 +226,9 @@ const MarketAnalysis = () => {
             {/* Enhanced market analysis with new sections */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="md:col-span-2">
-                <Card className="bg-white text-gray-800">
+                <Card className="bg-[#0F1D32] text-white border border-gray-700">
                   <CardHeader>
-                    <CardTitle>Price History Analysis</CardTitle>
+                    <CardTitle className="text-white">Price History Analysis</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <PriceHistoryChart data={sortedData} height={300} />
@@ -242,9 +242,9 @@ const MarketAnalysis = () => {
             </div>
             
             <div className="grid grid-cols-1 gap-6 mb-6">
-              <Card className="bg-white text-gray-800">
+              <Card className="bg-[#0F1D32] text-white border border-gray-700">
                 <CardHeader>
-                  <CardTitle>Median Price Trend (in thousands)</CardTitle>
+                  <CardTitle className="text-white">Median Price Trend (in thousands)</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="h-80">
@@ -281,20 +281,20 @@ const MarketAnalysis = () => {
         
         {selectedLocation && isLoading && (
           <div className="grid grid-cols-1 gap-6 mb-6">
-            <Card className="animate-pulse bg-white">
+            <Card className="animate-pulse bg-[#0F1D32] border border-gray-700">
               <CardHeader>
-                <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                <div className="h-6 bg-gray-700 rounded w-1/3"></div>
               </CardHeader>
               <CardContent>
-                <div className="h-60 bg-gray-200 rounded w-full"></div>
+                <div className="h-60 bg-gray-700 rounded w-full"></div>
               </CardContent>
             </Card>
           </div>
         )}
         
         {selectedLocation && !isLoading && sortedData.length === 0 && (
-          <Card className="p-6 text-center mb-6 bg-white text-gray-800">
-            <p className="text-gray-600">No market data available for this location.</p>
+          <Card className="p-6 text-center mb-6 bg-[#0F1D32] text-white border border-gray-700">
+            <p className="text-gray-300">No market data available for this location.</p>
           </Card>
         )}
       </div>
