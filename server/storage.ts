@@ -1,7 +1,10 @@
 import {
   users, properties, marketData, savedSearches, savedProperties, reports, propertyHistory,
+  marketPredictions, propertyRecommendations,
   type User, type Property, type MarketData, type SavedSearch, type SavedProperty, type Report, type PropertyHistory,
-  type InsertUser, type InsertProperty, type InsertMarketData, type InsertSavedSearch, type InsertSavedProperty, type InsertReport, type InsertPropertyHistory
+  type MarketPrediction, type PropertyRecommendation,
+  type InsertUser, type InsertProperty, type InsertMarketData, type InsertSavedSearch, type InsertSavedProperty, 
+  type InsertReport, type InsertPropertyHistory, type InsertMarketPrediction, type InsertPropertyRecommendation
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, like, gte, lte, desc } from "drizzle-orm";
@@ -92,6 +95,8 @@ export class MemStorage implements IStorage {
   private savedProperties: Map<number, SavedProperty>;
   private reports: Map<number, Report>;
   private propertyHistory: Map<number, PropertyHistory>;
+  private marketPredictions: Map<number, MarketPrediction>;
+  private propertyRecommendations: Map<number, PropertyRecommendation>;
 
   private userId: number;
   private propertyId: number;
@@ -100,6 +105,8 @@ export class MemStorage implements IStorage {
   private savedPropertyId: number;
   private reportId: number;
   private propertyHistoryId: number;
+  private marketPredictionId: number;
+  private propertyRecommendationId: number;
 
   constructor() {
     this.users = new Map();
@@ -109,6 +116,8 @@ export class MemStorage implements IStorage {
     this.savedProperties = new Map();
     this.reports = new Map();
     this.propertyHistory = new Map();
+    this.marketPredictions = new Map();
+    this.propertyRecommendations = new Map();
 
     this.userId = 1;
     this.propertyId = 1;
@@ -117,6 +126,8 @@ export class MemStorage implements IStorage {
     this.savedPropertyId = 1;
     this.reportId = 1;
     this.propertyHistoryId = 1;
+    this.marketPredictionId = 1;
+    this.propertyRecommendationId = 1;
 
     // Initialize with sample data
     this.initSampleData();
@@ -361,6 +372,56 @@ export class MemStorage implements IStorage {
     this.propertyHistory.set(id, newHistory);
     return newHistory;
   }
+  
+  // AI Market Predictions methods
+  async getMarketPrediction(id: number): Promise<MarketPrediction | undefined> {
+    return this.marketPredictions.get(id);
+  }
+
+  async getMarketPredictionsByLocation(city: string, state: string, zipCode?: string): Promise<MarketPrediction[]> {
+    const predictions = Array.from(this.marketPredictions.values()).filter(pred => 
+      pred.city.toLowerCase() === city.toLowerCase() && 
+      pred.state.toLowerCase() === state.toLowerCase() &&
+      (!zipCode || pred.zipCode === zipCode)
+    );
+    
+    // Sort by prediction date, newest first
+    return predictions.sort((a, b) => 
+      new Date(b.predictionDate).getTime() - new Date(a.predictionDate).getTime()
+    );
+  }
+
+  async createMarketPrediction(prediction: InsertMarketPrediction): Promise<MarketPrediction> {
+    const id = this.marketPredictionId++;
+    const now = new Date();
+    const newPrediction: MarketPrediction = { 
+      ...prediction, 
+      id, 
+      createdAt: now,
+      predictionDate: now
+    };
+    this.marketPredictions.set(id, newPrediction);
+    return newPrediction;
+  }
+  
+  // Property Recommendations methods
+  async getPropertyRecommendation(id: number): Promise<PropertyRecommendation | undefined> {
+    return this.propertyRecommendations.get(id);
+  }
+
+  async getPropertyRecommendationsByUser(userId: number): Promise<PropertyRecommendation[]> {
+    return Array.from(this.propertyRecommendations.values())
+      .filter(rec => rec.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async createPropertyRecommendation(recommendation: InsertPropertyRecommendation): Promise<PropertyRecommendation> {
+    const id = this.propertyRecommendationId++;
+    const now = new Date();
+    const newRecommendation: PropertyRecommendation = { ...recommendation, id, createdAt: now };
+    this.propertyRecommendations.set(id, newRecommendation);
+    return newRecommendation;
+  }
 
   // Initialize with sample data
   private initSampleData() {
@@ -565,6 +626,55 @@ export class MemStorage implements IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  // AI prediction methods
+  async getMarketPrediction(id: number): Promise<MarketPrediction | undefined> {
+    const [prediction] = await db.select().from(marketPredictions).where(eq(marketPredictions.id, id));
+    return prediction;
+  }
+
+  async getMarketPredictionsByLocation(city: string, state: string, zipCode?: string): Promise<MarketPrediction[]> {
+    let query = db.select().from(marketPredictions)
+      .where(
+        and(
+          eq(marketPredictions.city, city),
+          eq(marketPredictions.state, state)
+        )
+      )
+      .orderBy(desc(marketPredictions.predictionDate));
+      
+    if (zipCode) {
+      query = query.where(eq(marketPredictions.zipCode, zipCode));
+    }
+    
+    return query;
+  }
+
+  async createMarketPrediction(prediction: InsertMarketPrediction): Promise<MarketPrediction> {
+    const [newPrediction] = await db.insert(marketPredictions)
+      .values(prediction)
+      .returning();
+    return newPrediction;
+  }
+  
+  // Property recommendation methods
+  async getPropertyRecommendation(id: number): Promise<PropertyRecommendation | undefined> {
+    const [recommendation] = await db.select().from(propertyRecommendations)
+      .where(eq(propertyRecommendations.id, id));
+    return recommendation;
+  }
+
+  async getPropertyRecommendationsByUser(userId: number): Promise<PropertyRecommendation[]> {
+    return db.select().from(propertyRecommendations)
+      .where(eq(propertyRecommendations.userId, userId))
+      .orderBy(desc(propertyRecommendations.createdAt));
+  }
+
+  async createPropertyRecommendation(recommendation: InsertPropertyRecommendation): Promise<PropertyRecommendation> {
+    const [newRecommendation] = await db.insert(propertyRecommendations)
+      .values(recommendation)
+      .returning();
+    return newRecommendation;
+  }
   // User methods
   async getUser(id: number): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
