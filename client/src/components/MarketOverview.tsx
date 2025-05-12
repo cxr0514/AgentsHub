@@ -7,13 +7,14 @@ import MarketHealthChart from "./MarketHealthChart";
 interface MarketOverviewProps {
   city: string;
   state: string;
+  zipCode?: string;
 }
 
-const MarketOverview = ({ city, state }: MarketOverviewProps) => {
+const MarketOverview = ({ city, state, zipCode }: MarketOverviewProps) => {
   const { data: marketData, isLoading } = useQuery({
-    queryKey: ['/api/market-data', { city, state }],
+    queryKey: ['/api/market-data', { city, state, zipCode }],
     queryFn: async () => {
-      const response = await fetch(`/api/market-data?city=${city}&state=${state}`);
+      const response = await fetch(`/api/market-data?city=${city}&state=${state}${zipCode ? `&zipCode=${zipCode}` : ''}`);
       if (!response.ok) {
         throw new Error('Failed to fetch market data');
       }
@@ -56,7 +57,9 @@ const MarketOverview = ({ city, state }: MarketOverviewProps) => {
   if (!marketData || marketData.length === 0) {
     return (
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Market Overview: {city}, {state}</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          Market Overview: {city}, {state}{zipCode ? ` (${zipCode})` : ''}
+        </h2>
         <Card className="p-6 text-center">
           <p className="text-gray-300">No market data available for this location.</p>
         </Card>
@@ -75,7 +78,9 @@ const MarketOverview = ({ city, state }: MarketOverviewProps) => {
 
   return (
     <div className="mb-6">
-      <h2 className="text-xl font-semibold mb-4">Market Overview: {city}, {state}</h2>
+      <h2 className="text-xl font-semibold mb-4">
+        Market Overview: {city}, {state}{zipCode ? ` (${zipCode})` : ''}
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Price Trend Chart */}
         <Card className="overflow-hidden">
