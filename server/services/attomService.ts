@@ -441,13 +441,20 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
         // Different endpoints need different parameters for ATTOM API v1.0.0
         if (endpoint === ENDPOINTS.MARKET_STATS) {
           // Assessment snapshot endpoint
+          // Based on documentation, we need to use geoIdV4 parameter instead of city/state
+          // Since we don't have geoIdV4, try a different approach with date range and value range
+          const today = new Date();
+          const fiveYearsAgo = new Date();
+          fiveYearsAgo.setFullYear(today.getFullYear() - 5);
+          
+          queryParams.append("startcalendardate", fiveYearsAgo.toISOString().split('T')[0]);
+          queryParams.append("endcalendardate", today.toISOString().split('T')[0]);
+          queryParams.append("minassdttlvalue", "100000"); // Minimum property value
+          queryParams.append("maxassdttlvalue", "10000000"); // Maximum property value
+          
+          // We'll also add the zip code if available as additional filter
           if (zipCode) {
-            // If we have a zip code, use it
             queryParams.append("postalcode", zipCode);
-          } else {
-            // If no zip code, use city and state
-            queryParams.append("city", city);
-            queryParams.append("state", state);
           }
         } else if (endpoint === ENDPOINTS.MARKET_SNAPSHOT) {
           // Sale snapshot endpoint
