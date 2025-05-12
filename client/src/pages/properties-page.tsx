@@ -200,14 +200,14 @@ export default function PropertiesPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <Button variant="ghost" size="sm" className="mb-2" asChild>
+            <Button variant="ghost" size="sm" className="mb-2 text-slate-400 hover:text-white hover:bg-[#0f1d31]" asChild>
               <Link href="/" className="flex items-center gap-1">
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4 text-[#FF7A00]" />
                 Back to Dashboard
               </Link>
             </Button>
-            <h1 className="text-3xl font-bold">Properties</h1>
-            <p className="text-muted-foreground">Browse and manage real estate properties</p>
+            <h1 className="text-3xl font-bold text-white">Properties</h1>
+            <p className="text-slate-400">Browse and manage real estate properties</p>
           </div>
           
           <div className="flex gap-2">
