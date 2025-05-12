@@ -19,7 +19,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
           <CardTitle>Property Comparison</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">No properties selected for comparison.</p>
+          <p className="text-white/70">No properties selected for comparison.</p>
         </CardContent>
       </Card>
     );
@@ -43,19 +43,19 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
   };
 
   return (
-    <Card className="shadow-md">
+    <Card className="shadow-md bg-slate-900 border-slate-800 text-white">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-xl font-bold">Property Comparison</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl font-bold text-white">Property Comparison</CardTitle>
+            <CardDescription className="text-white/70">
               Side-by-side comparison of {properties.length} {properties.length === 1 ? 'property' : 'properties'}
             </CardDescription>
           </div>
           <Button 
             variant="outline" 
             size="sm" 
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-1 text-white/70 hover:text-white border-slate-700 bg-slate-800 hover:bg-slate-700"
             onClick={handleExportComparison}
           >
             <DownloadIcon size={16} />
@@ -67,22 +67,22 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="w-[200px] font-bold">Feature</TableHead>
+              <TableRow className="bg-slate-800 border-slate-700">
+                <TableHead className="w-[200px] font-bold text-white">Feature</TableHead>
                 {properties.map((property) => (
                   <TableHead key={property.id} className="min-w-[200px]">
                     <div className="flex flex-col">
                       <div className="font-bold truncate max-w-[180px] text-[#FF7A00]">
                         {property.address}
                       </div>
-                      <div className="text-xs text-muted-foreground truncate">
+                      <div className="text-xs text-white/70 truncate">
                         {property.city}, {property.state} {property.zipCode}
                       </div>
                       {onRemoveProperty && (
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="mt-1 p-0 h-6 text-muted-foreground hover:text-destructive self-end"
+                          className="mt-1 p-0 h-6 text-white/70 hover:text-red-400 self-end"
                           onClick={(e) => {
                             e.stopPropagation();
                             onRemoveProperty(property.id);
@@ -99,7 +99,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
             <TableBody>
               {/* Basic Information */}
               <TableRow>
-                <TableCell className="font-medium">Price</TableCell>
+                <TableCell className="font-medium text-white/90">Price</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-price`}>
                     {formatCurrency(Number(property.price))}
@@ -107,13 +107,13 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Property Type</TableCell>
+                <TableCell className="font-medium text-white/90">Property Type</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-type`}>{property.propertyType}</TableCell>
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Status</TableCell>
+                <TableCell className="font-medium text-white/90">Status</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-status`}>
                     <span 
