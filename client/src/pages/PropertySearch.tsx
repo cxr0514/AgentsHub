@@ -54,7 +54,7 @@ const PropertySearch = () => {
   // Mutation for synchronizing MLS data
   const synchronizeMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/mls/synchronize', {
+      const response = await fetch('/api/mls/test-sync', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

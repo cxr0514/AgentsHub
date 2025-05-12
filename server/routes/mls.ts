@@ -83,4 +83,34 @@ router.post('/synchronize', async (req, res) => {
   }
 });
 
+// Test endpoint for synchronization without authentication
+router.post('/test-sync', async (req, res) => {
+  try {
+    // Check if MLS API key is configured
+    const mlsApiKey = process.env.MLS_API_KEY;
+    const mlsApiEndpoint = process.env.MLS_API_ENDPOINT;
+    
+    if (!mlsApiKey || !mlsApiEndpoint) {
+      return res.status(400).json({
+        error: 'MLS API key or endpoint not configured'
+      });
+    }
+    
+    // Use our function to refresh MLS data (limit to 50 properties for manual sync)
+    const syncCount = await refreshMLSData(50);
+    
+    return res.json({
+      status: 'success',
+      message: `Successfully synced ${syncCount} properties`,
+      count: syncCount,
+      timestamp: syncLastUpdated
+    });
+  } catch (error) {
+    console.error('Error synchronizing MLS data:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    });
+  }
+});
+
 export default router;
