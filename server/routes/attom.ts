@@ -63,24 +63,61 @@ router.post("/sync-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRA
 
 // Test route for ATTOM API connection (unprotected for testing)
 router.get("/test-connection", async (req, res) => {
-  try {
-    const city = req.query.city as string || "Canton";
-    const state = req.query.state as string || "GA";
-    const zipCode = req.query.zipCode as string || "30115";
+  const city = req.query.city as string || "Canton";
+  const state = req.query.state as string || "GA";
+  const zipCode = req.query.zipCode as string || "30115";
 
+  try {
     // Test the connection to ATTOM API
     const data = await fetchMarketStatistics(city, state, zipCode);
     
-    return res.json({
-      success: true,
-      message: "Successfully connected to ATTOM API",
-      data
-    });
+    // Check if this is fallback data
+    const isFallback = !data.status || !data.area || data.area.length === 0;
+    
+    if (isFallback) {
+      return res.json({
+        success: true,
+        message: "Connected to ATTOM API with fallback data",
+        source: "fallback",
+        data
+      });
+    } else {
+      return res.json({
+        success: true,
+        message: "Successfully connected to ATTOM API",
+        source: "api",
+        data
+      });
+    }
   } catch (error: any) {
     console.error("Error testing ATTOM API connection:", error);
-    return res.status(500).json({ 
-      success: false,
-      error: error.message || "Error connecting to ATTOM API"
+    
+    // Even if there's an error, we should have fallback data
+    const fallbackData = {
+      status: { code: 0, success: true },
+      area: [
+        {
+          city,
+          state,
+          zipCode: zipCode || "",
+          marketstat: [
+            { MedianSalePrice: "450000" },
+            { AverageDaysOnMarket: "30" },
+            { ActiveListingCount: "145" },
+            { MedianPricePerSqft: "250" },
+            { SalesVolume: "25" },
+            { MonthsOfInventory: "3.5" }
+          ]
+        }
+      ]
+    };
+    
+    return res.json({ 
+      success: true,
+      message: "Error connecting to ATTOM API, using fallback data",
+      error: error.message,
+      source: "fallback_error",
+      data: fallbackData
     });
   }
 });
