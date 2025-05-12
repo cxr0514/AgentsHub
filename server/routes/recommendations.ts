@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { storage } from '../storage';
-import { generatePropertyRecommendations } from '../services/aiService';
+import { aiService } from '../services/aiService';
 
 const router = Router();
 
