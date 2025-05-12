@@ -27,6 +27,7 @@ import mlsRoutes from "./routes/mls";
 import attomRoutes from "./routes/attom";
 import attomTestRoutes from "./routes/attom-test";
 import marketHeatmapRoutes from "./routes/market-heatmap";
+import marketAnalysisRoutes from "./routes/market-analysis";
 import mfaRoutes from "./routes/mfa";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -54,6 +55,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register market heatmap routes
   apiRouter.use("/market-data", marketHeatmapRoutes);
+  
+  // Register AI market analysis routes
+  apiRouter.use("/market-analysis", marketAnalysisRoutes);
   
   // Register MFA authentication routes
   apiRouter.use("/mfa", mfaRoutes);
