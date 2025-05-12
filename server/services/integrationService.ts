@@ -312,7 +312,7 @@ export async function getPropertyDetails(id: number): Promise<any | null> {
       // Otherwise, try to get more detailed data from MLS
       try {
         // Use property address as an identifier for MLS lookup
-        const mlsProperty = await getMLSPropertyDetails(`${localProperty.address}-${localProperty.city}-${localProperty.state}`);
+        const mlsProperty = await getMLSPropertyDetails(`${processedProperty.address}-${processedProperty.city}-${processedProperty.state}`);
         
         if (mlsProperty) {
           return mlsProperty;
@@ -324,7 +324,7 @@ export async function getPropertyDetails(id: number): Promise<any | null> {
     }
     
     // If we don't have the property locally or failed to get MLS details
-    return localProperty || null;
+    return processedProperty || null;
   } catch (error) {
     console.error('Error in getPropertyDetails:', error);
     return null;

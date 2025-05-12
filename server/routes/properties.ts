@@ -67,6 +67,40 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Search properties (before the /:id route to avoid conflicts)
+router.get('/search', async (req, res) => {
+  try {
+    // Convert query parameters to proper filter format
+    const filters = {
+      location: req.query.city as string || req.query.location as string,
+      propertyType: req.query.propertyType as string,
+      minPrice: req.query.minPrice ? parseInt(req.query.minPrice as string) : undefined,
+      maxPrice: req.query.maxPrice ? parseInt(req.query.maxPrice as string) : undefined,
+      minBeds: req.query.minBeds ? parseInt(req.query.minBeds as string) : undefined,
+      minBaths: req.query.minBaths ? parseFloat(req.query.minBaths as string) : undefined,
+      minSqft: req.query.minSqft ? parseInt(req.query.minSqft as string) : undefined,
+      maxSqft: req.query.maxSqft ? parseInt(req.query.maxSqft as string) : undefined,
+      status: req.query.status as string,
+      yearBuilt: req.query.yearBuilt ? parseInt(req.query.yearBuilt as string) : undefined,
+      zipCode: req.query.zipCode as string,
+    };
+    
+    // Import the integrated search function
+    const { searchProperties } = await import('../services/integrationService');
+    
+    // Use integrated search that combines local DB and MLS data
+    const properties = await searchProperties(filters);
+    
+    res.json(properties);
+  } catch (error) {
+    console.error('Error searching properties:', error);
+    res.status(500).json({ 
+      message: 'Failed to search properties', 
+      error: error instanceof Error ? error.message : 'Unknown error' 
+    });
+  }
+});
+
 // Get a specific property
 router.get('/:id', async (req, res) => {
   try {
@@ -75,12 +109,27 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ message: 'Invalid property ID' });
     }
     
-    const property = await storage.getProperty(id);
-    if (!property) {
-      return res.status(404).json({ message: 'Property not found' });
+    try {
+      // Import the integrated property details function
+      const { getPropertyDetails } = await import('../services/integrationService');
+      const property = await getPropertyDetails(id);
+      
+      if (!property) {
+        return res.status(404).json({ message: 'Property not found' });
+      }
+      
+      res.json(property);
+    } catch (integrationError) {
+      console.error('Error with integration service, falling back to storage:', integrationError);
+      
+      // Fallback to direct database lookup
+      const property = await storage.getProperty(id);
+      if (!property) {
+        return res.status(404).json({ message: 'Property not found' });
+      }
+      
+      res.json(property);
     }
-    
-    res.json(property);
   } catch (error) {
     console.error('Error fetching property:', error);
     res.status(500).json({ message: 'Failed to fetch property', error: error instanceof Error ? error.message : 'Unknown error' });
