@@ -894,8 +894,8 @@ export default function SearchPage() {
             {!isLoading && paginatedProperties && paginatedProperties.length > 0 && viewMode === "grid" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {paginatedProperties.map((property: Property) => (
-                  <Card key={property.id} className="overflow-hidden">
-                    <div className="relative h-48 bg-muted">
+                  <Card key={property.id} className="overflow-hidden bg-[#050e1d] border-[#0f1d31]">
+                    <div className="relative h-48 bg-[#071224]">
                       <div className="absolute top-2 right-2">
                         <Badge className={getStatusColor(property.status)}>
                           {property.status}
@@ -909,55 +909,55 @@ export default function SearchPage() {
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Home className="h-12 w-12 text-muted-foreground/40" />
+                          <Home className="h-12 w-12 text-slate-500/40" />
                         </div>
                       )}
                     </div>
                     
                     <CardHeader>
-                      <CardTitle className="line-clamp-1">{property.address}</CardTitle>
-                      <CardDescription className="flex items-center gap-1">
-                        <MapPin className="h-3.5 w-3.5" />
+                      <CardTitle className="line-clamp-1 text-white">{property.address}</CardTitle>
+                      <CardDescription className="flex items-center gap-1 text-slate-400">
+                        <MapPin className="h-3.5 w-3.5 text-slate-400" />
                         {property.city}, {property.state} {property.zipCode}
                       </CardDescription>
                     </CardHeader>
                     
                     <CardContent>
                       <div className="flex justify-between mb-4">
-                        <span className="text-xl font-bold">{formatPrice(property.price)}</span>
+                        <span className="text-xl font-bold text-[#FF7A00]">{formatPrice(property.price)}</span>
                       </div>
                       
                       <div className="grid grid-cols-3 gap-2 text-sm">
-                        <div className="flex flex-col items-center p-2 bg-muted/50 rounded-md">
-                          <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                        <div className="flex flex-col items-center p-2 bg-[#071224] rounded-md">
+                          <div className="flex items-center gap-1 text-slate-400 mb-1">
                             <Bed className="h-3.5 w-3.5" />
                             <span>Beds</span>
                           </div>
-                          <span className="font-medium">{property.bedrooms}</span>
+                          <span className="font-medium text-white">{property.bedrooms}</span>
                         </div>
                         
-                        <div className="flex flex-col items-center p-2 bg-muted/50 rounded-md">
-                          <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                        <div className="flex flex-col items-center p-2 bg-[#071224] rounded-md">
+                          <div className="flex items-center gap-1 text-slate-400 mb-1">
                             <Bath className="h-3.5 w-3.5" />
                             <span>Baths</span>
                           </div>
-                          <span className="font-medium">{property.bathrooms}</span>
+                          <span className="font-medium text-white">{property.bathrooms}</span>
                         </div>
                         
-                        <div className="flex flex-col items-center p-2 bg-muted/50 rounded-md">
-                          <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                        <div className="flex flex-col items-center p-2 bg-[#071224] rounded-md">
+                          <div className="flex items-center gap-1 text-slate-400 mb-1">
                             <Ruler className="h-3.5 w-3.5" />
                             <span>Sq Ft</span>
                           </div>
-                          <span className="font-medium">
+                          <span className="font-medium text-white">
                             {parseInt(property.squareFeet).toLocaleString()}
                           </span>
                         </div>
                       </div>
                     </CardContent>
                     
-                    <CardFooter className="border-t border-border pt-4">
-                      <Button className="w-full" asChild>
+                    <CardFooter className="border-t border-[#0f1d31] pt-4">
+                      <Button className="w-full bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white border-none" asChild>
                         <Link href={`/properties/${property.id}`}>View Details</Link>
                       </Button>
                     </CardFooter>
@@ -970,9 +970,9 @@ export default function SearchPage() {
             {!isLoading && paginatedProperties && paginatedProperties.length > 0 && viewMode === "list" && (
               <div className="space-y-4">
                 {paginatedProperties.map((property: Property) => (
-                  <Card key={property.id} className="overflow-hidden">
+                  <Card key={property.id} className="overflow-hidden bg-[#050e1d] border-[#0f1d31]">
                     <div className="flex flex-col sm:flex-row">
-                      <div className="relative w-full sm:w-48 h-48 bg-muted">
+                      <div className="relative w-full sm:w-48 h-48 bg-[#071224]">
                         <div className="absolute top-2 right-2">
                           <Badge className={getStatusColor(property.status)}>
                             {property.status}
@@ -986,7 +986,7 @@ export default function SearchPage() {
                           />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <Home className="h-12 w-12 text-muted-foreground/40" />
+                            <Home className="h-12 w-12 text-slate-500/40" />
                           </div>
                         )}
                       </div>
@@ -994,48 +994,48 @@ export default function SearchPage() {
                       <div className="flex-1 p-6">
                         <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-2">
                           <div>
-                            <h3 className="text-lg font-semibold">{property.address}</h3>
-                            <p className="text-muted-foreground flex items-center gap-1">
-                              <MapPin className="h-3.5 w-3.5" />
+                            <h3 className="text-lg font-semibold text-white">{property.address}</h3>
+                            <p className="text-slate-400 flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5 text-slate-400" />
                               {property.city}, {property.state} {property.zipCode}
                             </p>
                           </div>
-                          <div className="mt-2 sm:mt-0 text-xl font-bold">
+                          <div className="mt-2 sm:mt-0 text-xl font-bold text-[#FF7A00]">
                             {formatPrice(property.price)}
                           </div>
                         </div>
                         
                         <div className="flex flex-wrap gap-x-6 gap-y-2 my-4">
                           <div className="flex items-center gap-1">
-                            <Bed className="h-4 w-4 text-muted-foreground" />
-                            <span>{property.bedrooms} Beds</span>
+                            <Bed className="h-4 w-4 text-slate-400" />
+                            <span className="text-white">{property.bedrooms} Beds</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Bath className="h-4 w-4 text-muted-foreground" />
-                            <span>{property.bathrooms} Baths</span>
+                            <Bath className="h-4 w-4 text-slate-400" />
+                            <span className="text-white">{property.bathrooms} Baths</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Ruler className="h-4 w-4 text-muted-foreground" />
-                            <span>{parseInt(property.squareFeet).toLocaleString()} sq ft</span>
+                            <Ruler className="h-4 w-4 text-slate-400" />
+                            <span className="text-white">{parseInt(property.squareFeet).toLocaleString()} sq ft</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <Home className="h-4 w-4 text-muted-foreground" />
-                            <span>{property.propertyType}</span>
+                            <Home className="h-4 w-4 text-slate-400" />
+                            <span className="text-white">{property.propertyType}</span>
                           </div>
                           <div className="flex items-center gap-1">
-                            <CalendarRange className="h-4 w-4 text-muted-foreground" />
-                            <span>Built {property.yearBuilt}</span>
+                            <CalendarRange className="h-4 w-4 text-slate-400" />
+                            <span className="text-white">Built {property.yearBuilt}</span>
                           </div>
                         </div>
                         
                         {property.description && (
-                          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                          <p className="text-sm text-slate-400 mb-4 line-clamp-2">
                             {property.description}
                           </p>
                         )}
                         
                         <div className="flex items-center justify-end">
-                          <Button asChild>
+                          <Button className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white border-none" asChild>
                             <Link href={`/properties/${property.id}`}>View Details</Link>
                           </Button>
                         </div>
