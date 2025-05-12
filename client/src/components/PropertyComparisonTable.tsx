@@ -55,7 +55,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
           <Button 
             variant="outline" 
             size="sm" 
-            className="flex items-center gap-1 text-white/70 hover:text-white border-slate-700 bg-slate-800 hover:bg-slate-700"
+            className="flex items-center gap-1 text-white border-[#FF7A00]/30 bg-[#FF7A00]/10 hover:bg-[#FF7A00]/20 hover:border-[#FF7A00]/50"
             onClick={handleExportComparison}
           >
             <DownloadIcon size={16} />
@@ -82,7 +82,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="mt-1 p-0 h-6 text-white/70 hover:text-red-400 self-end"
+                          className="mt-1 p-0 h-6 text-white/70 hover:text-[#FF7A00] self-end"
                           onClick={(e) => {
                             e.stopPropagation();
                             onRemoveProperty(property.id);
@@ -102,7 +102,9 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 <TableCell className="font-medium text-white/90">Price</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-price`}>
-                    {formatCurrency(Number(property.price))}
+                    <span className="font-semibold text-[#FF7A00]">
+                      {formatCurrency(Number(property.price))}
+                    </span>
                   </TableCell>
                 ))}
               </TableRow>
@@ -148,7 +150,9 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 <TableCell className="font-medium text-white/90">Square Feet</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-sqft`}>
-                    {formatNumber(Number(property.squareFeet))}
+                    <span className="text-white/90 font-medium">
+                      {formatNumber(Number(property.squareFeet))}
+                    </span>
                   </TableCell>
                 ))}
               </TableRow>
@@ -168,7 +172,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                   const stats = calculatePropertyStats(property);
                   return (
                     <TableCell key={`${property.id}-price-sqft`}>
-                      {stats.pricePerSqFt}
+                      <span className="text-[#FF7A00]">{stats.pricePerSqFt}</span>
                     </TableCell>
                   );
                 })}
@@ -179,7 +183,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                   const stats = calculatePropertyStats(property);
                   return (
                     <TableCell key={`${property.id}-price-bed`}>
-                      {stats.pricePerBed}
+                      <span className="text-[#FF7A00]">{stats.pricePerBed}</span>
                     </TableCell>
                   );
                 })}
