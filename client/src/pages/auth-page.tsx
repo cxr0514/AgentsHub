@@ -105,8 +105,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
-                            <UserRound className="h-4 w-4 mr-2 text-[#8A93A6]" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d] focus-within:border-[#FF7A00]">
+                            <UserRound className="h-4 w-4 mr-2 text-[#FF7A00]" />
                             <Input
                               placeholder="Username"
                               {...field}
@@ -125,8 +125,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
-                            <Lock className="h-4 w-4 mr-2 text-[#8A93A6]" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d] focus-within:border-[#FF7A00]">
+                            <Lock className="h-4 w-4 mr-2 text-[#FF7A00]" />
                             <Input
                               type="password"
                               placeholder="Password"
@@ -173,8 +173,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
-                            <UserRound className="h-4 w-4 mr-2 text-[#8A93A6]" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d] focus-within:border-[#FF7A00]">
+                            <UserRound className="h-4 w-4 mr-2 text-[#FF7A00]" />
                             <Input
                               placeholder="Username"
                               {...field}
@@ -193,7 +193,7 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d] focus-within:border-[#FF7A00]">
                             <Input
                               type="email"
                               placeholder="Email"
@@ -213,7 +213,7 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d] focus-within:border-[#FF7A00]">
                             <Input
                               placeholder="Full Name"
                               {...field}
@@ -232,8 +232,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
-                            <Lock className="h-4 w-4 mr-2 text-[#8A93A6]" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d] focus-within:border-[#FF7A00]">
+                            <Lock className="h-4 w-4 mr-2 text-[#FF7A00]" />
                             <Input
                               type="password"
                               placeholder="Password"
@@ -253,8 +253,8 @@ export default function AuthPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
-                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d]/80 backdrop-blur-sm focus-within:ring-1 focus-within:ring-[#FF7A00]">
-                            <Lock className="h-4 w-4 mr-2 text-[#8A93A6]" />
+                          <div className="flex items-center border border-[#0f1d31] rounded-md px-3 bg-[#050e1d] focus-within:border-[#FF7A00]">
+                            <Lock className="h-4 w-4 mr-2 text-[#FF7A00]" />
                             <Input
                               type="password"
                               placeholder="Confirm Password"

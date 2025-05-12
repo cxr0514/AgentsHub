@@ -372,7 +372,7 @@ export default function PropertiesPage() {
               </SheetContent>
             </Sheet>
             
-            <Button>
+            <Button className="bg-[#FF7A00]">
               <Plus className="h-4 w-4 mr-2" />
               Add Property
             </Button>
@@ -385,7 +385,7 @@ export default function PropertiesPage() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder="Search properties by address, city, or zip" 
-              className="pl-10 bg-[#050e1d]/80 border-[#0f1d31] text-white placeholder:text-[#8A93A6] focus-visible:ring-[#FF7A00]"
+              className="pl-10 bg-[#050e1d] border-[#0f1d31] text-white placeholder:text-[#8A93A6] focus-visible:ring-0 focus-visible:border-[#FF7A00]"
               value={filters.location}
               onChange={(e) => handleFilterChange('location', e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
@@ -397,7 +397,7 @@ export default function PropertiesPage() {
               value={filters.status}
               onValueChange={(value) => handleFilterChange('status', value)}
             >
-              <SelectTrigger className="w-[180px] bg-[#050e1d]/80 border-[#0f1d31] text-white focus:ring-[#FF7A00]">
+              <SelectTrigger className="w-[180px] bg-[#050e1d] border-[#0f1d31] text-white focus:ring-0 focus:border-[#FF7A00]">
                 <SelectValue placeholder="All Properties" />
               </SelectTrigger>
               <SelectContent>
@@ -414,7 +414,7 @@ export default function PropertiesPage() {
                   <Button
                     variant={viewType === "grid" ? "default" : "outline"} 
                     size="icon"
-                    className={viewType === "grid" ? "bg-[#FF7A00] hover:bg-[#FF9832]" : "border-[#0f1d31] bg-[#050e1d]/80 text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"}
+                    className={viewType === "grid" ? "bg-[#FF7A00]" : "border-[#0f1d31] bg-[#050e1d] text-white"}
                     onClick={() => setViewType("grid")}
                   >
                     <Building2 className="h-4 w-4" />
@@ -432,7 +432,7 @@ export default function PropertiesPage() {
                   <Button 
                     variant={viewType === "list" ? "default" : "outline"} 
                     size="icon"
-                    className={viewType === "list" ? "bg-[#FF7A00] hover:bg-[#FF9832]" : "border-[#0f1d31] bg-[#050e1d]/80 text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"}
+                    className={viewType === "list" ? "bg-[#FF7A00]" : "border-[#0f1d31] bg-[#050e1d] text-white"}
                     onClick={() => setViewType("list")}
                   >
                     <ListFilter className="h-4 w-4" />
