@@ -10,6 +10,11 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   fullName: text("full_name"),
   role: text("role").default("user").notNull(),
+  mfaEnabled: boolean("mfa_enabled").default(false).notNull(),
+  mfaSecret: text("mfa_secret"),
+  mfaRecoveryCodes: jsonb("mfa_recovery_codes"), // Array of hashed recovery codes
+  phoneNumber: text("phone_number"),
+  phoneVerified: boolean("phone_verified").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -139,6 +144,11 @@ export const insertUserSchema = createInsertSchema(users).pick({
   email: true,
   fullName: true,
   role: true,
+  mfaEnabled: true,
+  mfaSecret: true,
+  mfaRecoveryCodes: true,
+  phoneNumber: true,
+  phoneVerified: true,
 });
 
 export const insertPropertySchema = createInsertSchema(properties).omit({
