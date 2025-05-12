@@ -44,6 +44,24 @@ router.post("/update-market-data", requirePermission(Permission.MANAGE_MLS_INTEG
   }
 });
 
+// Test endpoint for updating market data (unprotected for testing)
+router.post("/test-update-market-data", async (req, res) => {
+  try {
+    const { city, state, zipCode } = req.body;
+
+    if (!city || !state) {
+      return res.status(400).json({ error: "City and state are required parameters" });
+    }
+
+    console.log(`Test endpoint: Updating market data for ${city}, ${state}${zipCode ? ` ${zipCode}` : ''}`);
+    const result = await updateMarketData(city, state, zipCode);
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Error updating market data (test endpoint):", error);
+    return res.status(500).json({ error: error.message || "Error updating market data" });
+  }
+});
+
 // Sync market data for multiple locations (protected route)
 router.post("/sync-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRATION), async (req, res) => {
   try {
@@ -57,6 +75,24 @@ router.post("/sync-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRA
     return res.json(result);
   } catch (error: any) {
     console.error("Error syncing market data:", error);
+    return res.status(500).json({ error: error.message || "Error syncing market data" });
+  }
+});
+
+// Test endpoint for syncing market data for multiple locations (unprotected for testing)
+router.post("/test-sync-market-data", async (req, res) => {
+  try {
+    const { locations } = req.body;
+
+    if (!Array.isArray(locations) || locations.length === 0) {
+      return res.status(400).json({ error: "Locations array is required" });
+    }
+
+    console.log(`Test endpoint: Syncing market data for ${locations.length} locations`);
+    const result = await syncMarketData(locations);
+    return res.json(result);
+  } catch (error: any) {
+    console.error("Error syncing market data (test endpoint):", error);
     return res.status(500).json({ error: error.message || "Error syncing market data" });
   }
 });
