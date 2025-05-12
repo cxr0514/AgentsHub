@@ -501,32 +501,32 @@ export default function PropertiesPage() {
         {!isLoading && properties && properties.length > 0 && viewType === "grid" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {paginatedProperties.map((property: Property) => (
-              <Card key={property.id} className="overflow-hidden">
-                <div className="relative h-48 bg-muted">
+              <Card key={property.id} className="overflow-hidden bg-[#050e1d] border-[#0f1d31] text-white">
+                <div className="relative h-48 bg-[#071224]">
                   <div className="absolute top-2 right-2">
                     <Badge className={getStatusColor(property.status)}>
                       {property.status}
                     </Badge>
                   </div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Home className="h-12 w-12 text-muted-foreground/40" />
+                    <Home className="h-12 w-12 text-[#0f1d31]" />
                   </div>
                 </div>
                 
                 <CardHeader>
-                  <CardTitle className="line-clamp-1">{property.address}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <MapPin className="h-3.5 w-3.5" />
+                  <CardTitle className="line-clamp-1 text-white">{property.address}</CardTitle>
+                  <CardDescription className="flex items-center gap-1 text-slate-400">
+                    <MapPin className="h-3.5 w-3.5 text-[#FF7A00]" />
                     {property.city}, {property.state} {property.zipCode}
                   </CardDescription>
                 </CardHeader>
                 
                 <CardContent>
                   <div className="flex justify-between mb-4">
-                    <span className="text-xl font-bold">{formatPrice(property.price)}</span>
+                    <span className="text-xl font-bold text-[#FF7A00]">{formatPrice(property.price)}</span>
                     <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4 text-[#FF7A00]" />
+                      <span className="text-sm text-slate-400">
                         {formatDate(property.createdAt)}
                       </span>
                     </div>
@@ -561,8 +561,8 @@ export default function PropertiesPage() {
                   </div>
                 </CardContent>
                 
-                <CardFooter className="border-t border-border pt-4">
-                  <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d]/80 text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]" asChild>
+                <CardFooter className="border-t border-[#0f1d31] pt-4">
+                  <Button className="w-full bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white" asChild>
                     <Link href={`/properties/${property.id}`}>View Details</Link>
                   </Button>
                 </CardFooter>
@@ -575,29 +575,29 @@ export default function PropertiesPage() {
         {!isLoading && properties && properties.length > 0 && viewType === "list" && (
           <div className="space-y-4">
             {paginatedProperties.map((property: Property) => (
-              <Card key={property.id} className="overflow-hidden">
+              <Card key={property.id} className="overflow-hidden bg-[#050e1d] border-[#0f1d31] text-white">
                 <div className="flex flex-col sm:flex-row">
-                  <div className="relative w-full sm:w-48 h-48 bg-muted">
+                  <div className="relative w-full sm:w-48 h-48 bg-[#071224]">
                     <div className="absolute top-2 right-2">
                       <Badge className={getStatusColor(property.status)}>
                         {property.status}
                       </Badge>
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <Home className="h-12 w-12 text-muted-foreground/40" />
+                      <Home className="h-12 w-12 text-[#0f1d31]" />
                     </div>
                   </div>
                   
                   <div className="flex-1 p-6">
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-2">
                       <div>
-                        <h3 className="text-lg font-semibold">{property.address}</h3>
-                        <p className="text-muted-foreground flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5" />
+                        <h3 className="text-lg font-semibold text-white">{property.address}</h3>
+                        <p className="text-slate-400 flex items-center gap-1">
+                          <MapPin className="h-3.5 w-3.5 text-[#FF7A00]" />
                           {property.city}, {property.state} {property.zipCode}
                         </p>
                       </div>
-                      <div className="mt-2 sm:mt-0 text-xl font-bold">
+                      <div className="mt-2 sm:mt-0 text-xl font-bold text-[#FF7A00]">
                         {formatPrice(property.price)}
                       </div>
                     </div>
