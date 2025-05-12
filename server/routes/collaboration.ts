@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { randomBytes } from 'crypto';
 import { storage } from '../storage';
-import { ensureAuthenticated } from '../middleware/auth';
+import { isAuthenticated } from '../middleware/auth';
 import { insertSharedPropertySchema, insertPropertyCommentSchema } from '@shared/schema';
 import { log } from '../vite';
 

@@ -479,6 +479,165 @@ export class MemStorage implements IStorage {
     return newRecommendation;
   }
 
+  // Collaboration - Shared Properties methods
+  async getSharedProperty(id: number): Promise<SharedProperty | undefined> {
+    return this.sharedProperties.get(id);
+  }
+
+  async getSharedPropertyByToken(token: string): Promise<SharedProperty | undefined> {
+    return Array.from(this.sharedProperties.values()).find(sp => sp.accessToken === token);
+  }
+
+  async getSharedPropertiesByOwner(ownerId: number): Promise<SharedProperty[]> {
+    return Array.from(this.sharedProperties.values()).filter(sp => sp.ownerId === ownerId);
+  }
+
+  async getSharedPropertiesByEmail(email: string): Promise<SharedProperty[]> {
+    return Array.from(this.sharedProperties.values()).filter(sp => sp.sharedWith === email);
+  }
+
+  async createSharedProperty(property: InsertSharedProperty): Promise<SharedProperty> {
+    const id = this.sharedPropertyId++;
+    const now = new Date();
+    const newProperty: SharedProperty = { ...property, id, createdAt: now };
+    this.sharedProperties.set(id, newProperty);
+    return newProperty;
+  }
+
+  async updateSharedProperty(id: number, updates: Partial<SharedProperty>): Promise<SharedProperty | undefined> {
+    const property = this.sharedProperties.get(id);
+    if (!property) return undefined;
+
+    const updatedProperty = { ...property, ...updates };
+    this.sharedProperties.set(id, updatedProperty);
+    return updatedProperty;
+  }
+
+  async deleteSharedProperty(id: number): Promise<boolean> {
+    return this.sharedProperties.delete(id);
+  }
+
+  // Collaboration - Property Comments methods
+  async getPropertyComment(id: number): Promise<PropertyComment | undefined> {
+    return this.propertyComments.get(id);
+  }
+
+  async getPropertyCommentsByProperty(propertyId: number): Promise<PropertyComment[]> {
+    return Array.from(this.propertyComments.values()).filter(pc => pc.propertyId === propertyId);
+  }
+
+  async getPropertyCommentsBySharedProperty(sharedPropertyId: number): Promise<PropertyComment[]> {
+    return Array.from(this.propertyComments.values()).filter(pc => pc.sharedPropertyId === sharedPropertyId);
+  }
+
+  async createPropertyComment(comment: InsertPropertyComment): Promise<PropertyComment> {
+    const id = this.propertyCommentId++;
+    const now = new Date();
+    const newComment: PropertyComment = { ...comment, id, createdAt: now };
+    this.propertyComments.set(id, newComment);
+    return newComment;
+  }
+
+  async deletePropertyComment(id: number): Promise<boolean> {
+    return this.propertyComments.delete(id);
+  }
+
+  // Collaboration - Teams methods
+  async getCollaborationTeam(id: number): Promise<CollaborationTeam | undefined> {
+    return this.collaborationTeams.get(id);
+  }
+
+  async getTeamsByUserId(userId: number): Promise<CollaborationTeam[]> {
+    // Find all teams where the user is a member
+    const teamIds = Array.from(this.teamMembers.values())
+      .filter(tm => tm.userId === userId)
+      .map(tm => tm.teamId);
+    
+    // Get the team details for each team ID
+    return teamIds.map(id => this.collaborationTeams.get(id)).filter(Boolean) as CollaborationTeam[];
+  }
+
+  async createCollaborationTeam(team: InsertCollaborationTeam): Promise<CollaborationTeam> {
+    const id = this.collaborationTeamId++;
+    const now = new Date();
+    const newTeam: CollaborationTeam = { ...team, id, createdAt: now };
+    this.collaborationTeams.set(id, newTeam);
+    return newTeam;
+  }
+
+  async updateCollaborationTeam(id: number, updates: Partial<CollaborationTeam>): Promise<CollaborationTeam | undefined> {
+    const team = this.collaborationTeams.get(id);
+    if (!team) return undefined;
+
+    const updatedTeam = { ...team, ...updates };
+    this.collaborationTeams.set(id, updatedTeam);
+    return updatedTeam;
+  }
+
+  async deleteCollaborationTeam(id: number): Promise<boolean> {
+    // First delete all associated team members and team properties
+    Array.from(this.teamMembers.entries())
+      .filter(([key, _]) => key.startsWith(`${id}-`))
+      .forEach(([key, _]) => this.teamMembers.delete(key));
+    
+    Array.from(this.teamProperties.entries())
+      .filter(([key, _]) => key.startsWith(`${id}-`))
+      .forEach(([key, _]) => this.teamProperties.delete(key));
+    
+    // Then delete the team itself
+    return this.collaborationTeams.delete(id);
+  }
+
+  async addTeamMember(member: InsertTeamMember): Promise<TeamMember> {
+    // Create a composite key for the Map
+    const key = `${member.teamId}-${member.userId}`;
+    
+    const now = new Date();
+    const newMember: TeamMember = { ...member, joinedAt: now };
+    
+    this.teamMembers.set(key, newMember);
+    return newMember;
+  }
+
+  async removeTeamMember(teamId: number, userId: number): Promise<boolean> {
+    const key = `${teamId}-${userId}`;
+    return this.teamMembers.delete(key);
+  }
+
+  async getTeamMembers(teamId: number): Promise<TeamMember[]> {
+    return Array.from(this.teamMembers.entries())
+      .filter(([key, _]) => key.startsWith(`${teamId}-`))
+      .map(([_, member]) => member);
+  }
+
+  async addPropertyToTeam(teamProperty: InsertTeamProperty): Promise<TeamProperty> {
+    // Create a composite key for the Map
+    const key = `${teamProperty.teamId}-${teamProperty.propertyId}`;
+    
+    const now = new Date();
+    const newTeamProperty: TeamProperty = { ...teamProperty, addedAt: now };
+    
+    this.teamProperties.set(key, newTeamProperty);
+    return newTeamProperty;
+  }
+
+  async removePropertyFromTeam(teamId: number, propertyId: number): Promise<boolean> {
+    const key = `${teamId}-${propertyId}`;
+    return this.teamProperties.delete(key);
+  }
+
+  async getTeamProperties(teamId: number): Promise<Property[]> {
+    // Get the property IDs for this team
+    const propertyIds = Array.from(this.teamProperties.entries())
+      .filter(([key, _]) => key.startsWith(`${teamId}-`))
+      .map(([_, tp]) => tp.propertyId);
+    
+    // Get the property details for each property ID
+    return propertyIds
+      .map(id => this.properties.get(id))
+      .filter(Boolean) as Property[];
+  }
+
   // Initialize with sample data
   private initSampleData() {
     // Create sample user
