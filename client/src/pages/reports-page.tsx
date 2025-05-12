@@ -305,17 +305,17 @@ export default function ReportsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <Button variant="ghost" size="sm" className="mb-2" asChild>
+            <Button variant="ghost" size="sm" className="mb-2 text-slate-400 hover:text-white hover:bg-[#0f1d31]" asChild>
               <Link href="/" className="flex items-center gap-1">
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4 text-[#FF7A00]" />
                 Back to Dashboard
               </Link>
             </Button>
-            <h1 className="text-3xl font-bold">Reports</h1>
-            <p className="text-muted-foreground">Generate and manage property reports</p>
+            <h1 className="text-3xl font-bold text-white">Reports</h1>
+            <p className="text-slate-400">Generate and manage property reports</p>
           </div>
           
-          <Button onClick={() => setIsCreatingReport(true)}>
+          <Button onClick={() => setIsCreatingReport(true)} className="bg-[#FF7A00] hover:bg-[#FF7A00]/90">
             <Plus className="mr-2 h-4 w-4" />
             Create New Report
           </Button>
@@ -425,11 +425,11 @@ export default function ReportsPage() {
                 <div className="mx-auto w-12 h-12 rounded-full bg-[#FF7A00]/10 flex items-center justify-center mb-4">
                   <FileText className="h-6 w-6 text-[#FF7A00]" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">No reports yet</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                <h3 className="text-lg font-medium mb-2 text-white">No reports yet</h3>
+                <p className="text-slate-400 mb-6 max-w-md mx-auto">
                   You haven't created any reports yet. Create your first report to analyze property data and generate insights.
                 </p>
-                <Button onClick={() => setIsCreatingReport(true)} className="bg-[#FF7A00]">
+                <Button onClick={() => setIsCreatingReport(true)} className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Your First Report
                 </Button>
@@ -651,7 +651,11 @@ export default function ReportsPage() {
               <Button variant="outline" onClick={() => setIsCreatingReport(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateReport} disabled={createReportMutation.isPending}>
+              <Button 
+                onClick={handleCreateReport} 
+                disabled={createReportMutation.isPending}
+                className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
+              >
                 {createReportMutation.isPending ? "Creating..." : "Create Report"}
               </Button>
             </DialogFooter>
