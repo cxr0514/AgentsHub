@@ -137,3 +137,36 @@
 }
 
 /* Removed animation styles to ensure consistent UI */
+
+/* Form styling for dark theme */
+.dark .form-label,
+[data-theme="dark"] .form-label,
+.form-item .form-label {
+  color: rgb(226 232 240) !important; /* text-slate-200 */
+}
+
+/* Make all FormLabels light by default in our forms */
+.FormLabel {
+  color: rgb(226 232 240) !important; /* text-slate-200 */
+}
+
+/* Dark form inputs */
+.dark input, 
+.dark textarea, 
+.dark select,
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+.dark .select-trigger,
+.dark .select-content {
+  background-color: #071224 !important;
+  border-color: #0f1d31 !important;
+  color: white !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder,
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: rgb(100 116 139) !important; /* text-slate-500 */
+}

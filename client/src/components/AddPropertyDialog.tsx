@@ -191,7 +191,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
+                      <FormLabel className="text-slate-200">Address</FormLabel>
                       <FormControl>
                         <Input placeholder="123 Main St" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                       </FormControl>
@@ -541,7 +541,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormControl>
                         <Textarea 
                           placeholder="Enter property description" 
-                          className="resize-none h-32"
+                          className="resize-none h-32 bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
                           {...field} 
                         />
                       </FormControl>
