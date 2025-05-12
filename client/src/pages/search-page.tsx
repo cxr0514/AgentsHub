@@ -839,16 +839,16 @@ export default function SearchPage() {
               viewMode === "grid" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {Array.from({ length: 6 }).map((_, idx) => (
-                    <Card key={idx} className="overflow-hidden">
-                      <Skeleton className="h-48 w-full" />
+                    <Card key={idx} className="overflow-hidden bg-[#050e1d] border-[#0f1d31]">
+                      <Skeleton className="h-48 w-full bg-[#071224]" />
                       <CardHeader>
-                        <Skeleton className="h-6 w-3/4 mb-2" />
-                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-6 w-3/4 mb-2 bg-[#071224]" />
+                        <Skeleton className="h-4 w-1/2 bg-[#071224]" />
                       </CardHeader>
                       <CardContent>
                         <div className="flex flex-col gap-2">
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-4 w-2/3" />
+                          <Skeleton className="h-4 w-full bg-[#071224]" />
+                          <Skeleton className="h-4 w-2/3 bg-[#071224]" />
                         </div>
                       </CardContent>
                     </Card>
@@ -857,14 +857,14 @@ export default function SearchPage() {
               ) : (
                 <div className="space-y-4">
                   {Array.from({ length: 4 }).map((_, idx) => (
-                    <Card key={idx} className="overflow-hidden">
+                    <Card key={idx} className="overflow-hidden bg-[#050e1d] border-[#0f1d31]">
                       <div className="flex flex-col sm:flex-row">
-                        <Skeleton className="h-48 w-full sm:w-48" />
+                        <Skeleton className="h-48 w-full sm:w-48 bg-[#071224]" />
                         <div className="p-6 flex-1">
-                          <Skeleton className="h-6 w-3/4 mb-2" />
-                          <Skeleton className="h-4 w-1/2 mb-4" />
-                          <Skeleton className="h-4 w-full mb-2" />
-                          <Skeleton className="h-4 w-2/3" />
+                          <Skeleton className="h-6 w-3/4 mb-2 bg-[#071224]" />
+                          <Skeleton className="h-4 w-1/2 mb-4 bg-[#071224]" />
+                          <Skeleton className="h-4 w-full mb-2 bg-[#071224]" />
+                          <Skeleton className="h-4 w-2/3 bg-[#071224]" />
                         </div>
                       </div>
                     </Card>
@@ -875,13 +875,18 @@ export default function SearchPage() {
             
             {/* No results state */}
             {!isLoading && (!paginatedProperties || paginatedProperties.length === 0) && !error && (
-              <div className="bg-card border border-border rounded-lg p-12 text-center">
-                <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No properties found</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-12 text-center">
+                <Building2 className="h-12 w-12 mx-auto text-slate-400 mb-4" />
+                <h3 className="text-lg font-medium mb-2 text-white">No properties found</h3>
+                <p className="text-slate-400 mb-6 max-w-md mx-auto">
                   We couldn't find any properties matching your search criteria. Try adjusting your filters or search for a different location.
                 </p>
-                <Button onClick={resetFilters}>Clear All Filters</Button>
+                <Button 
+                  onClick={resetFilters} 
+                  className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white border-none"
+                >
+                  Clear All Filters
+                </Button>
               </div>
             )}
             
@@ -1066,7 +1071,7 @@ export default function SearchPage() {
                           e.preventDefault();
                           if (page > 1) setPage(page - 1);
                         }}
-                        className={page <= 1 ? "pointer-events-none opacity-50" : ""}
+                        className={`${page <= 1 ? "pointer-events-none opacity-50" : ""} text-white border-[#0f1d31] hover:bg-[#071224] hover:text-[#FF7A00]`}
                       />
                     </PaginationItem>
                     
@@ -1088,7 +1093,7 @@ export default function SearchPage() {
                           <div key={pageNum} className="flex">
                             {needsEllipsisBefore && (
                               <PaginationItem>
-                                <PaginationEllipsis />
+                                <PaginationEllipsis className="text-slate-400" />
                               </PaginationItem>
                             )}
                             <PaginationItem>
@@ -1099,6 +1104,10 @@ export default function SearchPage() {
                                   e.preventDefault();
                                   setPage(pageNum);
                                 }}
+                                className={page === pageNum 
+                                  ? "bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white border-[#FF7A00]" 
+                                  : "text-white border-[#0f1d31] hover:bg-[#071224] hover:text-[#FF7A00]"
+                                }
                               >
                                 {pageNum}
                               </PaginationLink>
@@ -1114,7 +1123,7 @@ export default function SearchPage() {
                           e.preventDefault();
                           if (page < totalPages) setPage(page + 1);
                         }}
-                        className={page >= totalPages ? "pointer-events-none opacity-50" : ""}
+                        className={`${page >= totalPages ? "pointer-events-none opacity-50" : ""} text-white border-[#0f1d31] hover:bg-[#071224] hover:text-[#FF7A00]`}
                       />
                     </PaginationItem>
                   </PaginationContent>
