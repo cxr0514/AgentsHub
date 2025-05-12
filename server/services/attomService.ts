@@ -440,46 +440,46 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
         
         // Different endpoints need different parameters for ATTOM API v1.0.0
         if (endpoint === ENDPOINTS.MARKET_STATS) {
-          // Assessment snapshot endpoint
-          // Based on documentation, we need to use geoIdV4 parameter instead of city/state
-          // Since we don't have geoIdV4, try a different approach with date range and value range
-          const today = new Date();
-          const fiveYearsAgo = new Date();
-          fiveYearsAgo.setFullYear(today.getFullYear() - 5);
+          // Assessment snapshot endpoint requires geoIdV4
+          // Since ATTOM's documentation states we need specific inputs, 
+          // let's try their property/address endpoint instead which allows
+          // direct search by address components
           
-          queryParams.append("startcalendardate", fiveYearsAgo.toISOString().split('T')[0]);
-          queryParams.append("endcalendardate", today.toISOString().split('T')[0]);
-          queryParams.append("minassdttlvalue", "100000"); // Minimum property value
-          queryParams.append("maxassdttlvalue", "10000000"); // Maximum property value
-          
-          // We'll also add the zip code if available as additional filter
-          if (zipCode) {
-            queryParams.append("postalcode", zipCode);
-          }
+          // We'll skip this endpoint and try other endpoints instead
+          // This causes the loop to proceed to the next endpoint
+          continue;
         } else if (endpoint === ENDPOINTS.MARKET_SNAPSHOT) {
-          // Sale snapshot endpoint
+          // Sale snapshot endpoint requires specific parameters
+          // The error shows "Invalid Parameter(s) in Request - CITY,STATE"
+          // Let's try a different approach using date range parameters which are commonly required
+          
+          const today = new Date();
+          const oneYearAgo = new Date();
+          oneYearAgo.setFullYear(today.getFullYear() - 1);
+          
+          queryParams.append("startdate", oneYearAgo.toISOString().split('T')[0]);
+          queryParams.append("enddate", today.toISOString().split('T')[0]);
+          
+          // Add minimum and maximum sale amounts
+          queryParams.append("minsaleamt", "100000");
+          queryParams.append("maxsaleamt", "10000000");
+          
+          // Use postal code if available
           if (zipCode) {
             queryParams.append("postalcode", zipCode);
-          } else {
-            queryParams.append("city", city);
-            queryParams.append("state", state);
           }
         } else if (endpoint === ENDPOINTS.AREA_DETAIL) {
           // Area full details endpoint
-          if (zipCode) {
-            queryParams.append("postal1", zipCode);
-          } else {
-            queryParams.append("areaname", city);
-            queryParams.append("stateid", state);
-          }
+          // The error indicates this endpoint path is not valid: "No rule matched"
+          // This suggests the endpoint structure may have changed in ATTOM API
+          // Skip this endpoint and try the next one
+          continue;
         } else if (endpoint === ENDPOINTS.AREA_SEARCH) {
           // Area basic search endpoint
-          if (zipCode) {
-            queryParams.append("zipcode", zipCode);
-          } else {
-            queryParams.append("areaname", city);
-            queryParams.append("stateid", state);
-          }
+          // The error indicates this endpoint path is not valid: "No rule matched"
+          // This suggests the endpoint structure may have changed in ATTOM API
+          // Skip this endpoint and try the next one
+          continue;
         }
         
         console.log(`Trying ATTOM API endpoint: ${endpoint} with params: ${queryParams.toString()}`);
@@ -538,12 +538,20 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
 }
 
 /**
- * Provides fallback market data when API is unavailable
+ * Provides temporary fallback market data while API integration is being resolved
+ * TEMPORARY: This provides placeholder data until we resolve the API parameters
  */
 function getFallbackMarketData(city: string, state: string, zipCode?: string) {
-  // Return a mock response that matches the expected format
+  console.log(`⚠️ USING TEMPORARY FALLBACK DATA for ${city}, ${state}${zipCode ? ` ${zipCode}` : ''} - ATTOM API integration in progress`);
+  
+  // Return a structured response that matches the expected format
+  // This is temporary while we work through API parameter requirements
   return {
-    status: { code: 0, success: true },
+    status: { 
+      code: 0, 
+      success: true,
+      message: "TEMPORARY FALLBACK DATA - ATTOM API integration in progress"
+    },
     area: [
       {
         city: city,

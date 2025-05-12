@@ -114,6 +114,9 @@ export default function MLSSyncStatus() {
   const formattedLastSync = lastSyncTime 
     ? formatDistanceToNow(lastSyncTime, { addSuffix: true })
     : 'never';
+    
+  // ATTOM API integration status
+  const attomIntegrationInProgress = true; // Set to true while we're working on the ATTOM API integration
   
   // Handle loading and error states
   const isLoading = mlsStatusLoading || schedulerStatusLoading;
