@@ -225,13 +225,22 @@ async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLS
 
     const data = await response.json();
     
+    // Datafiniti returns data in a different structure than our expected MLSApiResponse
+    // Their format: { records: [{...property data}], num_found: number }
+    const mlsResponse: MLSApiResponse = {
+      success: true,
+      properties: data.records || []
+    };
+    
+    console.log(`Retrieved ${mlsResponse.properties?.length || 0} properties from Datafiniti API`);
+    
     // Cache the result
     propertyCache.set(cacheKey, {
-      data,
+      data: mlsResponse,
       timestamp: Date.now()
     });
     
-    return data;
+    return mlsResponse;
   } catch (error) {
     console.error('Error fetching from MLS API:', error);
     return { 
@@ -332,17 +341,25 @@ export async function getMLSPropertyDetails(propertyId: string): Promise<Propert
   }
   
   try {
-    // Datafiniti API can look up by ID directly (GET /properties/:id) or using search
-    // We'll use the direct ID lookup endpoint from the Postman collection
+    // For Datafiniti, we'll use the search endpoint with an ID filter,
+    // as it seems more reliable than the direct lookup endpoint
     console.log(`Fetching property with ID ${propertyId} from Datafiniti API`);
     
-    // The Postman collection shows the property lookup endpoint is /properties/:id (GET)
-    const response = await fetch(`${normalizedEndpoint}/properties/${propertyId}`, {
-      method: 'GET',
+    const requestData = {
+      query: `id:${propertyId}`,
+      format: "JSON",
+      num_records: 1,
+      download: false,
+      view: "property_preview" // Using the view that we confirmed works
+    };
+    
+    const response = await fetch(`${normalizedEndpoint}/properties/search`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
         'Content-Type': 'application/json',
-      }
+      },
+      body: JSON.stringify(requestData)
     });
     
     if (!response.ok) {
@@ -352,13 +369,18 @@ export async function getMLSPropertyDetails(propertyId: string): Promise<Propert
       throw new Error(`MLS API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
-    const mlsProperty = await response.json();
+    const data = await response.json();
     
-    if (!mlsProperty) {
+    // Datafiniti returns data in the format: { records: [{ property data }] }
+    if (!data || !data.records || data.records.length === 0) {
+      console.warn(`No property found with ID ${propertyId}`);
       return null;
     }
     
-    // Convert to app property format and save to database
+    // Get the property from the records array
+    const mlsProperty = data.records[0];
+    
+    // Convert to app property format
     const propertyData = convertMLSPropertyToAppProperty(mlsProperty);
     
     // Insert or update in database
