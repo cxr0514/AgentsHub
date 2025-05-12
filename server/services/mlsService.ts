@@ -100,7 +100,8 @@ function buildDatafinitiQuery(params: Record<string, any>): string {
   
   // Default query if nothing else specified
   if (queryParts.length === 0) {
-    queryParts.push('type:"Single Family"');
+    // Using 'keys:*' to get all properties as per Datafiniti examples
+    queryParts.push('keys:*');
   }
   
   return queryParts.join(' AND ');
@@ -169,7 +170,8 @@ async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLS
       query: buildDatafinitiQuery(searchParams),
       format: "JSON",
       num_records: searchParams.limit || 10,
-      download: false
+      download: false,
+      view: "property_preview" // Using one of the allowed views from Datafiniti API response
     };
     
     console.log('Sending query to Datafiniti API:', JSON.stringify(requestData));
