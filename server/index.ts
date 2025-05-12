@@ -3,6 +3,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { loadApiKeysIntoEnv } from "./routes/api-keys";
 import session from "express-session";
+import path from "path";
 
 // Generate a random session secret if not provided
 const SESSION_SECRET = process.env.SESSION_SECRET || Math.random().toString(36).substring(2, 15);
@@ -10,6 +11,10 @@ const SESSION_SECRET = process.env.SESSION_SECRET || Math.random().toString(36).
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Serve uploaded files
+const uploadDir = path.join(process.cwd(), "uploads");
+app.use("/uploads", express.static(uploadDir));
 
 // Set up session middleware
 app.use(session({
