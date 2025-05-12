@@ -188,20 +188,22 @@ router.post("/sync-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRA
     const result = await syncMarketData(locations);
     
     // Check if any of the results contain fallback data
-    const hasFallbacks = result.some(item => 
-      item.source === "fallback" || item.source === "fallback_error" || item.error
-    );
+    const hasFallbacks = result.results.some(item => 
+      item.source === "fallback" || item.source === "fallback_error"
+    ) || result.errors.length > 0;
     
     if (hasFallbacks) {
-      // Count successes and failures
-      const successes = result.filter(item => item.success && !item.error && item.source !== "fallback_error").length;
-      const failures = result.length - successes;
+      // Count successes and fallbacks
+      const successes = result.results.filter(item => 
+        item.success && item.source !== "fallback" && item.source !== "fallback_error"
+      ).length;
+      const failures = result.totalAttempted - successes;
       
       return res.json({
         success: true,
         data: result,
         partialFallback: true,
-        message: `Synced ${result.length} locations. ${successes} succeeded with real data, ${failures} used fallback data.`
+        message: `Synced ${result.totalAttempted} locations. ${successes} succeeded with real data, ${failures} used fallback data.`
       });
     }
     
@@ -379,6 +381,88 @@ testRouter.get("/market-statistics", async (req, res) => {
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching market statistics:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
+  }
+});
+
+// Test endpoint for update-market-data
+testRouter.post("/update-market-data", async (req, res) => {
+  try {
+    const { city, state, zipCode } = req.body;
+    
+    if (!city || !state) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing required parameters: city and state are required" 
+      });
+    }
+    
+    const result = await updateMarketData(
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : undefined
+    );
+    
+    // Check if the result contains a source indicating it's fallback data
+    if (result.source === "fallback" || result.source === "fallback_error") {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.error ? `Error: ${result.error}` : "Used fallback data due to API limitations"
+      });
+    }
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error updating market data:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
+  }
+});
+
+// Test endpoint for sync-market-data
+testRouter.post("/sync-market-data", async (req, res) => {
+  try {
+    const { locations } = req.body;
+    
+    if (!locations || !Array.isArray(locations) || locations.length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Missing or invalid locations parameter. Expected an array of {city, state, zipCode} objects." 
+      });
+    }
+    
+    const result = await syncMarketData(locations);
+    
+    // Check if any of the results contain fallback data
+    const hasFallbacks = result.results.some(item => 
+      item.source === "fallback" || item.source === "fallback_error"
+    ) || result.errors.length > 0;
+    
+    if (hasFallbacks) {
+      // Count successes and fallbacks
+      const successes = result.results.filter(item => 
+        item.success && item.source !== "fallback" && item.source !== "fallback_error"
+      ).length;
+      const failures = result.totalAttempted - successes;
+      
+      return res.json({
+        success: true,
+        data: result,
+        partialFallback: true,
+        message: `Synced ${result.totalAttempted} locations. ${successes} succeeded with real data, ${failures} used fallback data.`
+      });
+    }
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error syncing market data:", error);
     res.status(500).json({ 
       success: false,
       message: error instanceof Error ? error.message : "Unknown error occurred" 
