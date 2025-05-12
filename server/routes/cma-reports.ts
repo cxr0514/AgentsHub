@@ -4,8 +4,21 @@ import path from 'path';
 import fs from 'fs';
 import { storage } from '../storage';
 import jsPDF from 'jspdf';
+// Need to add 'jspdf-autotable' for PDF table generation
 import 'jspdf-autotable';
 import { log } from '../vite';
+
+/**
+ * CMA Report Generation Routes
+ * 
+ * This module provides routes for generating Comparative Market Analysis (CMA) reports.
+ * These reports compare a subject property with similar properties in the area to
+ * determine market value and provide a professional analysis document for clients.
+ * 
+ * Note on TypeScript usage with jsPDF:
+ * We use (doc as any).autoTable because the jspdf-autotable types aren't properly included
+ * in the TypeScript definitions. This is a common workaround for this library.
+ */
 
 const router = Router();
 
@@ -283,66 +296,66 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       const adjustmentRows = [
         ['Base Price', `$${subjectProperty.price.toLocaleString()}`, ...comps.map(c => `$${c.price.toLocaleString()}`)],
         ['Square Footage', subjectProperty.squareFeet.toString(), ...comps.map(c => {
-          const diff = subjectProperty.squareFeet - c.squareFeet;
-          const adjustment = diff * 100; // Simplified: $100 per sq ft difference
-          return `${c.squareFeet} (${adjustment >= 0 ? '+' : ''}$${adjustment.toLocaleString()})`;
+          const diff = Number(subjectProperty.squareFeet) - Number(c.squareFeet);
+          const adjustment = Math.round(diff * 100); // Simplified: $100 per sq ft difference
+          return `${c.squareFeet} (${adjustment >= 0 ? '+' : ''}$${Math.abs(adjustment).toLocaleString()})`;
         })],
         ['Bedrooms', subjectProperty.bedrooms.toString(), ...comps.map(c => {
-          const diff = subjectProperty.bedrooms - c.bedrooms;
-          const adjustment = diff * 5000; // Simplified: $5,000 per bedroom
-          return `${c.bedrooms} (${adjustment >= 0 ? '+' : ''}$${adjustment.toLocaleString()})`;
+          const diff = Number(subjectProperty.bedrooms) - Number(c.bedrooms);
+          const adjustment = Math.round(diff * 5000); // Simplified: $5,000 per bedroom
+          return `${c.bedrooms} (${adjustment >= 0 ? '+' : ''}$${Math.abs(adjustment).toLocaleString()})`;
         })],
         ['Bathrooms', subjectProperty.bathrooms.toString(), ...comps.map(c => {
-          const diff = subjectProperty.bathrooms - c.bathrooms;
-          const adjustment = diff * 7500; // Simplified: $7,500 per bathroom
-          return `${c.bathrooms} (${adjustment >= 0 ? '+' : ''}$${adjustment.toLocaleString()})`;
+          const diff = Number(subjectProperty.bathrooms) - Number(c.bathrooms);
+          const adjustment = Math.round(diff * 7500); // Simplified: $7,500 per bathroom
+          return `${c.bathrooms} (${adjustment >= 0 ? '+' : ''}$${Math.abs(adjustment).toLocaleString()})`;
         })],
         ['Age', subjectProperty.yearBuilt?.toString() || 'N/A', ...comps.map(c => {
           if (!subjectProperty.yearBuilt || !c.yearBuilt) return 'N/A';
-          const diff = subjectProperty.yearBuilt - c.yearBuilt;
-          const adjustment = diff * 1000; // Simplified: $1,000 per year difference
-          return `${c.yearBuilt} (${adjustment >= 0 ? '+' : ''}$${adjustment.toLocaleString()})`;
+          const diff = Number(subjectProperty.yearBuilt) - Number(c.yearBuilt);
+          const adjustment = Math.round(diff * 1000); // Simplified: $1,000 per year difference
+          return `${c.yearBuilt} (${adjustment >= 0 ? '+' : ''}$${Math.abs(adjustment).toLocaleString()})`;
         })],
         ['Total Adjustments', '-', ...comps.map(c => {
           // Calculate total adjustments - simplified
           let total = 0;
           
           // Square footage adjustment
-          total += (subjectProperty.squareFeet - c.squareFeet) * 100;
+          total += Math.round(Number(subjectProperty.squareFeet) - Number(c.squareFeet)) * 100;
           
           // Bedroom adjustment
-          total += (subjectProperty.bedrooms - c.bedrooms) * 5000;
+          total += Math.round(Number(subjectProperty.bedrooms) - Number(c.bedrooms)) * 5000;
           
           // Bathroom adjustment
-          total += (subjectProperty.bathrooms - c.bathrooms) * 7500;
+          total += Math.round(Number(subjectProperty.bathrooms) - Number(c.bathrooms)) * 7500;
           
           // Age adjustment
           if (subjectProperty.yearBuilt && c.yearBuilt) {
-            total += (subjectProperty.yearBuilt - c.yearBuilt) * 1000;
+            total += Math.round(Number(subjectProperty.yearBuilt) - Number(c.yearBuilt)) * 1000;
           }
           
-          return `${total >= 0 ? '+' : ''}$${total.toLocaleString()}`;
+          return `${total >= 0 ? '+' : ''}$${Math.abs(total).toLocaleString()}`;
         })],
-        ['Adjusted Value', `$${subjectProperty.price.toLocaleString()}`, ...comps.map(c => {
+        ['Adjusted Value', `$${Number(subjectProperty.price).toLocaleString()}`, ...comps.map(c => {
           // Calculate adjusted value - simplified
           let adjustments = 0;
           
           // Square footage adjustment
-          adjustments += (subjectProperty.squareFeet - c.squareFeet) * 100;
+          adjustments += Math.round(Number(subjectProperty.squareFeet) - Number(c.squareFeet)) * 100;
           
           // Bedroom adjustment
-          adjustments += (subjectProperty.bedrooms - c.bedrooms) * 5000;
+          adjustments += Math.round(Number(subjectProperty.bedrooms) - Number(c.bedrooms)) * 5000;
           
           // Bathroom adjustment
-          adjustments += (subjectProperty.bathrooms - c.bathrooms) * 7500;
+          adjustments += Math.round(Number(subjectProperty.bathrooms) - Number(c.bathrooms)) * 7500;
           
           // Age adjustment
           if (subjectProperty.yearBuilt && c.yearBuilt) {
-            adjustments += (subjectProperty.yearBuilt - c.yearBuilt) * 1000;
+            adjustments += Math.round(Number(subjectProperty.yearBuilt) - Number(c.yearBuilt)) * 1000;
           }
           
-          const adjusted = c.price + adjustments;
-          return `$${adjusted.toLocaleString()}`;
+          const adjusted = Number(c.price) + adjustments;
+          return `$${Math.abs(adjusted).toLocaleString()}`;
         })]
       ];
       
