@@ -35,7 +35,7 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
 
   return (
     <Link href={`/properties/${property.id}`}>
-      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full">
+      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full border border-slate-200 bg-white">
         <div className="relative">
           {mainImage ? (
             <img
@@ -44,15 +44,15 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
               className="h-48 w-full object-cover"
             />
           ) : (
-            <div className="h-48 w-full bg-muted flex items-center justify-center">
-              <Home className="h-12 w-12 text-muted-foreground" />
+            <div className="h-48 w-full bg-slate-100 flex items-center justify-center">
+              <Home className="h-12 w-12 text-slate-400" />
             </div>
           )}
           <div className="absolute top-2 right-2">
             <Button
               variant="secondary"
               size="icon"
-              className={`rounded-full ${isSaved ? 'bg-accent text-accent-foreground' : 'bg-white/80'}`}
+              className={`rounded-full ${isSaved ? 'bg-blue-500 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}
               onClick={handleSaveClick}
             >
               <Bookmark className="h-4 w-4" />
@@ -61,20 +61,26 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
         </div>
         <CardContent className="p-4">
           <div className="flex justify-between mb-2">
-            <div className="font-semibold text-lg">${Number(property.price).toLocaleString()}</div>
+            <div className="font-semibold text-lg text-slate-900">${Number(property.price).toLocaleString()}</div>
             <StatusBadge status={property.status} />
           </div>
 
-          <h3 className="font-medium text-primary truncate">{property.address}</h3>
-          <p className="text-sm text-text-secondary truncate">
+          <h3 className="font-medium text-slate-800 truncate">{property.address}</h3>
+          <p className="text-sm text-slate-600 truncate">
             {property.neighborhood ? `${property.neighborhood}, ` : ''}
             {property.city}, {property.state}
           </p>
 
-          <div className="flex justify-between mt-3 text-sm">
-            <div>{property.bedrooms} bed</div>
-            <div>{property.bathrooms} bath</div>
-            <div>{Number(property.squareFeet).toLocaleString()} sqft</div>
+          <div className="flex justify-between mt-3 text-sm text-slate-700 font-medium">
+            <div className="flex items-center">
+              <span className="bg-slate-100 px-2 py-1 rounded">{property.bedrooms} bed</span>
+            </div>
+            <div className="flex items-center">
+              <span className="bg-slate-100 px-2 py-1 rounded">{property.bathrooms} bath</span>
+            </div>
+            <div className="flex items-center">
+              <span className="bg-slate-100 px-2 py-1 rounded">{Number(property.squareFeet).toLocaleString()} sqft</span>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -89,25 +95,25 @@ const StatusBadge = ({ status }: { status: string }) => {
   switch (statusText.toLowerCase()) {
     case 'active':
       return (
-        <Badge className="bg-green-100 text-green-800 hover:bg-green-200 border-green-200">
+        <Badge className="bg-green-600 text-white hover:bg-green-700">
           Active
         </Badge>
       );
     case 'pending':
       return (
-        <Badge className="bg-yellow-100 text-yellow-800 hover:bg-yellow-200 border-yellow-200">
+        <Badge className="bg-amber-500 text-white hover:bg-amber-600">
           Pending
         </Badge>
       );
     case 'sold':
       return (
-        <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200 border-gray-200">
+        <Badge className="bg-slate-600 text-white hover:bg-slate-700">
           Sold
         </Badge>
       );
     default:
       return (
-        <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200 border-blue-200">
+        <Badge className="bg-blue-600 text-white hover:bg-blue-700">
           {statusText}
         </Badge>
       );

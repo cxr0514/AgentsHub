@@ -135,28 +135,26 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </Sheet>
 
             {/* Logo */}
-            <Link href="/">
-              <a className="text-xl font-semibold tracking-tighter">
-                PropInvest<span className="text-blue-400">AI</span>
-              </a>
-            </Link>
+            <div className="text-xl font-semibold tracking-tighter cursor-pointer" onClick={() => window.location.href = "/"}>
+              PropInvest<span className="text-blue-400">AI</span>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             {menuItems.map((item) => (
-              <Link key={item.path} href={item.path}>
-                <a
-                  className={cn(
-                    "px-3 py-2 rounded-md text-sm font-medium transition-colors",
-                    location === item.path 
-                      ? "bg-white/10 text-white" 
-                      : "hover:bg-white/5 text-white/70 hover:text-white"
-                  )}
-                >
-                  {item.label}
-                </a>
-              </Link>
+              <div
+                key={item.path}
+                className={cn(
+                  "px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer",
+                  location === item.path 
+                    ? "bg-white/10 text-white" 
+                    : "hover:bg-white/5 text-white/70 hover:text-white"
+                )}
+                onClick={() => window.location.href = item.path}
+              >
+                {item.label}
+              </div>
             ))}
           </nav>
 
