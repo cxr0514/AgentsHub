@@ -12,7 +12,11 @@ import {
   LogOut,
   Menu,
   X,
-  BarChart2
+  BarChart2,
+  Sparkles,
+  Brain,
+  Map,
+  Calculator
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +51,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { icon: Search, label: 'Search', path: '/search' },
     { icon: Search, label: 'ATTOM Search', path: '/attom-search' },
     { icon: LineChart, label: 'Market Analysis', path: '/market-analysis' },
+    { icon: Map, label: 'Map Visualization', path: '/map-visualization' },
+    { icon: Brain, label: 'AI Market Analysis', path: '/ai-market-analysis' },
     { icon: BarChart2, label: 'Compare Properties', path: '/property-comparison' },
+    { icon: Calculator, label: 'Calculators', path: '/financial-calculators' },
     { icon: FileText, label: 'Reports', path: '/reports' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
