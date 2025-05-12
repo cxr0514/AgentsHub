@@ -472,7 +472,7 @@ export default function ReportsPage() {
                     )}
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full bg-[#FF7A00]" onClick={() => {
+                    <Button className="w-full bg-[#FF7A00] hover:bg-[#e56e00] text-white" onClick={() => {
                       setSelectedReportType(reportType.id);
                       setIsCreatingReport(true);
                     }}>
