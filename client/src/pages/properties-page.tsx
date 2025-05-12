@@ -385,7 +385,7 @@ export default function PropertiesPage() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input 
               placeholder="Search properties by address, city, or zip" 
-              className="pl-10"
+              className="pl-10 bg-[#050e1d]/80 border-[#0f1d31] text-white placeholder:text-[#8A93A6] focus-visible:ring-[#FF7A00]"
               value={filters.location}
               onChange={(e) => handleFilterChange('location', e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
@@ -397,7 +397,7 @@ export default function PropertiesPage() {
               value={filters.status}
               onValueChange={(value) => handleFilterChange('status', value)}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[180px] bg-[#050e1d]/80 border-[#0f1d31] text-white focus:ring-[#FF7A00]">
                 <SelectValue placeholder="All Properties" />
               </SelectTrigger>
               <SelectContent>
@@ -414,6 +414,7 @@ export default function PropertiesPage() {
                   <Button
                     variant={viewType === "grid" ? "default" : "outline"} 
                     size="icon"
+                    className={viewType === "grid" ? "bg-[#FF7A00] hover:bg-[#FF9832]" : "border-[#0f1d31] bg-[#050e1d]/80 text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"}
                     onClick={() => setViewType("grid")}
                   >
                     <Building2 className="h-4 w-4" />
@@ -431,6 +432,7 @@ export default function PropertiesPage() {
                   <Button 
                     variant={viewType === "list" ? "default" : "outline"} 
                     size="icon"
+                    className={viewType === "list" ? "bg-[#FF7A00] hover:bg-[#FF9832]" : "border-[#0f1d31] bg-[#050e1d]/80 text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]"}
                     onClick={() => setViewType("list")}
                   >
                     <ListFilter className="h-4 w-4" />
@@ -475,7 +477,7 @@ export default function PropertiesPage() {
             </p>
             <Button 
               variant="outline" 
-              className="mt-4" 
+              className="mt-4 border-[#0f1d31] bg-[#050e1d]/80 text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]" 
               onClick={() => applyFilters()}
             >
               Retry
@@ -491,7 +493,7 @@ export default function PropertiesPage() {
             <p className="text-muted-foreground mb-6">
               No properties match your current filters. Try adjusting your search criteria.
             </p>
-            <Button onClick={resetFilters}>Clear All Filters</Button>
+            <Button onClick={resetFilters} className="bg-[#FF7A00] hover:bg-[#FF9832]">Clear All Filters</Button>
           </div>
         )}
 
@@ -560,7 +562,7 @@ export default function PropertiesPage() {
                 </CardContent>
                 
                 <CardFooter className="border-t border-border pt-4">
-                  <Button variant="outline" className="w-full" asChild>
+                  <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d]/80 text-white hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]" asChild>
                     <Link href={`/properties/${property.id}`}>View Details</Link>
                   </Button>
                 </CardFooter>
@@ -628,7 +630,7 @@ export default function PropertiesPage() {
                         <Clock className="h-4 w-4" />
                         <span>{formatDate(property.createdAt)}</span>
                       </div>
-                      <Button asChild>
+                      <Button asChild className="bg-[#FF7A00] hover:bg-[#FF9832]">
                         <Link href={`/properties/${property.id}`}>View Details</Link>
                       </Button>
                     </div>
