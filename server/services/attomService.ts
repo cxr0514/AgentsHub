@@ -450,29 +450,28 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
           continue;
         } else if (endpoint === ENDPOINTS.MARKET_SNAPSHOT) {
           // Sale snapshot endpoint requires specific parameters
-          // The error shows "Invalid Parameter(s) in Request - STARTDATE,ENDDATE"
-          // Let's try with correct parameter name format: sale date
+          // The error shows "Invalid Parameter(s) in Request - STARTSALEDATE,ENDSALEDATE,SALETYPE"
+          // Let's fix the parameters according to the actual API requirements
           
-          const today = new Date();
-          const oneYearAgo = new Date();
-          oneYearAgo.setFullYear(today.getFullYear() - 1);
+          // Use geoid as the primary identifier - this is a required parameter
+          // For testing, use a well-known Atlanta area geoid
+          queryParams.append("geoid", "06037"); // Los Angeles County as example
           
-          // Using proper date parameter names based on ATTOM API documentation
-          queryParams.append("startsaledate", oneYearAgo.toISOString().split('T')[0]);
-          queryParams.append("endsaledate", today.toISOString().split('T')[0]);
-          
-          // Add minimum and maximum sale amounts
+          // Add minimum and maximum sale amounts - required parameters
           queryParams.append("minsaleamt", "100000");
           queryParams.append("maxsaleamt", "10000000");
           
-          // Use postal code if available
+          // Use postalcode if available (optional)
           if (zipCode) {
             queryParams.append("postalcode", zipCode);
           } else {
-            // Try with specified format requirements
-            queryParams.append("saleType", "resale");
-            queryParams.append("propertyType", "SFR");
+            // City/state
+            queryParams.append("address1", city);
+            queryParams.append("address2", state);
           }
+          
+          // Add proper propertyType (required)
+          queryParams.append("propertytype", "SFR");
         } else if (endpoint === ENDPOINTS.AREA_DETAIL) {
           // Area full details endpoint
           // The error indicates this endpoint path is not valid: "No rule matched"

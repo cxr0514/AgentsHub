@@ -130,7 +130,7 @@ export async function searchPropertiesViaAttom(filters: PropertyFilters): Promis
       console.error(`ATTOM API error (${response.status}): ${errorText}`);
       
       // Use fallback behavior for error cases
-      return handleAttomSearchError(filters);
+      return await handleAttomSearchError(filters);
     }
     
     const data = await response.json();
@@ -154,18 +154,66 @@ export async function searchPropertiesViaAttom(filters: PropertyFilters): Promis
     return properties;
   } catch (error) {
     console.error('Error searching properties via ATTOM API:', error);
-    return handleAttomSearchError(filters);
+    return await handleAttomSearchError(filters);
   }
 }
 
 /**
- * Handle error case in ATTOM property search
+ * Handle error case in ATTOM property search by returning properties from database
  * @param filters Original search filters
- * @returns Empty array (no fake data is provided)
+ * @returns Array of properties from database
  */
-function handleAttomSearchError(filters: PropertyFilters): Property[] {
-  console.log('ATTOM property search failed, returning empty results');
-  return [];
+async function handleAttomSearchError(filters: PropertyFilters): Promise<Property[]> {
+  console.log('ATTOM property search failed, fetching from database instead');
+  
+  try {
+    // Import db to avoid circular dependencies
+    const { db } = await import('../db');
+    const { properties } = await import('@shared/schema');
+    const { eq, like, or, gte, lte } = await import('drizzle-orm');
+    
+    // Query properties from database
+    let query = db.select().from(properties);
+    
+    // Apply filters to query
+    if (filters.location) {
+      // Search in city, state, zipCode, and neighborhood
+      const searchTerm = `%${filters.location}%`;
+      query = query.where(
+        or(
+          like(properties.city, searchTerm),
+          like(properties.state, searchTerm),
+          like(properties.zipCode, searchTerm),
+          like(properties.neighborhood, searchTerm)
+        )
+      );
+    }
+    
+    if (filters.propertyType) {
+      query = query.where(eq(properties.propertyType, filters.propertyType));
+    }
+    
+    if (filters.minPrice) {
+      query = query.where(gte(properties.price, filters.minPrice.toString()));
+    }
+    
+    if (filters.maxPrice) {
+      query = query.where(lte(properties.price, filters.maxPrice.toString()));
+    }
+    
+    if (filters.minBeds) {
+      query = query.where(gte(properties.bedrooms, filters.minBeds));
+    }
+    
+    // Execute the query
+    const dbProperties = await query;
+    console.log(`Found ${dbProperties.length} properties in database`);
+    
+    return dbProperties.length > 0 ? dbProperties : [];
+  } catch (error) {
+    console.error('Error fetching from database:', error);
+    return [];
+  }
 }
 
 /**
