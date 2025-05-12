@@ -169,13 +169,6 @@ export class MemStorage implements IStorage {
     this.collaborationTeams = new Map();
     this.teamMembers = new Map();
     this.teamProperties = new Map();
-    
-    // Initialize collaboration maps
-    this.sharedProperties = new Map();
-    this.propertyComments = new Map();
-    this.collaborationTeams = new Map();
-    this.teamMembers = new Map();
-    this.teamProperties = new Map();
 
     this.userId = 1;
     this.propertyId = 1;
@@ -1267,6 +1260,178 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return createdHistory;
+  }
+
+  // Collaboration - Shared Properties methods
+  async getSharedProperty(id: number): Promise<SharedProperty | undefined> {
+    const [property] = await db.select().from(sharedProperties).where(eq(sharedProperties.id, id));
+    return property;
+  }
+
+  async getSharedPropertyByToken(token: string): Promise<SharedProperty | undefined> {
+    const [property] = await db.select().from(sharedProperties).where(eq(sharedProperties.accessToken, token));
+    return property;
+  }
+
+  async getSharedPropertiesByOwner(ownerId: number): Promise<SharedProperty[]> {
+    return await db.select().from(sharedProperties).where(eq(sharedProperties.ownerId, ownerId));
+  }
+
+  async getSharedPropertiesByEmail(email: string): Promise<SharedProperty[]> {
+    return await db.select().from(sharedProperties).where(eq(sharedProperties.sharedWith, email));
+  }
+
+  async createSharedProperty(property: InsertSharedProperty): Promise<SharedProperty> {
+    const [newProperty] = await db.insert(sharedProperties)
+      .values(property)
+      .returning();
+    return newProperty;
+  }
+
+  async updateSharedProperty(id: number, updates: Partial<SharedProperty>): Promise<SharedProperty | undefined> {
+    const [updatedProperty] = await db.update(sharedProperties)
+      .set(updates)
+      .where(eq(sharedProperties.id, id))
+      .returning();
+    return updatedProperty;
+  }
+
+  async deleteSharedProperty(id: number): Promise<boolean> {
+    const result = await db.delete(sharedProperties).where(eq(sharedProperties.id, id));
+    return result.rowCount > 0;
+  }
+  
+  // Collaboration - Property Comments methods
+  async getPropertyComment(id: number): Promise<PropertyComment | undefined> {
+    const [comment] = await db.select().from(propertyComments).where(eq(propertyComments.id, id));
+    return comment;
+  }
+
+  async getPropertyCommentsByProperty(propertyId: number): Promise<PropertyComment[]> {
+    return await db.select().from(propertyComments).where(eq(propertyComments.propertyId, propertyId));
+  }
+
+  async getPropertyCommentsBySharedProperty(sharedPropertyId: number): Promise<PropertyComment[]> {
+    return await db.select().from(propertyComments).where(eq(propertyComments.sharedPropertyId, sharedPropertyId));
+  }
+
+  async createPropertyComment(comment: InsertPropertyComment): Promise<PropertyComment> {
+    const [newComment] = await db.insert(propertyComments)
+      .values(comment)
+      .returning();
+    return newComment;
+  }
+
+  async deletePropertyComment(id: number): Promise<boolean> {
+    const result = await db.delete(propertyComments).where(eq(propertyComments.id, id));
+    return result.rowCount > 0;
+  }
+  
+  // Collaboration - Teams methods
+  async getCollaborationTeam(id: number): Promise<CollaborationTeam | undefined> {
+    const [team] = await db.select().from(collaborationTeams).where(eq(collaborationTeams.id, id));
+    return team;
+  }
+
+  async getTeamsByUserId(userId: number): Promise<CollaborationTeam[]> {
+    // First get all team memberships for this user
+    const memberRecords = await db.select().from(teamMembers)
+      .where(eq(teamMembers.userId, userId));
+    
+    if (memberRecords.length === 0) {
+      return [];
+    }
+    
+    // Then get the teams corresponding to those memberships
+    const teamIds = memberRecords.map(member => member.teamId);
+    return await db.select().from(collaborationTeams)
+      .where(
+        sql`${collaborationTeams.id} IN (${sql.join(teamIds.map(id => sql`${id}`), sql`, `)})`
+      );
+  }
+
+  async createCollaborationTeam(team: InsertCollaborationTeam): Promise<CollaborationTeam> {
+    const [newTeam] = await db.insert(collaborationTeams)
+      .values(team)
+      .returning();
+    return newTeam;
+  }
+
+  async updateCollaborationTeam(id: number, updates: Partial<CollaborationTeam>): Promise<CollaborationTeam | undefined> {
+    const [updatedTeam] = await db.update(collaborationTeams)
+      .set(updates)
+      .where(eq(collaborationTeams.id, id))
+      .returning();
+    return updatedTeam;
+  }
+
+  async deleteCollaborationTeam(id: number): Promise<boolean> {
+    // First delete all team members
+    await db.delete(teamMembers).where(eq(teamMembers.teamId, id));
+    
+    // Then delete all team properties
+    await db.delete(teamProperties).where(eq(teamProperties.teamId, id));
+    
+    // Finally delete the team
+    const result = await db.delete(collaborationTeams).where(eq(collaborationTeams.id, id));
+    return result.rowCount > 0;
+  }
+
+  async addTeamMember(member: InsertTeamMember): Promise<TeamMember> {
+    const [newMember] = await db.insert(teamMembers)
+      .values(member)
+      .returning();
+    return newMember;
+  }
+
+  async removeTeamMember(teamId: number, userId: number): Promise<boolean> {
+    const result = await db.delete(teamMembers)
+      .where(
+        and(
+          eq(teamMembers.teamId, teamId),
+          eq(teamMembers.userId, userId)
+        )
+      );
+    return result.rowCount > 0;
+  }
+
+  async getTeamMembers(teamId: number): Promise<TeamMember[]> {
+    return await db.select().from(teamMembers).where(eq(teamMembers.teamId, teamId));
+  }
+
+  async addPropertyToTeam(teamProperty: InsertTeamProperty): Promise<TeamProperty> {
+    const [newTeamProperty] = await db.insert(teamProperties)
+      .values(teamProperty)
+      .returning();
+    return newTeamProperty;
+  }
+
+  async removePropertyFromTeam(teamId: number, propertyId: number): Promise<boolean> {
+    const result = await db.delete(teamProperties)
+      .where(
+        and(
+          eq(teamProperties.teamId, teamId),
+          eq(teamProperties.propertyId, propertyId)
+        )
+      );
+    return result.rowCount > 0;
+  }
+
+  async getTeamProperties(teamId: number): Promise<Property[]> {
+    // First get all team property records for this team
+    const teamPropertyRecords = await db.select().from(teamProperties)
+      .where(eq(teamProperties.teamId, teamId));
+    
+    if (teamPropertyRecords.length === 0) {
+      return [];
+    }
+    
+    // Then get the properties corresponding to those records
+    const propertyIds = teamPropertyRecords.map(record => record.propertyId);
+    return await db.select().from(properties)
+      .where(
+        sql`${properties.id} IN (${sql.join(propertyIds.map(id => sql`${id}`), sql`, `)})`
+      );
   }
 }
 

@@ -219,7 +219,7 @@ router.post('/shared/:token/comments', async (req, res) => {
     }
     
     // Prepare comment data
-    let commentData = {
+    let commentData: any = {
       propertyId: sharedProperty.propertyId,
       sharedPropertyId: sharedProperty.id,
       comment: req.body.comment,
