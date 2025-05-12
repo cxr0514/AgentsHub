@@ -1,10 +1,14 @@
 import {
   users, properties, marketData, savedSearches, savedProperties, reports, propertyHistory,
-  marketPredictions, propertyRecommendations,
+  marketPredictions, propertyRecommendations, sharedProperties, propertyComments, collaborationTeams,
+  teamMembers, teamProperties,
   type User, type Property, type MarketData, type SavedSearch, type SavedProperty, type Report, type PropertyHistory,
-  type MarketPrediction, type PropertyRecommendation,
+  type MarketPrediction, type PropertyRecommendation, type SharedProperty, type PropertyComment,
+  type CollaborationTeam, type TeamMember, type TeamProperty,
   type InsertUser, type InsertProperty, type InsertMarketData, type InsertSavedSearch, type InsertSavedProperty, 
-  type InsertReport, type InsertPropertyHistory, type InsertMarketPrediction, type InsertPropertyRecommendation
+  type InsertReport, type InsertPropertyHistory, type InsertMarketPrediction, type InsertPropertyRecommendation,
+  type InsertSharedProperty, type InsertPropertyComment, type InsertCollaborationTeam, type InsertTeamMember,
+  type InsertTeamProperty
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, or, like, gte, lte, desc, sql } from "drizzle-orm";
@@ -158,6 +162,13 @@ export class MemStorage implements IStorage {
     this.propertyHistory = new Map();
     this.marketPredictions = new Map();
     this.propertyRecommendations = new Map();
+    
+    // Initialize collaboration maps
+    this.sharedProperties = new Map();
+    this.propertyComments = new Map();
+    this.collaborationTeams = new Map();
+    this.teamMembers = new Map();
+    this.teamProperties = new Map();
 
     this.userId = 1;
     this.propertyId = 1;
@@ -168,6 +179,11 @@ export class MemStorage implements IStorage {
     this.propertyHistoryId = 1;
     this.marketPredictionId = 1;
     this.propertyRecommendationId = 1;
+    
+    // Initialize collaboration IDs
+    this.sharedPropertyId = 1;
+    this.propertyCommentId = 1;
+    this.collaborationTeamId = 1;
 
     // Initialize with sample data
     this.initSampleData();
