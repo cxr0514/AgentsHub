@@ -624,8 +624,8 @@ export async function updateMarketData(city: string, state: string, zipCode?: st
     };
     
     try {
-      // Insert the new data
-      await db.insert(marketData).values(newMarketData);
+      // Insert the new data as a single record (not an array)
+      await db.insert(marketData).values([newMarketData]);
     } catch (insertError: any) {
       console.error("Error inserting market data:", insertError);
       // If insertion fails, try querying existing data

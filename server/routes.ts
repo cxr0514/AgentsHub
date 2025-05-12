@@ -16,6 +16,7 @@ import {
   detectAnomalies, 
   generateAIMarketReport 
 } from "./routes/market-ai";
+import { startMLSSync, startMarketDataSync } from "./services/schedulerService";
 import { testDatabaseConnection } from "./db";
 import { addApiKey, getApiKeysList, deleteApiKey, loadApiKeysIntoEnv } from "./routes/api-keys";
 import { requireAdmin, requirePermission, loadUser } from "./middleware/permissions";
@@ -636,5 +637,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  
+  // Start the automatic scheduled services
+  console.log('Starting scheduled services for MLS data and market data synchronization');
+  
+  // Start MLS data synchronization (every hour by default)
+  startMLSSync();
+  
+  // Start market data synchronization (every 6 hours by default)
+  startMarketDataSync();
+  
   return httpServer;
 }
