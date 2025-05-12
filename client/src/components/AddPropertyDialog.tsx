@@ -492,7 +492,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                     <FormItem>
                       <FormLabel>Garage Spaces</FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="Optional" {...field} />
+                        <Input type="number" placeholder="Optional" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -507,7 +507,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Days on Market</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="0" {...field} />
+                          <Input type="number" placeholder="0" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -523,7 +523,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Sale Date</FormLabel>
                         <FormControl>
-                          <Input type="date" {...field} />
+                          <Input type="date" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
