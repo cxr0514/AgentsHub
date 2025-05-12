@@ -1,11 +1,6 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
-import { generatePropertyComparisonReport } from "@/lib/pdfGenerator";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Property } from "@shared/schema";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -15,309 +10,206 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { 
-  ArrowDownNarrowWide, 
-  Trash2, 
-  FileText, 
-  Download
+  ArrowUpDown, 
+  ChevronDown, 
+  ChevronUp, 
+  MapPin,
+  DollarSign,
+  Home
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface PropertyTableProps {
-  filters?: any;
-  title?: string;
-  showExport?: boolean;
+  properties: Property[];
+  onPropertySelect?: (property: Property) => void;
 }
 
-const PropertyTable = ({ filters = {}, title = "Comparable Properties", showExport = true }: PropertyTableProps) => {
-  const { toast } = useToast();
-  const [, navigate] = useLocation();
-  const [sortBy, setSortBy] = useState<string>("price");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
-  const [isExporting, setIsExporting] = useState(false);
+type SortField = 'price' | 'bedrooms' | 'bathrooms' | 'squareFeet' | 'yearBuilt';
+type SortDirection = 'asc' | 'desc';
 
-  const queryString = new URLSearchParams(filters).toString();
-  
-  const { data: properties, isLoading } = useQuery({
-    queryKey: [`/api/properties/search${queryString ? `?${queryString}` : ''}`],
-    queryFn: async () => {
-      const response = await fetch(`/api/properties/search${queryString ? `?${queryString}` : ''}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch properties');
-      }
-      const data = await response.json();
-      
-      // Now that our API correctly returns arrays, we can simplify this code
-      return data.map((property: any) => {
-        // Images should already be an array from our API, but add validation just in case
-        const parsedImages = Array.isArray(property.images) 
-          ? property.images 
-          : (typeof property.images === 'string' && property.images.includes('http') 
-            ? [property.images] 
-            : []);
-            
-        // Features should already be an array from our API, but add validation just in case
-        const parsedFeatures = Array.isArray(property.features)
-          ? property.features
-          : (typeof property.features === 'string'
-            ? [property.features]
-            : []);
-        
-        return {
-          ...property,
-          images: parsedImages,
-          features: parsedFeatures
-        };
-      });
+const PropertyTable = ({ properties, onPropertySelect }: PropertyTableProps) => {
+  const [sortField, setSortField] = useState<SortField>('price');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  const handleSort = (field: SortField) => {
+    if (field === sortField) {
+      // Toggle direction if clicking the same field
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new field and default to descending
+      setSortField(field);
+      setSortDirection('desc');
     }
+  };
+
+  // Sort properties based on current sort field and direction
+  const sortedProperties = [...properties].sort((a, b) => {
+    let aValue: any;
+    let bValue: any;
+
+    switch (sortField) {
+      case 'price':
+        aValue = parseFloat(a.price || '0');
+        bValue = parseFloat(b.price || '0');
+        break;
+      case 'bedrooms':
+        aValue = a.bedrooms || 0;
+        bValue = b.bedrooms || 0;
+        break;
+      case 'bathrooms':
+        aValue = parseFloat(a.bathrooms || '0');
+        bValue = parseFloat(b.bathrooms || '0');
+        break;
+      case 'squareFeet':
+        aValue = parseFloat(a.squareFeet || '0');
+        bValue = parseFloat(b.squareFeet || '0');
+        break;
+      case 'yearBuilt':
+        aValue = a.yearBuilt || 0;
+        bValue = b.yearBuilt || 0;
+        break;
+      default:
+        return 0;
+    }
+
+    // Handle sorting direction
+    return sortDirection === 'asc' 
+      ? aValue - bValue 
+      : bValue - aValue;
   });
 
-  const handleViewDetails = (id: number) => {
-    navigate(`/properties/${id}`);
-  };
-
-  const handleSort = (column: string) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(column);
-      setSortOrder("asc");
+  // Generate sorting arrow indicator
+  const getSortIndicator = (field: SortField) => {
+    if (field !== sortField) {
+      return <ArrowUpDown className="ml-1 h-4 w-4" />;
     }
+    return sortDirection === 'asc' 
+      ? <ChevronUp className="ml-1 h-4 w-4" /> 
+      : <ChevronDown className="ml-1 h-4 w-4" />;
   };
   
-  const handleExportReport = async () => {
-    if (!properties || properties.length === 0) {
-      toast({
-        title: "No properties to export",
-        description: "Please select at least one property to include in the report",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    setIsExporting(true);
-    
-    try {
-      // Generate and download the PDF report
-      const result = await generatePropertyComparisonReport(
-        sortedProperties,
-        `${title} - ${new Date().toLocaleDateString()}`
-      );
-      
-      toast({
-        title: "Report generated",
-        description: `Your report "${result.filename}" has been downloaded`,
-        variant: "default"
-      });
-    } catch (error) {
-      console.error("Error generating report:", error);
-      toast({
-        title: "Report generation failed",
-        description: error instanceof Error ? error.message : "Unknown error generating report",
-        variant: "destructive"
-      });
-    } finally {
-      setIsExporting(false);
-    }
+  // Format price for display
+  const formatPrice = (price: string) => {
+    if (!price) return 'N/A';
+    const parsedPrice = parseFloat(price);
+    if (isNaN(parsedPrice)) return 'N/A';
+    return parsedPrice.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    });
   };
-
-  const sortedProperties = properties ? [...properties].sort((a, b) => {
-    let aValue = a[sortBy];
-    let bValue = b[sortBy];
-    
-    // Handle numeric values stored as strings
-    if (typeof aValue === 'string' && !isNaN(Number(aValue))) {
-      aValue = Number(aValue);
-      bValue = Number(bValue);
-    }
-    
-    if (aValue < bValue) return sortOrder === "asc" ? -1 : 1;
-    if (aValue > bValue) return sortOrder === "asc" ? 1 : -1;
-    return 0;
-  }) : [];
-
-  if (isLoading) {
-    return (
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{title}</h2>
-        </div>
-        <Card className="animate-pulse">
-          <div className="p-8 text-center">
-            <div className="h-6 bg-gray-700 rounded w-1/3 mx-auto mb-4"></div>
-            <div className="h-4 bg-gray-700 rounded w-1/2 mx-auto"></div>
-          </div>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!properties || properties.length === 0) {
-    return (
-      <div className="mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{title}</h2>
-        </div>
-        <Card className="p-8 text-center bg-white">
-          <p className="text-gray-700">No properties found matching your criteria.</p>
-        </Card>
-      </div>
-    );
-  }
 
   return (
-    <div className="mb-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">{title}</h2>
-        {showExport && (
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center border-gray-700 text-white hover:bg-gray-700"
-            >
-              <ArrowDownNarrowWide className="h-4 w-4 mr-1" />
-              Sort
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center border-gray-700 text-white hover:bg-gray-700"
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Clear
-            </Button>
-            <Button 
-              variant="default" 
-              size="sm" 
-              className="flex items-center bg-blue-600 hover:bg-blue-700"
-              onClick={handleExportReport}
-              disabled={isExporting || !properties || properties.length === 0}
-            >
-              {isExporting ? (
-                <>
-                  <span className="h-4 w-4 mr-1 animate-spin">◌</span>
-                  Exporting...
-                </>
-              ) : (
-                <>
-                  <Download className="h-4 w-4 mr-1" />
-                  Export Report
-                </>
-              )}
-            </Button>
-          </div>
-        )}
-      </div>
-      
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead onClick={() => handleSort("address")} className="cursor-pointer text-white">Property</TableHead>
-                <TableHead onClick={() => handleSort("price")} className="cursor-pointer text-white">Price</TableHead>
-                <TableHead onClick={() => handleSort("squareFeet")} className="cursor-pointer text-white">Size</TableHead>
-                <TableHead onClick={() => handleSort("pricePerSqft")} className="cursor-pointer text-white">$/SqFt</TableHead>
-                <TableHead className="text-white">Beds/Baths</TableHead>
-                <TableHead onClick={() => handleSort("yearBuilt")} className="cursor-pointer text-white">Year Built</TableHead>
-                <TableHead onClick={() => handleSort("status")} className="cursor-pointer text-white">Status</TableHead>
-                <TableHead className="text-right text-white">Actions</TableHead>
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Property</TableHead>
+            <TableHead>
+              <div 
+                className="flex items-center cursor-pointer" 
+                onClick={() => handleSort('price')}
+              >
+                Price {getSortIndicator('price')}
+              </div>
+            </TableHead>
+            <TableHead>
+              <div 
+                className="flex items-center cursor-pointer" 
+                onClick={() => handleSort('bedrooms')}
+              >
+                Beds {getSortIndicator('bedrooms')}
+              </div>
+            </TableHead>
+            <TableHead>
+              <div 
+                className="flex items-center cursor-pointer" 
+                onClick={() => handleSort('bathrooms')}
+              >
+                Baths {getSortIndicator('bathrooms')}
+              </div>
+            </TableHead>
+            <TableHead>
+              <div 
+                className="flex items-center cursor-pointer" 
+                onClick={() => handleSort('squareFeet')}
+              >
+                Sq Ft {getSortIndicator('squareFeet')}
+              </div>
+            </TableHead>
+            <TableHead>
+              <div 
+                className="flex items-center cursor-pointer" 
+                onClick={() => handleSort('yearBuilt')}
+              >
+                Year {getSortIndicator('yearBuilt')}
+              </div>
+            </TableHead>
+            <TableHead>Status</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedProperties.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center py-6">
+                <div className="flex flex-col items-center justify-center text-muted-foreground">
+                  <Home className="h-8 w-8 mb-2 opacity-30" />
+                  <p>No properties found</p>
+                  <p className="text-sm">Try adjusting your search criteria</p>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : (
+            sortedProperties.map((property) => (
+              <TableRow 
+                key={property.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => onPropertySelect && onPropertySelect(property)}
+              >
+                <TableCell className="font-medium">
+                  <div className="flex flex-col">
+                    <span className="font-medium">{property.address}</span>
+                    <span className="text-xs text-muted-foreground flex items-center mt-1">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      {property.city}, {property.state} {property.zipCode}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium text-primary">
+                  <div className="flex items-center">
+                    <DollarSign className="h-3 w-3 mr-0.5" />
+                    {formatPrice(property.price)}
+                  </div>
+                </TableCell>
+                <TableCell>{property.bedrooms}</TableCell>
+                <TableCell>{property.bathrooms}</TableCell>
+                <TableCell>
+                  {property.squareFeet 
+                    ? parseInt(property.squareFeet).toLocaleString() 
+                    : 'N/A'}
+                </TableCell>
+                <TableCell>{property.yearBuilt || 'N/A'}</TableCell>
+                <TableCell>
+                  <Badge
+                    variant={
+                      property.status === 'Active' ? 'default' :
+                      property.status === 'Pending' ? 'secondary' :
+                      property.status === 'Sold' ? 'outline' : 
+                      'default'
+                    }
+                  >
+                    {property.status}
+                  </Badge>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedProperties.map((property: Property) => (
-                <TableRow 
-                  key={property.id} 
-                  className="hover:bg-gray-700 cursor-pointer text-white"
-                  onClick={() => handleViewDetails(property.id)}
-                >
-                  <TableCell>
-                    <div className="flex items-center">
-                      <img 
-                        className="h-16 w-24 object-cover rounded-md mr-4" 
-                        src={Array.isArray(property.images) && property.images.length > 0 ? property.images[0] : ''} 
-                        alt={`${property.address}`} 
-                        onError={(e) => {
-                          e.currentTarget.src = "https://via.placeholder.com/150x100?text=No+Image";
-                        }}
-                      />
-                      <div>
-                        <div className="font-medium text-white">{property.address}</div>
-                        <div className="text-sm text-gray-300">
-                          {property.neighborhood}, {property.city}
-                        </div>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm font-medium text-white">${Number(property.price).toLocaleString()}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-white">{Number(property.squareFeet).toLocaleString()} sqft</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-white">${property.pricePerSqft}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-white">{property.bedrooms} bed / {property.bathrooms} bath</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm text-white">{property.yearBuilt}</div>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={property.status} />
-                  </TableCell>
-                  <TableCell className="text-right text-sm font-medium">
-                    <Button 
-                      variant="link" 
-                      className="text-blue-400 hover:text-blue-300"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewDetails(property.id);
-                      }}
-                    >
-                      Details
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+            ))
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
-};
-
-const StatusBadge = ({ status }: { status: string }) => {
-  // Ensure we have a valid status string
-  const statusText = status?.toString() || 'Unknown';
-  
-  switch (statusText.toLowerCase()) {
-    case 'active':
-      return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-green-800 text-green-200">
-          Active
-        </span>
-      );
-    case 'pending':
-      return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-yellow-800 text-yellow-200">
-          Pending
-        </span>
-      );
-    case 'sold':
-      return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-gray-600 text-gray-200">
-          Sold
-        </span>
-      );
-    default:
-      return (
-        <span className="px-2 py-1 inline-flex items-center justify-center text-xs leading-5 font-semibold rounded-full bg-blue-800 text-blue-200">
-          {statusText}
-        </span>
-      );
-  }
 };
 
 export default PropertyTable;

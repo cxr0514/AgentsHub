@@ -45,6 +45,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { icon: Home, label: 'Dashboard', path: '/' },
     { icon: Building2, label: 'Properties', path: '/properties' },
     { icon: Search, label: 'Search', path: '/search' },
+    { icon: Search, label: 'ATTOM Search', path: '/attom-search' },
     { icon: LineChart, label: 'Market Analysis', path: '/market-analysis' },
     { icon: BarChart2, label: 'Compare Properties', path: '/property-comparison' },
     { icon: FileText, label: 'Reports', path: '/reports' },
