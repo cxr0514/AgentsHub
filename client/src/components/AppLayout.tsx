@@ -55,6 +55,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { icon: Map, label: 'Map Visualization', path: '/map-visualization' },
     { icon: Brain, label: 'AI Market Analysis', path: '/ai-market-analysis' },
     { icon: FileSpreadsheet, label: 'Property Analyzer', path: '/property-analyzer' },
+    { icon: Home, label: 'Comp Matching', path: '/comp-matching' },
     { icon: BarChart2, label: 'Compare Properties', path: '/property-comparison' },
     { icon: Calculator, label: 'Calculators', path: '/financial-calculators' },
     { icon: FileText, label: 'Reports', path: '/reports' },
