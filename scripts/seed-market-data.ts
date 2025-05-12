@@ -1,11 +1,15 @@
 import { db } from "../server/db";
 import { marketData } from "../shared/schema";
+import { eq } from "drizzle-orm";
 
 async function seedMarketData() {
   console.log("Seeding market data...");
 
-  // Delete any existing market data
-  await db.delete(marketData);
+  // Delete any existing market data with matching city/state
+  await db.delete(marketData)
+    .where(
+      eq(marketData.city, "Marietta")
+    );
   console.log("Cleared existing market data");
 
   // Sample market data for Marietta, GA
@@ -13,17 +17,17 @@ async function seedMarketData() {
     {
       city: "Marietta",
       state: "GA",
-      zip_code: "30066",
+      zipCode: "30066",
       month: 1,
       year: 2025,
-      days_on_market: 35,
-      median_price: "425000",
-      average_price_per_sqft: "230",
-      active_listings: 145,
-      inventory_months: 3.2,
-      sale_to_list_ratio: 0.98,
-      price_reductions: 15,
-      market_type: "Seller's Market"
+      daysOnMarket: 35,
+      medianPrice: "425000",
+      averagePricePerSqft: "230",
+      activeListings: 145,
+      inventoryMonths: 3.2,
+      saleToListRatio: 0.98,
+      priceReductions: 15,
+      marketType: "Seller's Market"
     },
     {
       city: "Marietta",

@@ -259,9 +259,9 @@ function formatMarketDataForAI(marketData: MarketData[]): string {
     - Avg Price Per Sqft: ${data.averagePricePerSqft || 'N/A'}
     - Days on Market: ${data.daysOnMarket || 'N/A'}
     - Active Listings: ${data.activeListings || 'N/A'}
-    - New Listings: ${data.newListings || 'N/A'}
-    - Sold Listings: ${data.soldListings || 'N/A'}
-    - Median Rent: ${data.medianRent || 'N/A'}
+    - Inventory Months: ${data.inventoryMonths || 'N/A'}
+    - Sale to List Ratio: ${data.saleToListRatio || 'N/A'}
+    - Price Reductions: ${data.priceReductions || 'N/A'}
     - Market Type: ${data.marketType || 'N/A'}
     `;
   }).join('\n');
