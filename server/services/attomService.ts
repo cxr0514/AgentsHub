@@ -121,14 +121,64 @@ export async function fetchPropertyDetails(address: string, city: string, state:
     
     if (!response || !response.ok) {
       console.warn("All ATTOM API endpoints failed.");
-      throw new Error(errorMessage || "ATTOM API Error: All endpoints failed");
+      
+      // Return fallback property details instead of throwing an error
+      return {
+        property: {
+          address: address,
+          city: city,
+          state: state,
+          zipCode: zipCode || '',
+          price: "Not available",
+          bedrooms: 0,
+          bathrooms: "0",
+          squareFeet: "0",
+          lotSize: "0",
+          yearBuilt: 0,
+          propertyType: "Unknown",
+          description: "Property details not available from ATTOM API.",
+          status: "Unknown",
+          daysOnMarket: 0,
+          lastSold: null,
+          lastSoldPrice: null,
+          taxAssessment: null,
+          dataSources: ["Fallback Data (API Error)"]
+        },
+        message: "Property details could not be retrieved from ATTOM API. Using fallback data.",
+        error: errorMessage || "ATTOM API Error: All endpoints failed"
+      };
     }
     
     const data = await response.json();
     return data;
   } catch (error: any) {
     console.error("Error fetching property details:", error);
-    throw error;
+    
+    // Return fallback property details when an exception occurs
+    return {
+      property: {
+        address: address,
+        city: city,
+        state: state,
+        zipCode: zipCode || '',
+        price: "Not available",
+        bedrooms: 0,
+        bathrooms: "0",
+        squareFeet: "0",
+        lotSize: "0",
+        yearBuilt: 0,
+        propertyType: "Unknown",
+        description: "Property details not available due to an error.",
+        status: "Unknown",
+        daysOnMarket: 0,
+        lastSold: null,
+        lastSoldPrice: null,
+        taxAssessment: null,
+        dataSources: ["Error Fallback Data"]
+      },
+      message: "An error occurred while fetching property details. Using fallback data.",
+      error: error instanceof Error ? error.message : String(error)
+    };
   }
 }
 
@@ -209,14 +259,52 @@ export async function fetchPropertySaleHistory(address: string, city: string, st
     
     if (!response || !response.ok) {
       console.warn("All ATTOM API endpoints failed.");
-      throw new Error(errorMessage || "ATTOM API Error: All endpoints failed");
+      
+      // Return fallback sale history instead of throwing an error
+      return {
+        property: {
+          address: address,
+          city: city,
+          state: state,
+          zipCode: zipCode || '',
+        },
+        saleHistory: [
+          {
+            date: "Not available",
+            price: "Not available",
+            type: "Not available",
+            source: "Fallback Data (API Error)"
+          }
+        ],
+        message: "Property sale history could not be retrieved from ATTOM API. Using fallback data.",
+        error: errorMessage || "ATTOM API Error: All endpoints failed"
+      };
     }
     
     const data = await response.json();
     return data;
   } catch (error: any) {
     console.error("Error fetching property sale history:", error);
-    throw error;
+    
+    // Return fallback sale history when an exception occurs
+    return {
+      property: {
+        address: address,
+        city: city,
+        state: state,
+        zipCode: zipCode || ''
+      },
+      saleHistory: [
+        {
+          date: "Not available",
+          price: "Not available",
+          type: "Not available",
+          source: "Error Fallback Data"
+        }
+      ],
+      message: "An error occurred while fetching property sale history. Using fallback data.",
+      error: error instanceof Error ? error.message : String(error)
+    };
   }
 }
 
