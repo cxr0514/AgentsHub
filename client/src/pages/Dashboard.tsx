@@ -5,7 +5,7 @@ import SearchFilters from "@/components/SearchFilters";
 import MarketOverview from "@/components/MarketOverview";
 import PropertyTable from "@/components/PropertyTable";
 import SystemStatus from "@/components/SystemStatus";
-import MLSStatus from "@/components/MLSStatus";
+import MLSSyncStatus from "@/components/MLSSyncStatus";
 
 const Dashboard = () => {
   const [searchFilters, setSearchFilters] = useState({
@@ -38,7 +38,7 @@ const Dashboard = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <SystemStatus />
-          <MLSStatus />
+          <MLSSyncStatus />
         </div>
 
         <SearchFilters onSearch={handleSearch} />

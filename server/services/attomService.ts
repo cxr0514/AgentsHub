@@ -616,9 +616,9 @@ export async function updateMarketData(city: string, state: string, zipCode?: st
       medianPrice: medianPrice || null,
       averagePricePerSqft: pricePerSqft || null,
       activeListings: parseInt(activeListings) || null,
-      inventoryMonths: parseFloat(inventoryMonths) || null,
-      saleToListRatio: 0.97, // Default if not available
-      priceReductions: 10, // Default if not available
+      inventoryMonths: inventoryMonths ? String(parseFloat(inventoryMonths)) : null,
+      saleToListRatio: "0.97", // Default if not available (as string)
+      priceReductions: "10", // Default if not available (as string)
       marketType: determineMarketType(inventoryMonths),
       createdAt: new Date()
     };
