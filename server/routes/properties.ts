@@ -71,7 +71,7 @@ router.get('/', async (req, res) => {
 router.get('/search', async (req, res) => {
   try {
     // Convert query parameters to proper filter format
-    const filters = {
+    const filters: Record<string, any> = {
       location: req.query.city as string || req.query.location as string,
       propertyType: req.query.propertyType as string,
       minPrice: req.query.minPrice ? parseInt(req.query.minPrice as string) : undefined,
@@ -81,9 +81,13 @@ router.get('/search', async (req, res) => {
       minSqft: req.query.minSqft ? parseInt(req.query.minSqft as string) : undefined,
       maxSqft: req.query.maxSqft ? parseInt(req.query.maxSqft as string) : undefined,
       status: req.query.status as string,
-      yearBuilt: req.query.yearBuilt ? parseInt(req.query.yearBuilt as string) : undefined,
       zipCode: req.query.zipCode as string,
     };
+    
+    // Special handling for yearBuilt
+    if (req.query.yearBuilt && req.query.yearBuilt !== 'any_year') {
+      filters.yearBuilt = parseInt(req.query.yearBuilt as string);
+    }
     
     // Import the integrated search function
     const { searchProperties } = await import('../services/integrationService');
