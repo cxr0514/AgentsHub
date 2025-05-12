@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import AddPropertyDialog from "@/components/AddPropertyDialog";
 import { 
   Select,
   SelectContent,
@@ -108,7 +109,7 @@ export default function PropertiesPage() {
   };
 
   // Fetch properties with filters
-  const { data: properties, isLoading, error } = useQuery({
+  const { data: properties, isLoading, error, refetch } = useQuery({
     queryKey: ['/api/properties', filters],
     queryFn: async () => {
       const queryParams = buildQueryParams();
@@ -372,10 +373,7 @@ export default function PropertiesPage() {
               </SheetContent>
             </Sheet>
             
-            <Button className="bg-[#FF7A00]">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Property
-            </Button>
+            <AddPropertyDialog onAddSuccess={() => refetch()} />
           </div>
         </div>
 
