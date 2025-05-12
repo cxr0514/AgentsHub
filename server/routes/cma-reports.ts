@@ -275,7 +275,7 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       // Explanation text
       doc.setFontSize(10);
       doc.text('The following table shows price adjustments made to comparable properties to account for differences', 14, 40);
-      doc.text('with the subject property. A positive adjustment increases the comparable's value, while a negative', 14, 50);
+      doc.text('with the subject property. A positive adjustment increases the comparable\'s value, while a negative', 14, 50);
       doc.text('adjustment decreases its value.', 14, 60);
       
       // Adjustment table - simplified example
@@ -381,10 +381,10 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       // Market statistics
       doc.setFontSize(12);
       const marketStats = [
-        [`Median Sale Price: $${market.medianPrice.toLocaleString()}`, `Avg. Days on Market: ${market.avgDaysOnMarket}`],
-        [`Price per Sq.Ft: $${market.pricePerSqFt}`, `Inventory: ${market.activeListings} active listings`],
-        [`Monthly Appreciation: ${(market.monthlyAppreciation * 100).toFixed(2)}%`, `Yearly Appreciation: ${(market.yearlyAppreciation * 100).toFixed(2)}%`],
-        [`Sale-to-List Ratio: ${(market.saleToListRatio * 100).toFixed(1)}%`, `Market Type: ${market.marketType}`]
+        [`Median Sale Price: $${market.medianPrice ? parseFloat(market.medianPrice).toLocaleString() : 'N/A'}`, `Avg. Days on Market: ${market.daysOnMarket || 'N/A'}`],
+        [`Price per Sq.Ft: $${market.averagePricePerSqft ? parseFloat(market.averagePricePerSqft).toFixed(2) : 'N/A'}`, `Inventory: ${market.activeListings || 0} active listings`],
+        [`Monthly Change: ${market.inventoryMonths ? (parseFloat(market.inventoryMonths) * 100).toFixed(2) : '0.00'}%`, `Year: ${market.year}`],
+        [`Sale-to-List Ratio: ${market.saleToListRatio ? (parseFloat(market.saleToListRatio) * 100).toFixed(1) : '99.0'}%`, `Market Type: ${market.inventoryMonths ? (parseFloat(market.inventoryMonths) < 3 ? 'Seller\'s Market' : parseFloat(market.inventoryMonths) > 6 ? 'Buyer\'s Market' : 'Balanced Market') : 'Balanced Market'}`]
       ];
       
       let statY = 85;
@@ -399,7 +399,9 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       doc.text('Market Trends', 14, 130);
       
       doc.setFontSize(10);
-      doc.text(`${market.marketTrends}`, 14, 145, {
+      const marketTrendsText = `Based on data from ${market.city}, ${market.state}, the real estate market shows a median home price of ${market.medianPrice ? "$" + parseFloat(market.medianPrice).toLocaleString() : "N/A"} with properties spending an average of ${market.daysOnMarket || "N/A"} days on the market. The inventory of homes available for sale indicates ${market.inventoryMonths ? parseFloat(market.inventoryMonths) < 3 ? "a strong seller's market with limited inventory" : parseFloat(market.inventoryMonths) > 6 ? "a buyer's market with ample inventory" : "a balanced market with moderate inventory" : "a balanced market"}.`;
+      
+      doc.text(marketTrendsText, 14, 145, {
         maxWidth: 180,
         lineHeightFactor: 1.5
       });
@@ -433,9 +435,8 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       title: options.reportTitle || 'Comparative Market Analysis',
       type: 'CMA',
       propertyId: subjectPropertyId,
-      createdAt: new Date(),
       format: options.reportFormat,
-      data: JSON.stringify({
+      properties: JSON.stringify({
         subjectProperty,
         comps: compIds,
         options

@@ -67,6 +67,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register property comps and comparison routes
   apiRouter.use("/properties", propertyCompsRoutes);
   
+  // Register CMA report generation routes
+  apiRouter.use("/reports", cmaReportsRoutes);
+  
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {
     try {

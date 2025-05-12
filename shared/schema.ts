@@ -99,7 +99,10 @@ export const reports = pgTable("reports", {
   userId: integer("user_id").notNull().references(() => users.id),
   title: text("title").notNull(),
   description: text("description"),
-  properties: jsonb("properties").notNull(),
+  type: text("type").default("standard").notNull(), // standard, CMA, investment, etc.
+  propertyId: integer("property_id").references(() => properties.id), // Subject property ID for CMA reports
+  format: text("format").default("pdf"), // pdf, excel, etc.
+  properties: jsonb("properties").notNull(), // Store comparison properties, data, settings
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
