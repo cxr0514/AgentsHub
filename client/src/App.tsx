@@ -24,6 +24,9 @@ import AIMarketAnalysisPage from "@/pages/ai-market-analysis";
 import PropertyAnalyzerPage from "@/pages/property-analyzer";
 import CompMatchingPage from "@/pages/comp-matching";
 import CMAReportPage from "@/pages/cma-report";
+import SharedPropertiesPage from "@/pages/shared-properties";
+import SharedPropertyView from "@/pages/shared-property-view";
+import CollaborationTeamsPage from "@/pages/collaboration-teams";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -45,6 +48,9 @@ function Router() {
       <ProtectedRoute path="/financial-calculators" component={FinancialCalculatorsPage} />
       <ProtectedRoute path="/settings" component={SettingsPage} />
       <ProtectedRoute path="/api-keys" component={ApiKeyManagement} />
+      <ProtectedRoute path="/shared-properties" component={SharedPropertiesPage} />
+      <ProtectedRoute path="/collaboration/teams" component={CollaborationTeamsPage} />
+      <Route path="/shared/:token" component={SharedPropertyView} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>

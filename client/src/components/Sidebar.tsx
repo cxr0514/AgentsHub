@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Search, BarChart2, FileText, Bookmark, FileDigit, Key, Settings, Map, Calculator } from "lucide-react";
+import { Home, Search, BarChart2, FileText, Bookmark, FileDigit, Key, Settings, Map, Calculator, Share2, Users } from "lucide-react";
 
 const Sidebar = () => {
   const [location] = useLocation();
@@ -13,6 +13,11 @@ const Sidebar = () => {
     { icon: <FileText className="h-5 w-5" />, label: "Reports", path: "/reports" },
     { icon: <Bookmark className="h-5 w-5" />, label: "Saved Properties", path: "/saved" },
     { icon: <FileDigit className="h-5 w-5" />, label: "Documentation", path: "/documents" },
+  ];
+  
+  const collaborationItems = [
+    { icon: <Share2 className="h-5 w-5" />, label: "Shared Properties", path: "/shared-properties" },
+    { icon: <Users className="h-5 w-5" />, label: "Teams", path: "/collaboration/teams" },
   ];
   
   const settingsItems = [
@@ -31,6 +36,22 @@ const Sidebar = () => {
         <h2 className="text-lg font-semibold mb-4">Quick Links</h2>
         <nav className="space-y-1">
           {navigationItems.map((item) => (
+            <Link key={item.path} href={item.path}>
+              <div className={`flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer ${
+                location === item.path 
+                  ? 'bg-blue-500 text-white font-medium' 
+                  : 'hover:bg-gray-100'
+              }`}>
+                {item.icon}
+                <span>{item.label}</span>
+              </div>
+            </Link>
+          ))}
+        </nav>
+        
+        <h2 className="text-lg font-semibold mt-8 mb-4">Collaboration</h2>
+        <nav className="space-y-1">
+          {collaborationItems.map((item) => (
             <Link key={item.path} href={item.path}>
               <div className={`flex items-center space-x-3 px-3 py-2 rounded-md cursor-pointer ${
                 location === item.path 
