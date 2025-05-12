@@ -16,6 +16,10 @@ const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
  */
 function extractJsonFromText(text: string): any {
   try {
+    if (!text || typeof text !== 'string') {
+      throw new Error('Input is not a valid string');
+    }
+    
     // First attempt: direct parsing
     try {
       return JSON.parse(text);
@@ -24,31 +28,62 @@ function extractJsonFromText(text: string): any {
     }
     
     // Remove markdown code block formatting if present
-    let cleanedText = text;
+    let cleanedText = text.trim();
     
     // Handle markdown code blocks with ```json ... ``` format
     const codeBlockMatch = text.match(/```(?:json)?\s*\n([\s\S]*?)\n```/);
     if (codeBlockMatch && codeBlockMatch[1]) {
-      cleanedText = codeBlockMatch[1];
+      cleanedText = codeBlockMatch[1].trim();
     }
     
     // Handle content that starts with hashtags (markdown headers)
     const hashHeaderMatch = text.match(/^(?:#{1,6}\s*.*\n+)+([\s\S]*)/);
     if (hashHeaderMatch && hashHeaderMatch[1]) {
-      cleanedText = hashHeaderMatch[1];
+      cleanedText = hashHeaderMatch[1].trim();
     }
     
     // Try to find content that looks like JSON (starts with { and ends with })
     const jsonObjectMatch = cleanedText.match(/{[\s\S]*}/);
     if (jsonObjectMatch) {
-      cleanedText = jsonObjectMatch[0];
+      cleanedText = jsonObjectMatch[0].trim();
     }
     
-    // Parse the cleaned text
+    // Handle case where JSON is enclosed in quotes or has escaped quotes
+    if (cleanedText.startsWith('"') && cleanedText.endsWith('"')) {
+      cleanedText = cleanedText.slice(1, -1);
+      // Unescape any escaped quotes
+      cleanedText = cleanedText.replace(/\\"/g, '"');
+    }
+    
+    // If we still can't parse, try stricter cleanup - remove non-JSON characters
+    try {
+      return JSON.parse(cleanedText);
+    } catch (e) {
+      // Try one more approach - convert line breaks and excessive whitespace
+      cleanedText = cleanedText.replace(/(\r\n|\n|\r)/gm, " ").replace(/\s+/g, " ");
+      
+      // Look for JSON starting and ending braces and extract just that portion
+      const strictJsonMatch = cleanedText.match(/{.*}/);
+      if (strictJsonMatch) {
+        cleanedText = strictJsonMatch[0];
+      }
+    }
+    
+    // Final attempt to parse
     return JSON.parse(cleanedText);
   } catch (error) {
     console.error("Error extracting JSON from text:", error);
-    throw new Error(`Could not extract valid JSON from response: ${error.message}`);
+    // Log a snippet of the text to help with debugging
+    const textSnippet = text.length > 200 ? `${text.substring(0, 200)}...` : text;
+    console.error("Text snippet that failed parsing:", textSnippet);
+    
+    // If all else fails, try to create a basic fallback object with a message
+    // This prevents the application from completely breaking if parsing fails
+    return {
+      error: true,
+      message: "Failed to parse AI response. The service returned a non-JSON format.",
+      rawResponsePreview: textSnippet
+    };
   }
 }
 
@@ -181,7 +216,8 @@ async function generatePropertyRecommendations(properties: Property[], preferenc
     }
 
     const data = await response.json();
-    const recommendations = JSON.parse(data.choices[0].message.content);
+    // Extract JSON from the response, which might contain markdown formatting
+    const recommendations = extractJsonFromText(data.choices[0].message.content);
     return recommendations;
   } catch (error) {
     console.error("Error generating property recommendations:", error);
