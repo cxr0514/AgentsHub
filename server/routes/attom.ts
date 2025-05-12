@@ -9,13 +9,15 @@ import {
   syncMarketData
 } from "../services/attomService";
 
+// Create two routers - one for authenticated routes, one for test routes
 const router = Router();
+const testRouter = Router();
 
-// Require authentication for all routes in this router
-router.use(requirePermission(Permission.VIEW_PROPERTIES));
+// Authentication will be applied to individual routes as needed
+// Removed the global authentication requirement to allow test endpoints
 
-// Property details endpoint
-router.get("/property-details", async (req, res) => {
+// Property details endpoint (requires authentication)
+router.get("/property-details", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
   try {
     const { address, city, state, zipCode } = req.query;
     
@@ -43,8 +45,8 @@ router.get("/property-details", async (req, res) => {
   }
 });
 
-// Property sale history endpoint
-router.get("/property-history", async (req, res) => {
+// Property sale history endpoint (requires authentication)
+router.get("/property-history", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
   try {
     const { address, city, state, zipCode } = req.query;
     
@@ -72,8 +74,8 @@ router.get("/property-history", async (req, res) => {
   }
 });
 
-// Market statistics endpoint
-router.get("/market-statistics", async (req, res) => {
+// Market statistics endpoint (requires authentication)
+router.get("/market-statistics", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
   try {
     const { city, state, zipCode } = req.query;
     
@@ -204,92 +206,91 @@ router.get("/health", async (req, res) => {
 });
 
 // Test endpoints that don't require authentication (for development only)
-if (process.env.NODE_ENV === 'development') {
-  // Test property details endpoint
-  router.get("/test/property-details", async (req, res) => {
-    try {
-      const { address, city, state, zipCode } = req.query;
-      
-      if (!address || !city || !state) {
-        return res.status(400).json({ 
-          success: false,
-          message: "Missing required parameters: address, city, and state are required" 
-        });
-      }
-      
-      const result = await fetchPropertyDetails(
-        String(address),
-        String(city),
-        String(state),
-        zipCode ? String(zipCode) : ""
-      );
-      
-      res.json({ success: true, data: result });
-    } catch (error) {
-      console.error("Error fetching property details:", error);
-      res.status(500).json({ 
+// Property details endpoint (for testing)
+testRouter.get("/property-details", async (req, res) => {
+  try {
+    const { address, city, state, zipCode } = req.query;
+    
+    if (!address || !city || !state) {
+      return res.status(400).json({ 
         success: false,
-        message: error instanceof Error ? error.message : "Unknown error occurred" 
+        message: "Missing required parameters: address, city, and state are required" 
       });
     }
-  });
+    
+    const result = await fetchPropertyDetails(
+      String(address),
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : ""
+    );
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching property details:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
+  }
+});
 
-  // Test property sale history endpoint
-  router.get("/test/property-history", async (req, res) => {
-    try {
-      const { address, city, state, zipCode } = req.query;
-      
-      if (!address || !city || !state) {
-        return res.status(400).json({ 
-          success: false,
-          message: "Missing required parameters: address, city, and state are required" 
-        });
-      }
-      
-      const result = await fetchPropertySaleHistory(
-        String(address),
-        String(city),
-        String(state),
-        zipCode ? String(zipCode) : ""
-      );
-      
-      res.json({ success: true, data: result });
-    } catch (error) {
-      console.error("Error fetching property sale history:", error);
-      res.status(500).json({ 
+// Property sale history endpoint (for testing)
+testRouter.get("/property-history", async (req, res) => {
+  try {
+    const { address, city, state, zipCode } = req.query;
+    
+    if (!address || !city || !state) {
+      return res.status(400).json({ 
         success: false,
-        message: error instanceof Error ? error.message : "Unknown error occurred" 
+        message: "Missing required parameters: address, city, and state are required" 
       });
     }
-  });
+    
+    const result = await fetchPropertySaleHistory(
+      String(address),
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : ""
+    );
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching property sale history:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
+  }
+});
 
-  // Test market statistics endpoint
-  router.get("/test/market-statistics", async (req, res) => {
-    try {
-      const { city, state, zipCode } = req.query;
-      
-      if (!city || !state) {
-        return res.status(400).json({ 
-          success: false,
-          message: "Missing required parameters: city and state are required" 
-        });
-      }
-      
-      const result = await fetchMarketStatistics(
-        String(city),
-        String(state),
-        zipCode ? String(zipCode) : undefined
-      );
-      
-      res.json({ success: true, data: result });
-    } catch (error) {
-      console.error("Error fetching market statistics:", error);
-      res.status(500).json({ 
+// Market statistics endpoint (for testing)
+testRouter.get("/market-statistics", async (req, res) => {
+  try {
+    const { city, state, zipCode } = req.query;
+    
+    if (!city || !state) {
+      return res.status(400).json({ 
         success: false,
-        message: error instanceof Error ? error.message : "Unknown error occurred" 
+        message: "Missing required parameters: city and state are required" 
       });
     }
-  });
-}
+    
+    const result = await fetchMarketStatistics(
+      String(city),
+      String(state),
+      zipCode ? String(zipCode) : undefined
+    );
+    
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching market statistics:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error occurred" 
+    });
+  }
+});
 
-export default router;
+// Export both routers
+export { router, testRouter };
