@@ -813,7 +813,8 @@ export class DatabaseStorage implements IStorage {
     }
 
     // Year built filtering
-    if (filters.yearBuilt) {
+    if (filters.yearBuilt && filters.yearBuilt !== 'any_year') {
+      // Only apply the filter if it's not "any_year"
       conditions.push(eq(properties.yearBuilt, filters.yearBuilt));
     }
     
