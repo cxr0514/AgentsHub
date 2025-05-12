@@ -1,9 +1,56 @@
 import { MarketData, Property } from "@shared/schema";
 
 // Use the Perplexity API instead of OpenAI
-const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || "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";
+const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY;
+if (!PERPLEXITY_API_KEY) {
+  console.warn("Warning: PERPLEXITY_API_KEY environment variable is not set. AI-powered features will not work correctly.");
+}
 const PERPLEXITY_MODEL = "llama-3.1-sonar-small-128k-online";
 const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
+
+/**
+ * Helper function to extract JSON from text that might contain markdown formatting
+ * 
+ * @param text Text that might contain JSON (possibly wrapped in markdown)
+ * @returns Parsed JSON object
+ */
+function extractJsonFromText(text: string): any {
+  try {
+    // First attempt: direct parsing
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      // If direct parsing fails, try to extract JSON from markdown
+    }
+    
+    // Remove markdown code block formatting if present
+    let cleanedText = text;
+    
+    // Handle markdown code blocks with ```json ... ``` format
+    const codeBlockMatch = text.match(/```(?:json)?\s*\n([\s\S]*?)\n```/);
+    if (codeBlockMatch && codeBlockMatch[1]) {
+      cleanedText = codeBlockMatch[1];
+    }
+    
+    // Handle content that starts with hashtags (markdown headers)
+    const hashHeaderMatch = text.match(/^(?:#{1,6}\s*.*\n+)+([\s\S]*)/);
+    if (hashHeaderMatch && hashHeaderMatch[1]) {
+      cleanedText = hashHeaderMatch[1];
+    }
+    
+    // Try to find content that looks like JSON (starts with { and ends with })
+    const jsonObjectMatch = cleanedText.match(/{[\s\S]*}/);
+    if (jsonObjectMatch) {
+      cleanedText = jsonObjectMatch[0];
+    }
+    
+    // Parse the cleaned text
+    return JSON.parse(cleanedText);
+  } catch (error) {
+    console.error("Error extracting JSON from text:", error);
+    throw new Error(`Could not extract valid JSON from response: ${error.message}`);
+  }
+}
 
 /**
  * Generate market predictions using Perplexity API
@@ -58,8 +105,9 @@ async function generateMarketPrediction(marketData: MarketData[]) {
     }
 
     const data = await response.json();
-    const prediction = JSON.parse(data.choices[0].message.content);
-    return prediction;
+    // Extract JSON from the response, which might contain markdown formatting
+    const jsonContent = extractJsonFromText(data.choices[0].message.content);
+    return jsonContent;
   } catch (error) {
     console.error("Error generating market prediction:", error);
     throw new Error(`Failed to generate market prediction: ${error.message}`);
@@ -208,7 +256,8 @@ async function detectPropertyAnomalies(properties: Property[], marketData: Marke
     }
 
     const data = await response.json();
-    const anomalyResults = JSON.parse(data.choices[0].message.content);
+    // Extract JSON from the response, which might contain markdown formatting
+    const anomalyResults = extractJsonFromText(data.choices[0].message.content);
     return anomalyResults;
   } catch (error) {
     console.error("Error detecting property anomalies:", error);
@@ -284,7 +333,8 @@ async function generateMarketReport(marketData: MarketData[], properties: Proper
     }
 
     const data = await response.json();
-    const report = JSON.parse(data.choices[0].message.content);
+    // Extract JSON from the response, which might contain markdown formatting
+    const report = extractJsonFromText(data.choices[0].message.content);
     return report;
   } catch (error) {
     console.error("Error generating market report:", error);
