@@ -436,20 +436,20 @@ export default function SearchPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Left sidebar with filters */}
           <div className="md:col-span-1 space-y-6">
-            <Card>
+            <Card className="bg-[#050e1d] border-[#0f1d31] text-white">
               <CardHeader>
-                <CardTitle className="text-lg">Search Filters</CardTitle>
-                <CardDescription>Refine your property search</CardDescription>
+                <CardTitle className="text-lg text-white">Search Filters</CardTitle>
+                <CardDescription className="text-slate-400">Refine your property search</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location" className="text-white">Location</Label>
                   <div className="relative">
-                    <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <MapPin className="absolute left-2 top-2.5 h-4 w-4 text-[#FF7A00]" />
                     <Input
                       id="location"
                       placeholder="City, State, or ZIP"
-                      className="pl-8"
+                      className="pl-8 bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-0 focus:ring-offset-0"
                       value={filters.location}
                       onChange={(e) => handleFilterChange('location', e.target.value)}
                     />
@@ -457,65 +457,65 @@ export default function SearchPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="propertyType">Property Type</Label>
+                  <Label htmlFor="propertyType" className="text-white">Property Type</Label>
                   <Select
                     value={filters.propertyType}
                     onValueChange={(value) => handleFilterChange('propertyType', value)}
                   >
-                    <SelectTrigger id="propertyType">
+                    <SelectTrigger id="propertyType" className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                       <SelectValue placeholder="All Property Types" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Property Types</SelectItem>
-                      <SelectItem value="Single Family">Single Family</SelectItem>
-                      <SelectItem value="Condo">Condo</SelectItem>
-                      <SelectItem value="Townhouse">Townhouse</SelectItem>
-                      <SelectItem value="Multi Family">Multi Family</SelectItem>
-                      <SelectItem value="Land">Land</SelectItem>
-                      <SelectItem value="Commercial">Commercial</SelectItem>
+                    <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                      <SelectItem value="all" className="focus:bg-[#0f1d31] focus:text-white">All Property Types</SelectItem>
+                      <SelectItem value="Single Family" className="focus:bg-[#0f1d31] focus:text-white">Single Family</SelectItem>
+                      <SelectItem value="Condo" className="focus:bg-[#0f1d31] focus:text-white">Condo</SelectItem>
+                      <SelectItem value="Townhouse" className="focus:bg-[#0f1d31] focus:text-white">Townhouse</SelectItem>
+                      <SelectItem value="Multi Family" className="focus:bg-[#0f1d31] focus:text-white">Multi Family</SelectItem>
+                      <SelectItem value="Land" className="focus:bg-[#0f1d31] focus:text-white">Land</SelectItem>
+                      <SelectItem value="Commercial" className="focus:bg-[#0f1d31] focus:text-white">Commercial</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status" className="text-white">Status</Label>
                   <Select
                     value={filters.status}
                     onValueChange={(value) => handleFilterChange('status', value)}
                   >
-                    <SelectTrigger id="status">
+                    <SelectTrigger id="status" className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                       <SelectValue placeholder="Any Status" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Any Status</SelectItem>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Pending">Pending</SelectItem>
-                      <SelectItem value="Sold">Sold</SelectItem>
+                    <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                      <SelectItem value="any" className="focus:bg-[#0f1d31] focus:text-white">Any Status</SelectItem>
+                      <SelectItem value="Active" className="focus:bg-[#0f1d31] focus:text-white">Active</SelectItem>
+                      <SelectItem value="Pending" className="focus:bg-[#0f1d31] focus:text-white">Pending</SelectItem>
+                      <SelectItem value="Sold" className="focus:bg-[#0f1d31] focus:text-white">Sold</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
-                <Separator />
+                <Separator className="bg-[#0f1d31]" />
                 
                 <div className="space-y-2">
-                  <Label>Price Range</Label>
+                  <Label className="text-white">Price Range</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Select
                       value={filters.minPrice}
                       onValueChange={(value) => handleFilterChange('minPrice', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                         <SelectValue placeholder="Min Price" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no_min">No Min</SelectItem>
-                        <SelectItem value="50000">$50K</SelectItem>
-                        <SelectItem value="100000">$100K</SelectItem>
-                        <SelectItem value="200000">$200K</SelectItem>
-                        <SelectItem value="300000">$300K</SelectItem>
-                        <SelectItem value="500000">$500K</SelectItem>
-                        <SelectItem value="750000">$750K</SelectItem>
-                        <SelectItem value="1000000">$1M</SelectItem>
+                      <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                        <SelectItem value="no_min" className="focus:bg-[#0f1d31] focus:text-white">No Min</SelectItem>
+                        <SelectItem value="50000" className="focus:bg-[#0f1d31] focus:text-white">$50K</SelectItem>
+                        <SelectItem value="100000" className="focus:bg-[#0f1d31] focus:text-white">$100K</SelectItem>
+                        <SelectItem value="200000" className="focus:bg-[#0f1d31] focus:text-white">$200K</SelectItem>
+                        <SelectItem value="300000" className="focus:bg-[#0f1d31] focus:text-white">$300K</SelectItem>
+                        <SelectItem value="500000" className="focus:bg-[#0f1d31] focus:text-white">$500K</SelectItem>
+                        <SelectItem value="750000" className="focus:bg-[#0f1d31] focus:text-white">$750K</SelectItem>
+                        <SelectItem value="1000000" className="focus:bg-[#0f1d31] focus:text-white">$1M</SelectItem>
                       </SelectContent>
                     </Select>
                     
@@ -523,40 +523,40 @@ export default function SearchPage() {
                       value={filters.maxPrice}
                       onValueChange={(value) => handleFilterChange('maxPrice', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                         <SelectValue placeholder="Max Price" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no_max">No Max</SelectItem>
-                        <SelectItem value="200000">$200K</SelectItem>
-                        <SelectItem value="300000">$300K</SelectItem>
-                        <SelectItem value="500000">$500K</SelectItem>
-                        <SelectItem value="750000">$750K</SelectItem>
-                        <SelectItem value="1000000">$1M</SelectItem>
-                        <SelectItem value="1500000">$1.5M</SelectItem>
-                        <SelectItem value="2000000">$2M+</SelectItem>
+                      <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                        <SelectItem value="no_max" className="focus:bg-[#0f1d31] focus:text-white">No Max</SelectItem>
+                        <SelectItem value="200000" className="focus:bg-[#0f1d31] focus:text-white">$200K</SelectItem>
+                        <SelectItem value="300000" className="focus:bg-[#0f1d31] focus:text-white">$300K</SelectItem>
+                        <SelectItem value="500000" className="focus:bg-[#0f1d31] focus:text-white">$500K</SelectItem>
+                        <SelectItem value="750000" className="focus:bg-[#0f1d31] focus:text-white">$750K</SelectItem>
+                        <SelectItem value="1000000" className="focus:bg-[#0f1d31] focus:text-white">$1M</SelectItem>
+                        <SelectItem value="1500000" className="focus:bg-[#0f1d31] focus:text-white">$1.5M</SelectItem>
+                        <SelectItem value="2000000" className="focus:bg-[#0f1d31] focus:text-white">$2M+</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Beds & Baths</Label>
+                  <Label className="text-white">Beds & Baths</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Select
                       value={filters.minBeds}
                       onValueChange={(value) => handleFilterChange('minBeds', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                         <SelectValue placeholder="Beds" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">Any</SelectItem>
-                        <SelectItem value="1">1+</SelectItem>
-                        <SelectItem value="2">2+</SelectItem>
-                        <SelectItem value="3">3+</SelectItem>
-                        <SelectItem value="4">4+</SelectItem>
-                        <SelectItem value="5">5+</SelectItem>
+                      <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                        <SelectItem value="any" className="focus:bg-[#0f1d31] focus:text-white">Any</SelectItem>
+                        <SelectItem value="1" className="focus:bg-[#0f1d31] focus:text-white">1+</SelectItem>
+                        <SelectItem value="2" className="focus:bg-[#0f1d31] focus:text-white">2+</SelectItem>
+                        <SelectItem value="3" className="focus:bg-[#0f1d31] focus:text-white">3+</SelectItem>
+                        <SelectItem value="4" className="focus:bg-[#0f1d31] focus:text-white">4+</SelectItem>
+                        <SelectItem value="5" className="focus:bg-[#0f1d31] focus:text-white">5+</SelectItem>
                       </SelectContent>
                     </Select>
                     
@@ -564,39 +564,39 @@ export default function SearchPage() {
                       value={filters.minBaths}
                       onValueChange={(value) => handleFilterChange('minBaths', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                         <SelectValue placeholder="Baths" />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">Any</SelectItem>
-                        <SelectItem value="1">1+</SelectItem>
-                        <SelectItem value="1.5">1.5+</SelectItem>
-                        <SelectItem value="2">2+</SelectItem>
-                        <SelectItem value="3">3+</SelectItem>
-                        <SelectItem value="4">4+</SelectItem>
+                      <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                        <SelectItem value="any" className="focus:bg-[#0f1d31] focus:text-white">Any</SelectItem>
+                        <SelectItem value="1" className="focus:bg-[#0f1d31] focus:text-white">1+</SelectItem>
+                        <SelectItem value="1.5" className="focus:bg-[#0f1d31] focus:text-white">1.5+</SelectItem>
+                        <SelectItem value="2" className="focus:bg-[#0f1d31] focus:text-white">2+</SelectItem>
+                        <SelectItem value="3" className="focus:bg-[#0f1d31] focus:text-white">3+</SelectItem>
+                        <SelectItem value="4" className="focus:bg-[#0f1d31] focus:text-white">4+</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Square Feet</Label>
+                  <Label className="text-white">Square Feet</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <Select
                       value={filters.minSqft}
                       onValueChange={(value) => handleFilterChange('minSqft', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                         <SelectValue placeholder="Min Sq.Ft." />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no_min">No Min</SelectItem>
-                        <SelectItem value="500">500+</SelectItem>
-                        <SelectItem value="1000">1,000+</SelectItem>
-                        <SelectItem value="1500">1,500+</SelectItem>
-                        <SelectItem value="2000">2,000+</SelectItem>
-                        <SelectItem value="2500">2,500+</SelectItem>
-                        <SelectItem value="3000">3,000+</SelectItem>
+                      <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                        <SelectItem value="no_min" className="focus:bg-[#0f1d31] focus:text-white">No Min</SelectItem>
+                        <SelectItem value="500" className="focus:bg-[#0f1d31] focus:text-white">500+</SelectItem>
+                        <SelectItem value="1000" className="focus:bg-[#0f1d31] focus:text-white">1,000+</SelectItem>
+                        <SelectItem value="1500" className="focus:bg-[#0f1d31] focus:text-white">1,500+</SelectItem>
+                        <SelectItem value="2000" className="focus:bg-[#0f1d31] focus:text-white">2,000+</SelectItem>
+                        <SelectItem value="2500" className="focus:bg-[#0f1d31] focus:text-white">2,500+</SelectItem>
+                        <SelectItem value="3000" className="focus:bg-[#0f1d31] focus:text-white">3,000+</SelectItem>
                       </SelectContent>
                     </Select>
                     
@@ -604,17 +604,17 @@ export default function SearchPage() {
                       value={filters.maxSqft}
                       onValueChange={(value) => handleFilterChange('maxSqft', value)}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                         <SelectValue placeholder="Max Sq.Ft." />
                       </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="no_max">No Max</SelectItem>
-                        <SelectItem value="1500">1,500</SelectItem>
-                        <SelectItem value="2000">2,000</SelectItem>
-                        <SelectItem value="2500">2,500</SelectItem>
-                        <SelectItem value="3000">3,000</SelectItem>
-                        <SelectItem value="4000">4,000</SelectItem>
-                        <SelectItem value="5000">5,000+</SelectItem>
+                      <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                        <SelectItem value="no_max" className="focus:bg-[#0f1d31] focus:text-white">No Max</SelectItem>
+                        <SelectItem value="1500" className="focus:bg-[#0f1d31] focus:text-white">1,500</SelectItem>
+                        <SelectItem value="2000" className="focus:bg-[#0f1d31] focus:text-white">2,000</SelectItem>
+                        <SelectItem value="2500" className="focus:bg-[#0f1d31] focus:text-white">2,500</SelectItem>
+                        <SelectItem value="3000" className="focus:bg-[#0f1d31] focus:text-white">3,000</SelectItem>
+                        <SelectItem value="4000" className="focus:bg-[#0f1d31] focus:text-white">4,000</SelectItem>
+                        <SelectItem value="5000" className="focus:bg-[#0f1d31] focus:text-white">5,000+</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
