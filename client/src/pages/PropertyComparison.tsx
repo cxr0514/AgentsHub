@@ -112,7 +112,7 @@ const PropertyComparison = () => {
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Back to Selection
               </Button>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-white/70">
                 Comparing {selectedPropertyIds.length} {selectedPropertyIds.length === 1 ? 'property' : 'properties'}
               </div>
             </div>
@@ -131,22 +131,22 @@ const PropertyComparison = () => {
                 <CardContent className="p-4 pt-0">
                   <div className="flex gap-2 mb-4">
                     <div className="relative flex-grow">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-white/70" />
                       <Input
                         type="text"
                         placeholder="Search properties..."
-                        className="pl-8"
+                        className="pl-8 bg-slate-800 border-slate-700 text-white placeholder:text-white/50"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </div>
-                    <Button variant="outline" size="icon">
-                      <Filter className="h-4 w-4" />
+                    <Button variant="outline" size="icon" className="border-slate-700 bg-slate-800 hover:bg-slate-700">
+                      <Filter className="h-4 w-4 text-white/70" />
                     </Button>
                   </div>
                   
                   <div className="flex justify-between items-center mb-4">
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-white/70">
                       {selectedPropertyIds.length} of 4 properties selected
                     </div>
                     <Button 
@@ -190,7 +190,7 @@ const PropertyComparison = () => {
                           />
                           <div>
                             <div className="font-medium">{property.address}</div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-sm text-white/70">
                               {property.city}, {property.state} {property.zipCode}
                             </div>
                             <div className="flex gap-4 mt-1">
@@ -240,7 +240,7 @@ const PropertyComparison = () => {
                         <div key={property.id} className="flex justify-between items-center p-2 border-b border-slate-700 last:border-0">
                           <div>
                             <div className="font-medium">{property.address}</div>
-                            <div className="text-sm text-muted-foreground">
+                            <div className="text-sm text-white/70">
                               {formatCurrency(Number(property.price))} · {property.bedrooms} bed · {property.bathrooms} bath
                             </div>
                           </div>
@@ -248,7 +248,7 @@ const PropertyComparison = () => {
                             variant="ghost" 
                             size="sm" 
                             onClick={() => removeProperty(property.id)}
-                            className="text-muted-foreground hover:text-destructive"
+                            className="text-white/70 hover:text-red-400"
                           >
                             <Trash2 size={16} />
                           </Button>
