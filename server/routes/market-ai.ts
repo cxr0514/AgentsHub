@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { storage } from "../storage";
-import { openaiService } from "../services/openaiService";
+import { aiService } from "../services/aiService";
 import { z } from "zod";
 
 // Validation schema for location-based requests
@@ -52,8 +52,8 @@ export async function getMarketPredictions(req: Request, res: Response) {
       });
     }
 
-    // Generate market prediction using OpenAI
-    const prediction = await openaiService.generateMarketPrediction(marketData);
+    // Generate market prediction using Perplexity AI
+    const prediction = await aiService.generateMarketPrediction(marketData);
 
     // Save prediction to storage
     await storage.createMarketPrediction({
@@ -65,7 +65,7 @@ export async function getMarketPredictions(req: Request, res: Response) {
       startDate: new Date(prediction.timeRange?.start),
       endDate: new Date(prediction.timeRange?.end),
       predictionDate: new Date(),
-      generatedBy: "openai"
+      generatedBy: "perplexity"
     });
 
     return res.json(prediction);
@@ -107,8 +107,8 @@ export async function getPropertyRecommendations(req: Request, res: Response) {
       });
     }
 
-    // Generate recommendations using OpenAI
-    const recommendations = await openaiService.generatePropertyRecommendations(
+    // Generate recommendations using Perplexity AI
+    const recommendations = await aiService.generatePropertyRecommendations(
       properties, 
       preferences
     );
@@ -160,7 +160,7 @@ export async function detectAnomalies(req: Request, res: Response) {
     );
 
     // Analyze properties for anomalies
-    const anomalyResults = await openaiService.detectPropertyAnomalies(
+    const anomalyResults = await aiService.detectPropertyAnomalies(
       validProperties,
       marketData
     );
@@ -205,7 +205,7 @@ export async function generateAIMarketReport(req: Request, res: Response) {
     });
 
     // Generate comprehensive market report
-    const marketReport = await openaiService.generateMarketReport(
+    const marketReport = await aiService.generateMarketReport(
       marketData,
       properties
     );

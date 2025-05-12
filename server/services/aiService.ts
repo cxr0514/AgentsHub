@@ -91,35 +91,49 @@ async function generatePropertyRecommendations(properties: Property[], preferenc
       status: p.status
     }));
 
-    const response = await openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert real estate advisor specializing in property recommendations. 
-          Your task is to analyze properties and user preferences to recommend the best matches.
-          Provide detailed reasoning for each recommendation highlighting why the property is a good fit.`,
-        },
-        {
-          role: "user",
-          content: `Based on these user preferences:
-          ${JSON.stringify(preferences, null, 2)}
-          
-          Recommend the best properties from this list:
-          ${JSON.stringify(propertiesData, null, 2)}
-          
-          Generate recommendations in JSON format with these fields:
-          - topRecommendations (array of objects, each with propertyId, matchScore from 0-100, and reasons array)
-          - alternativeOptions (array of objects with propertyId, matchScore, and reasons)
-          - summary (string explaining the overall recommendation strategy)
-          - keyConsiderations (array of strings with important factors to consider)`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
+    const response = await fetch(PERPLEXITY_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: PERPLEXITY_MODEL,
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert real estate advisor specializing in property recommendations. 
+            Your task is to analyze properties and user preferences to recommend the best matches.
+            Provide detailed reasoning for each recommendation highlighting why the property is a good fit.`
+          },
+          {
+            role: "user",
+            content: `Based on these user preferences:
+            ${JSON.stringify(preferences, null, 2)}
+            
+            Recommend the best properties from this list:
+            ${JSON.stringify(propertiesData, null, 2)}
+            
+            Generate recommendations in JSON format with these fields:
+            - topRecommendations (array of objects, each with propertyId, matchScore from 0-100, and reasons array)
+            - alternativeOptions (array of objects with propertyId, matchScore, and reasons)
+            - summary (string explaining the overall recommendation strategy)
+            - keyConsiderations (array of strings with important factors to consider)`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+        stream: false
+      })
     });
 
-    const recommendations = JSON.parse(response.choices[0].message.content);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Perplexity API error: ${error.error?.message || JSON.stringify(error)}`);
+    }
+
+    const data = await response.json();
+    const recommendations = JSON.parse(data.choices[0].message.content);
     return recommendations;
   } catch (error) {
     console.error("Error generating property recommendations:", error);
@@ -152,35 +166,49 @@ async function detectPropertyAnomalies(properties: Property[], marketData: Marke
       status: p.status
     }));
 
-    const response = await openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert real estate analyst specializing in detecting anomalies, 
-          fraud, and unusual patterns in property listings. Your task is to analyze properties 
-          against market data to identify potential issues or opportunities.`,
-        },
-        {
-          role: "user",
-          content: `Analyze these properties for anomalies:
-          ${JSON.stringify(propertiesData, null, 2)}
-          
-          Using this market context:
-          ${formattedMarketData}
-          
-          Generate an anomaly analysis in JSON format with these fields:
-          - anomalies (array of objects, each with propertyId, anomalyType, description, severityScore from 0-100)
-          - summary (string explaining the overall findings)
-          - recommendations (array of strings with recommended actions)
-          - dataQualityIssues (array of strings describing any data quality concerns)`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.2,
+    const response = await fetch(PERPLEXITY_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: PERPLEXITY_MODEL,
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert real estate analyst specializing in detecting anomalies, 
+            fraud, and unusual patterns in property listings. Your task is to analyze properties 
+            against market data to identify potential issues or opportunities.`
+          },
+          {
+            role: "user",
+            content: `Analyze these properties for anomalies:
+            ${JSON.stringify(propertiesData, null, 2)}
+            
+            Using this market context:
+            ${formattedMarketData}
+            
+            Generate an anomaly analysis in JSON format with these fields:
+            - anomalies (array of objects, each with propertyId, anomalyType, description, severityScore from 0-100)
+            - summary (string explaining the overall findings)
+            - recommendations (array of strings with recommended actions)
+            - dataQualityIssues (array of strings describing any data quality concerns)`
+          }
+        ],
+        temperature: 0.2,
+        max_tokens: 2000,
+        stream: false
+      })
     });
 
-    const anomalyResults = JSON.parse(response.choices[0].message.content);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Perplexity API error: ${error.error?.message || JSON.stringify(error)}`);
+    }
+
+    const data = await response.json();
+    const anomalyResults = JSON.parse(data.choices[0].message.content);
     return anomalyResults;
   } catch (error) {
     console.error("Error detecting property anomalies:", error);
@@ -210,39 +238,53 @@ async function generateMarketReport(marketData: MarketData[], properties: Proper
     - Recently sold: ${soldPropCount}
     `;
 
-    const response = await openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert real estate market analyst specializing in creating comprehensive 
-          market reports. Your task is to analyze market data and property information to generate 
-          a detailed report with insights, trends, and recommendations.`,
-        },
-        {
-          role: "user",
-          content: `Generate a comprehensive market report using this market data:
-          ${formattedMarketData}
-          
-          And these property statistics:
-          ${statsForAI}
-          
-          Create a market report in JSON format with these sections:
-          - executiveSummary (string with high-level overview)
-          - marketTrends (object with pricesTrend, inventoryTrend, daysOnMarketTrend objects, each containing description, annualChange percentage, and outlook)
-          - marketHealthIndicators (object with overall rating, affordability, competitiveness, stability ratings)
-          - opportunityAnalysis (object with buyerOpportunities, sellerOpportunities, investorOpportunities arrays of strings)
-          - localFactors (object with economicIndicators and demographicTrends arrays of strings)
-          - conclusion (string with final assessment)
-          - timeRange (object with start and end dates for the data)
-          - generatedAt (current date string in ISO format)`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
+    const response = await fetch(PERPLEXITY_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: PERPLEXITY_MODEL,
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert real estate market analyst specializing in creating comprehensive 
+            market reports. Your task is to analyze market data and property information to generate 
+            a detailed report with insights, trends, and recommendations.`
+          },
+          {
+            role: "user",
+            content: `Generate a comprehensive market report using this market data:
+            ${formattedMarketData}
+            
+            And these property statistics:
+            ${statsForAI}
+            
+            Create a market report in JSON format with these sections:
+            - executiveSummary (string with high-level overview)
+            - marketTrends (object with pricesTrend, inventoryTrend, daysOnMarketTrend objects, each containing description, annualChange percentage, and outlook)
+            - marketHealthIndicators (object with overall rating, affordability, competitiveness, stability ratings)
+            - opportunityAnalysis (object with buyerOpportunities, sellerOpportunities, investorOpportunities arrays of strings)
+            - localFactors (object with economicIndicators and demographicTrends arrays of strings)
+            - conclusion (string with final assessment)
+            - timeRange (object with start and end dates for the data)
+            - generatedAt (current date string in ISO format)`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+        stream: false
+      })
     });
 
-    const report = JSON.parse(response.choices[0].message.content);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Perplexity API error: ${error.error?.message || JSON.stringify(error)}`);
+    }
+
+    const data = await response.json();
+    const report = JSON.parse(data.choices[0].message.content);
     return report;
   } catch (error) {
     console.error("Error generating market report:", error);
@@ -277,7 +319,7 @@ function formatMarketDataForAI(marketData: MarketData[]): string {
   }).join('\n');
 }
 
-export const openaiService = {
+export const aiService = {
   generateMarketPrediction,
   generatePropertyRecommendations,
   detectPropertyAnomalies,
