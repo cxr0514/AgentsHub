@@ -484,6 +484,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // GET endpoint for property searches (to support query parameters)
+  apiRouter.get("/properties/search", async (req, res) => {
+    try {
+      const filters = {
+        location: req.query.location as string | undefined,
+        state: req.query.state as string | undefined,
+        propertyType: req.query.propertyType as string | undefined,
+        minPrice: req.query.minPrice ? parseInt(req.query.minPrice as string) : undefined,
+        maxPrice: req.query.maxPrice ? parseInt(req.query.maxPrice as string) : undefined,
+        minBeds: req.query.minBeds ? parseInt(req.query.minBeds as string) : undefined,
+        minBaths: req.query.minBaths ? parseInt(req.query.minBaths as string) : undefined,
+        minSqft: req.query.minSqft ? parseInt(req.query.minSqft as string) : undefined,
+        maxSqft: req.query.maxSqft ? parseInt(req.query.maxSqft as string) : undefined,
+        status: req.query.status as string | undefined,
+        yearBuilt: req.query.yearBuilt as string | undefined,
+        zipCode: req.query.zipCode as string | undefined,
+      };
+      
+      console.log("Searching properties with filters:", filters);
+      
+      // Use the integration service to search with advanced filters
+      const properties = await searchProperties(filters);
+      
+      console.log(`Found ${properties.length} properties matching search criteria`);
+      res.json(properties);
+    } catch (error) {
+      console.error("Error searching properties:", error);
+      res.status(500).json({ 
+        message: "Failed to search properties",
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+  
   // CSV/Spreadsheet import endpoint
   apiRouter.post("/properties/import", async (req, res) => {
     try {

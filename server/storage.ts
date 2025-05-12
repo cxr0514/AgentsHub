@@ -63,6 +63,7 @@ export interface IStorage {
 
 export interface PropertyFilters {
   location?: string;
+  state?: string; // State code (e.g., GA, FL, CA)
   propertyType?: string;
   minPrice?: number;
   maxPrice?: number;
