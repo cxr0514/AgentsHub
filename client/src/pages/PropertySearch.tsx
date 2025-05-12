@@ -13,6 +13,7 @@ import MapSearch from "@/components/MapSearch";
 import CsvUploadDialog from "@/components/CsvUploadDialog";
 import AddPropertyDialog from "@/components/AddPropertyDialog";
 import { Table, Map, Upload, RefreshCw, Database, Info } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
 
 const PropertySearch = () => {
   const { toast } = useToast();
@@ -55,10 +56,14 @@ const PropertySearch = () => {
     mutationFn: async () => {
       const response = await fetch('/api/mls/synchronize', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
       
       if (!response.ok) {
-        throw new Error('Failed to synchronize MLS data');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to synchronize MLS data');
       }
       
       return await response.json();
@@ -68,7 +73,8 @@ const PropertySearch = () => {
         title: "MLS Sync Successful",
         description: data.message || `Successfully synchronized ${data.count || 'all'} properties from MLS`,
       });
-      // Refresh properties after sync
+      // Refresh MLS status and properties after sync
+      queryClient.invalidateQueries({ queryKey: ['/api/mls/status'] });
       refetch();
     },
     onError: (error) => {
@@ -170,20 +176,55 @@ const PropertySearch = () => {
                   <TooltipTrigger asChild>
                     <Button
                       variant={mlsStatus.status === 'active' ? "default" : "outline"}
-                      className={`${mlsStatus.status === 'active' ? "bg-green-600 hover:bg-green-700" : "bg-transparent"} mr-2`}
+                      className={`${
+                        mlsStatus.status === 'active' 
+                          ? "bg-green-600 hover:bg-green-700 text-white" 
+                          : mlsStatus.status === 'error'
+                          ? "border-red-500 text-red-500 hover:bg-red-50"
+                          : "border-yellow-500 text-yellow-500 hover:bg-yellow-50"
+                      } mr-2 relative`}
                       onClick={() => synchronizeMutation.mutate()}
                       disabled={synchronizeMutation.isPending}
                     >
+                      {mlsStatus.status === 'active' && (
+                        <span className="absolute top-0 right-0 flex h-3 w-3 -mt-1 -mr-1">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        </span>
+                      )}
                       <RefreshCw className={`h-4 w-4 mr-2 ${synchronizeMutation.isPending ? 'animate-spin' : ''}`} />
                       {synchronizeMutation.isPending ? 'Syncing...' : 'Sync MLS Data'}
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <div className="flex flex-col">
-                      <span>MLS Status: {mlsStatus.status === 'active' ? 'Active' : mlsStatus.status === 'error' ? 'Error' : 'Inactive'}</span>
+                    <div className="flex flex-col space-y-1 max-w-xs">
+                      <span className="font-medium">
+                        MLS Status: {' '}
+                        <span className={
+                          mlsStatus.status === 'active' ? 'text-green-500' : 
+                          mlsStatus.status === 'error' ? 'text-red-500' : 
+                          'text-yellow-500'
+                        }>
+                          {mlsStatus.status === 'active' ? 'Active' : 
+                           mlsStatus.status === 'error' ? 'Error' : 'Inactive'}
+                        </span>
+                      </span>
+                      
+                      {syncStatus?.propertiesCount !== undefined && (
+                        <span className="text-sm">
+                          MLS Properties: {syncStatus.propertiesCount}
+                        </span>
+                      )}
+                      
                       {mlsStatus.lastSync && (
                         <span className="text-xs text-gray-400">
                           Last synchronized: {mlsStatus.lastSync.toLocaleString()}
+                        </span>
+                      )}
+                      
+                      {syncStatus?.message && (
+                        <span className="text-xs text-gray-400">
+                          {syncStatus.message}
                         </span>
                       )}
                     </div>

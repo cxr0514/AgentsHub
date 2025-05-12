@@ -47,7 +47,7 @@ router.get('/status', async (req, res) => {
 router.post('/synchronize', async (req, res) => {
   try {
     // Check if user has permission to manage MLS integration
-    if (!req.isAuthenticated() || !hasPermission(req.user, Permission.MANAGE_MLS_INTEGRATION)) {
+    if (!req.session?.userId || !hasPermission(req.user, Permission.MANAGE_MLS_INTEGRATION)) {
       return res.status(403).json({
         error: 'You do not have permission to synchronize MLS data'
       });
