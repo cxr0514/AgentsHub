@@ -183,16 +183,16 @@ export default function MarketAnalysisPage() {
   };
 
   return (
-    <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-6">AI-Powered Market Analysis</h1>
-      <p className="text-muted-foreground mb-8">
+    <div className="py-10 bg-[#071224] -mx-4 -my-6 p-10 rounded-md min-h-screen text-white">
+      <h1 className="text-4xl font-bold mb-4">AI-Powered Market Analysis</h1>
+      <p className="text-lg text-gray-300 mb-10">
         Leverage advanced AI algorithms to analyze real estate markets, predict trends, and get personalized recommendations.
       </p>
       
-      <Card className="mb-8">
+      <Card className="mb-8 bg-[#0F1D32] border border-gray-700 text-white">
         <CardHeader>
-          <CardTitle>Location Selection</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-white">Location Selection</CardTitle>
+          <CardDescription className="text-gray-300">
             Select a location to analyze the real estate market
           </CardDescription>
         </CardHeader>
