@@ -421,15 +421,15 @@ export default function ReportsPage() {
                 })}
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-lg p-12 text-center">
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <FileText className="h-6 w-6 text-primary" />
+              <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-12 text-center text-white">
+                <div className="mx-auto w-12 h-12 rounded-full bg-[#FF7A00]/10 flex items-center justify-center mb-4">
+                  <FileText className="h-6 w-6 text-[#FF7A00]" />
                 </div>
                 <h3 className="text-lg font-medium mb-2">No reports yet</h3>
                 <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                   You haven't created any reports yet. Create your first report to analyze property data and generate insights.
                 </p>
-                <Button onClick={() => setIsCreatingReport(true)}>
+                <Button onClick={() => setIsCreatingReport(true)} className="bg-[#FF7A00]">
                   <Plus className="mr-2 h-4 w-4" />
                   Create Your First Report
                 </Button>
@@ -440,39 +440,39 @@ export default function ReportsPage() {
           <TabsContent value="templates">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {REPORT_TYPES.map((reportType) => (
-                <Card key={reportType.id} className="flex flex-col">
+                <Card key={reportType.id} className="flex flex-col bg-[#050e1d] border-[#0f1d31] text-white">
                   <CardHeader>
                     <div className="flex items-center">
-                      <div className="mr-3 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <reportType.icon className="h-5 w-5 text-primary" />
+                      <div className="mr-3 h-10 w-10 rounded-full bg-[#FF7A00]/10 flex items-center justify-center">
+                        <reportType.icon className="h-5 w-5 text-[#FF7A00]" />
                       </div>
                       <CardTitle className="text-lg">{reportType.name}</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent className="flex-1">
                     {reportType.id === "cma" && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-400">
                         Compare properties based on location, features, and market data to determine accurate property values.
                       </p>
                     )}
                     {reportType.id === "investment" && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-400">
                         Analyze potential returns, cash flow, cap rates, and other investment metrics for income properties.
                       </p>
                     )}
                     {reportType.id === "arv" && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-400">
                         Calculate the After Repair Value of a property based on comparable properties and planned renovations.
                       </p>
                     )}
                     {reportType.id === "mao" && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-400">
                         Determine Maximum Allowable Offer for investment properties based on ARV, repair costs, and desired profit.
                       </p>
                     )}
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full" onClick={() => {
+                    <Button className="w-full bg-[#FF7A00]" onClick={() => {
                       setSelectedReportType(reportType.id);
                       setIsCreatingReport(true);
                     }}>
@@ -483,10 +483,10 @@ export default function ReportsPage() {
               ))}
             </div>
             
-            <Card className="mt-8">
+            <Card className="mt-8 bg-[#050e1d] border-[#0f1d31] text-white">
               <CardHeader>
                 <CardTitle>Report Features</CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-400">
                   Our reports provide comprehensive analysis for real estate investors
                 </CardDescription>
               </CardHeader>
@@ -664,24 +664,24 @@ export default function ReportsPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* CMA Tool */}
-            <Card>
+            <Card className="bg-[#050e1d] border-[#0f1d31] text-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <BarChart className="h-5 w-5 mr-2 text-primary" />
+                  <BarChart className="h-5 w-5 mr-2 text-[#FF7A00]" />
                   CMA Tool
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-400">
                   Comparative Market Analysis
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Generate detailed CMA reports with property comparisons, 
                   market trends, and value estimations based on comparable properties.
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full" onClick={() => {
+                <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" onClick={() => {
                   setSelectedReportType("cma");
                   setIsCreatingReport(true);
                 }}>
@@ -691,24 +691,24 @@ export default function ReportsPage() {
             </Card>
             
             {/* Investment Analysis */}
-            <Card>
+            <Card className="bg-[#050e1d] border-[#0f1d31] text-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Calculator className="h-5 w-5 mr-2 text-primary" />
+                  <Calculator className="h-5 w-5 mr-2 text-[#FF7A00]" />
                   Investment Analysis
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-400">
                   Financial ROI Calculator
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Analyze potential investment returns, cash flow, cap rates, and ROI for properties. 
                   Includes both short-term and long-term projections.
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full" onClick={() => {
+                <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" onClick={() => {
                   setSelectedReportType("investment");
                   setIsCreatingReport(true);
                 }}>
@@ -718,24 +718,24 @@ export default function ReportsPage() {
             </Card>
             
             {/* Rehab Calculator */}
-            <Card>
+            <Card className="bg-[#050e1d] border-[#0f1d31] text-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Home className="h-5 w-5 mr-2 text-primary" />
+                  <Home className="h-5 w-5 mr-2 text-[#FF7A00]" />
                   Rehab Calculator
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-slate-400">
                   ARV & MAO Estimator
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Calculate After Repair Value and Maximum Allowable Offer for fix-and-flip 
                   properties based on comps, repair costs, and profit targets.
                 </p>
               </CardContent>
               <CardFooter>
-                <Button variant="outline" className="w-full" onClick={() => {
+                <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" onClick={() => {
                   setSelectedReportType("arv");
                   setIsCreatingReport(true);
                 }}>
