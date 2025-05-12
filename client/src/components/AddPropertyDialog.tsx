@@ -49,6 +49,8 @@ interface AddPropertyDialogProps {
 
 export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogProps) {
   const [open, setOpen] = useState(false);
+  const [createdPropertyId, setCreatedPropertyId] = useState<number | null>(null);
+  const [showImageUploader, setShowImageUploader] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
@@ -132,17 +134,17 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
         const newProperty = await response.json();
         console.log("Property added successfully:", newProperty);
         
+        // Store the property ID for image uploads
+        setCreatedPropertyId(newProperty.id);
+        setShowImageUploader(true);
+        
         toast({
           title: "Property Added",
-          description: `Successfully added property at ${newProperty.address}`,
+          description: `Property created successfully! You can now add images.`,
         });
         
         // Invalidate properties query to refetch data
         queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
-        
-        // Close dialog and reset form
-        setOpen(false);
-        form.reset();
       } catch (apiError) {
         console.error("API request error:", apiError);
         toast({
@@ -553,21 +555,62 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
               </div>
             </div>
             
-            <div className="flex justify-end space-x-3">
+            {!showImageUploader && (
+              <div className="flex justify-end space-x-3">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setOpen(false)}
+                  className="border-[#0f1d31] bg-[#071224] text-white hover:bg-[#0f1d31] hover:text-white"
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
+                  Add Property
+                </Button>
+              </div>
+            )}
+          </form>
+        </Form>
+        
+        {showImageUploader && createdPropertyId && (
+          <div className="mt-6 border-t border-[#0f1d31] pt-6">
+            <h3 className="text-lg font-medium text-white mb-4">Add Property Images</h3>
+            <ImageUpload 
+              propertyId={createdPropertyId} 
+              buttonText="Select Images"
+              onImagesUploaded={(images) => {
+                // After successful image upload, close the dialog
+                toast({
+                  title: "Upload Complete",
+                  description: `${images.length} images uploaded successfully.`,
+                });
+                setTimeout(() => {
+                  setOpen(false);
+                  form.reset();
+                  setShowImageUploader(false);
+                  setCreatedPropertyId(null);
+                }, 2000);
+              }}
+            />
+            <div className="flex justify-between mt-4">
               <Button 
                 type="button" 
                 variant="outline" 
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  // Skip image upload and finish
+                  setOpen(false);
+                  form.reset();
+                  setShowImageUploader(false);
+                  setCreatedPropertyId(null);
+                }}
                 className="border-[#0f1d31] bg-[#071224] text-white hover:bg-[#0f1d31] hover:text-white"
               >
-                Cancel
-              </Button>
-              <Button type="submit" className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
-                Add Property
+                Skip Image Upload
               </Button>
             </div>
-          </form>
-        </Form>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
