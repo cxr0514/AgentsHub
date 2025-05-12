@@ -94,40 +94,40 @@ export default function HomePage() {
       {/* Main content */}
       <main className="flex-1 p-6">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold">Welcome, {user?.fullName || user?.username}</h1>
-          <p className="text-muted-foreground">Here's an overview of your real estate toolkit</p>
+          <h1 className="text-3xl font-bold text-white">Welcome, {user?.fullName || user?.username}</h1>
+          <p className="text-slate-400">Here's an overview of your real estate toolkit</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <Building2 className="h-10 w-10 text-primary mb-4" />
-            <h2 className="text-xl font-bold mb-2">Property Comparison</h2>
-            <p className="text-muted-foreground mb-4">
+          <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-6 text-white">
+            <Building2 className="h-10 w-10 text-[#FF7A00] mb-4" />
+            <h2 className="text-xl font-bold mb-2 text-white">Property Comparison</h2>
+            <p className="text-slate-400 mb-4">
               Compare property data and analyze key metrics to make informed decisions.
             </p>
-            <Button variant="outline" className="w-full" asChild>
+            <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" asChild>
               <Link href="/properties">View Properties</Link>
             </Button>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-6">
-            <BarChart4 className="h-10 w-10 text-primary mb-4" />
-            <h2 className="text-xl font-bold mb-2">Market Analysis</h2>
-            <p className="text-muted-foreground mb-4">
+          <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-6 text-white">
+            <BarChart4 className="h-10 w-10 text-[#FF7A00] mb-4" />
+            <h2 className="text-xl font-bold mb-2 text-white">Market Analysis</h2>
+            <p className="text-slate-400 mb-4">
               Explore market trends, price data, and investment opportunities.
             </p>
-            <Button variant="outline" className="w-full" asChild>
+            <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" asChild>
               <Link href="/market-analysis">View Analysis</Link>
             </Button>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-6">
-            <ClipboardList className="h-10 w-10 text-primary mb-4" />
-            <h2 className="text-xl font-bold mb-2">Reports Generator</h2>
-            <p className="text-muted-foreground mb-4">
+          <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-6 text-white">
+            <ClipboardList className="h-10 w-10 text-[#FF7A00] mb-4" />
+            <h2 className="text-xl font-bold mb-2 text-white">Reports Generator</h2>
+            <p className="text-slate-400 mb-4">
               Create professional property reports with customizable templates.
             </p>
-            <Button variant="outline" className="w-full" asChild>
+            <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" asChild>
               <Link href="/reports">Generate Reports</Link>
             </Button>
           </div>
@@ -135,26 +135,26 @@ export default function HomePage() {
 
         <PermissionGuard permission={Permission.MANAGE_API_KEYS} fallback={null}>
           <div className="mt-10">
-            <h2 className="text-xl font-bold mb-4">Admin Tools</h2>
+            <h2 className="text-xl font-bold mb-4 text-white">Admin Tools</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-card border border-border rounded-lg p-6">
-                <Key className="h-10 w-10 text-primary mb-4" />
-                <h2 className="text-xl font-bold mb-2">API Key Management</h2>
-                <p className="text-muted-foreground mb-4">
+              <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-6 text-white">
+                <Key className="h-10 w-10 text-[#FF7A00] mb-4" />
+                <h2 className="text-xl font-bold mb-2 text-white">API Key Management</h2>
+                <p className="text-slate-400 mb-4">
                   Manage API keys for integrating with external data providers.
                 </p>
-                <Button variant="outline" className="w-full" asChild>
+                <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" asChild>
                   <Link href="/api-keys">Manage Keys</Link>
                 </Button>
               </div>
 
-              <div className="bg-card border border-border rounded-lg p-6">
-                <Settings className="h-10 w-10 text-primary mb-4" />
+              <div className="bg-[#050e1d] border border-[#0f1d31] rounded-lg p-6 text-white">
+                <Settings className="h-10 w-10 text-[#FF7A00] mb-4" />
                 <h2 className="text-xl font-bold mb-2">System Settings</h2>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-slate-400 mb-4">
                   Configure application settings and manage user accounts.
                 </p>
-                <Button variant="outline" className="w-full" asChild>
+                <Button variant="outline" className="w-full border-[#0f1d31] bg-[#050e1d] text-white hover:bg-[#071224] hover:text-[#FF7A00]" asChild>
                   <Link href="/settings">Manage Settings</Link>
                 </Button>
               </div>
