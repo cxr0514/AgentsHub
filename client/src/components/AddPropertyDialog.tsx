@@ -196,7 +196,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                     <FormItem>
                       <FormLabel className="text-slate-200">Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="123 Main St" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
+                        <Input placeholder="123 Main St" {...field} className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00] placeholder:text-slate-500" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
