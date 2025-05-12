@@ -674,56 +674,58 @@ export default function SearchPage() {
             </Card>
             
             {user && (
-              <Card>
+              <Card className="bg-[#050e1d] border-[#0f1d31] text-white">
                 <CardHeader>
-                  <CardTitle className="text-lg">Saved Searches</CardTitle>
-                  <CardDescription>Save and retrieve your searches</CardDescription>
+                  <CardTitle className="text-lg text-white">Saved Searches</CardTitle>
+                  <CardDescription className="text-slate-400">Save and retrieve your searches</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="saveSearchName">Save Current Search</Label>
+                    <Label htmlFor="saveSearchName" className="text-white">Save Current Search</Label>
                     <div className="flex space-x-2">
                       <Input
                         id="saveSearchName"
                         placeholder="Search Name"
                         value={saveSearchName}
                         onChange={(e) => setSaveSearchName(e.target.value)}
+                        className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-0 focus:ring-offset-0"
                       />
                       <Button 
                         size="icon" 
                         onClick={saveSearch}
                         disabled={saveSearchMutation.isPending}
+                        className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
                       >
                         <Save className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                   
-                  <Separator />
+                  <Separator className="bg-[#0f1d31]" />
                   
                   <div className="space-y-2">
-                    <Label>Your Saved Searches</Label>
+                    <Label className="text-white">Your Saved Searches</Label>
                     {isSavedSearchesLoading ? (
                       <div className="space-y-2">
-                        <Skeleton className="h-10 w-full" />
-                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full bg-[#071224]" />
+                        <Skeleton className="h-10 w-full bg-[#071224]" />
                       </div>
                     ) : savedSearches && savedSearches.length > 0 ? (
                       <div className="space-y-2">
                         {savedSearches.map((search: SavedSearch) => (
-                          <div key={search.id} className="flex items-center justify-between">
+                          <div key={search.id} className="flex items-center justify-between bg-[#071224] border border-[#0f1d31] rounded-md">
                             <Button 
                               variant="ghost" 
-                              className="justify-start p-2 h-auto w-full"
+                              className="justify-start p-2 h-auto w-full text-white hover:text-[#FF7A00] hover:bg-[#071224]"
                               onClick={() => loadSavedSearch(search)}
                             >
-                              <CheckCircle2 className="h-4 w-4 mr-2" />
+                              <CheckCircle2 className="h-4 w-4 mr-2 text-[#FF7A00]" />
                               <span className="truncate">{search.name}</span>
                             </Button>
                             <Button 
                               variant="ghost" 
                               size="icon"
-                              className="h-8 w-8"
+                              className="h-8 w-8 text-slate-400 hover:text-white hover:bg-red-900/20"
                               onClick={() => deleteSearchMutation.mutate(search.id)}
                               disabled={deleteSearchMutation.isPending}
                             >
@@ -733,7 +735,7 @@ export default function SearchPage() {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-slate-400">
                         You don't have any saved searches yet.
                       </p>
                     )}
