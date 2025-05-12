@@ -25,24 +25,24 @@ export default function HomePage() {
 
         <nav className="p-4 flex-1">
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground font-medium px-2 py-1.5">Main</p>
-            <Link href="/" className="flex items-center space-x-2 px-2 py-1.5 rounded-md bg-accent text-accent-foreground">
-              <Home className="h-4 w-4" />
+            <p className="text-sm text-slate-400 font-medium px-2 py-1.5">Main</p>
+            <Link href="/" className="flex items-center space-x-2 px-2 py-1.5 rounded-md bg-[#0f1d31] text-white">
+              <Home className="h-4 w-4 text-[#FF7A00]" />
               <span>Dashboard</span>
             </Link>
-            <Link href="/properties" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+            <Link href="/properties" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
               <Building2 className="h-4 w-4" />
               <span>Properties</span>
             </Link>
-            <Link href="/search" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+            <Link href="/search" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
               <Search className="h-4 w-4" />
               <span>Property Search</span>
             </Link>
-            <Link href="/market-analysis" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+            <Link href="/market-analysis" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
               <BarChart4 className="h-4 w-4" />
               <span>Market Analysis</span>
             </Link>
-            <Link href="/reports" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+            <Link href="/reports" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
               <ClipboardList className="h-4 w-4" />
               <span>Reports</span>
             </Link>
@@ -53,12 +53,12 @@ export default function HomePage() {
             fallback={null}
           >
             <div className="mt-6 space-y-1">
-              <p className="text-sm text-muted-foreground font-medium px-2 py-1.5">Administration</p>
-              <Link href="/settings" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+              <p className="text-sm text-slate-400 font-medium px-2 py-1.5">Administration</p>
+              <Link href="/settings" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
                 <Settings className="h-4 w-4" />
                 <span>Settings</span>
               </Link>
-              <Link href="/api-keys" className="flex items-center space-x-2 px-2 py-1.5 rounded-md hover:bg-accent hover:text-accent-foreground transition-colors">
+              <Link href="/api-keys" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
                 <Key className="h-4 w-4" />
                 <span>API Keys</span>
               </Link>
@@ -84,6 +84,7 @@ export default function HomePage() {
               size="icon"
               onClick={handleLogout}
               disabled={logoutMutation.isPending}
+              className="text-slate-400 hover:text-white hover:bg-[#0f1d31]"
             >
               <LogOut className="h-4 w-4" />
             </Button>
