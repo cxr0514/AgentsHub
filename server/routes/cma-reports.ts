@@ -6,8 +6,15 @@ import { storage } from '../storage';
 // Import jsPDF correctly
 import { jsPDF } from 'jspdf';
 // Need to add 'jspdf-autotable' for PDF table generation
+// Note: This import adds the autoTable method to the jsPDF prototype
 import 'jspdf-autotable';
 import { log } from '../vite';
+
+// Since TypeScript doesn't know about the autoTable method that's added by jspdf-autotable
+// Define a helper function to type cast and call autoTable
+function addAutoTable(doc: jsPDF, options: any) {
+  return (doc as any).autoTable(options);
+}
 
 /**
  * CMA Report Generation Routes
@@ -265,7 +272,7 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       ]);
       
       // Create comparison table
-      (doc as any).autoTable({
+      addAutoTable(doc, {
         head: tableHeader,
         body: tableData,
         startY: 40,
@@ -361,7 +368,7 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       ];
       
       // Create adjustment table
-      (doc as any).autoTable({
+      addAutoTable(doc, {
         head: adjustmentHeader,
         body: adjustmentRows,
         startY: 70,
