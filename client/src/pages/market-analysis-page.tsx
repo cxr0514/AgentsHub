@@ -204,9 +204,13 @@ export default function MarketAnalysisPage() {
                 name="city"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>City</FormLabel>
+                    <FormLabel className="text-white">City</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter city" {...field} />
+                      <Input 
+                        placeholder="Enter city" 
+                        {...field} 
+                        className="bg-[#162233] border-gray-700 text-white placeholder:text-gray-500"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -218,17 +222,17 @@ export default function MarketAnalysisPage() {
                 name="state"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>State</FormLabel>
+                    <FormLabel className="text-white">State</FormLabel>
                     <Select 
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
+                        <SelectTrigger className="bg-[#162233] border-gray-700 text-white">
+                          <SelectValue placeholder="Select state" className="text-gray-400" />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="bg-[#162233] border-gray-700 text-white">
                         <SelectItem value="AL">Alabama</SelectItem>
                         <SelectItem value="AK">Alaska</SelectItem>
                         <SelectItem value="AZ">Arizona</SelectItem>
@@ -291,9 +295,13 @@ export default function MarketAnalysisPage() {
                 name="zipCode"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>ZIP Code (Optional)</FormLabel>
+                    <FormLabel className="text-white">ZIP Code (Optional)</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter ZIP code" {...field} />
+                      <Input 
+                        placeholder="Enter ZIP code" 
+                        {...field} 
+                        className="bg-[#162233] border-gray-700 text-white placeholder:text-gray-500"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -301,7 +309,10 @@ export default function MarketAnalysisPage() {
               />
               
               <div className="flex items-end">
-                <Button type="submit" className="w-full md:w-auto">
+                <Button 
+                  type="submit" 
+                  className="w-full md:w-auto bg-[#FF7A00] hover:bg-[#E56C00] text-white"
+                >
                   Analyze Market
                 </Button>
               </div>
@@ -312,32 +323,32 @@ export default function MarketAnalysisPage() {
       
       {selectedLocation && (
         <Tabs defaultValue="predictions" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 mb-8">
-            <TabsTrigger value="predictions">Market Predictions</TabsTrigger>
-            <TabsTrigger value="report">Market Report</TabsTrigger>
-            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
-            <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
+          <TabsList className="grid grid-cols-4 mb-8 bg-[#0F1D32] p-1">
+            <TabsTrigger value="predictions" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Market Predictions</TabsTrigger>
+            <TabsTrigger value="report" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Market Report</TabsTrigger>
+            <TabsTrigger value="recommendations" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Recommendations</TabsTrigger>
+            <TabsTrigger value="anomalies" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">Anomaly Detection</TabsTrigger>
           </TabsList>
           
           <TabsContent value="predictions">
-            <Card>
+            <Card className="bg-[#0F1D32] border border-gray-700 text-white">
               <CardHeader>
-                <CardTitle>
+                <CardTitle className="text-white">
                   Market Predictions for {selectedLocation.city}, {selectedLocation.state}
                   {selectedLocation.zipCode && ` (${selectedLocation.zipCode})`}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-300">
                   AI-powered predictions based on historical market data
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {isPredictionsLoading ? (
-                  <div className="flex justify-center items-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <div className="flex justify-center items-center h-64 text-gray-300">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#FF7A00]" />
                     <span className="ml-2">Generating market predictions...</span>
                   </div>
                 ) : predictionsError ? (
-                  <div className="text-center py-8 text-destructive">
+                  <div className="text-center py-8 text-red-400">
                     <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Error Loading Predictions</h3>
                     <p>We encountered an error while generating market predictions.</p>
@@ -382,30 +393,30 @@ export default function MarketAnalysisPage() {
                           </CardContent>
                         </Card>
 
-                        <Card className="bg-muted/50">
+                        <Card className="bg-[#162233] border border-gray-700">
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-lg flex items-center">
-                              <Layers className="h-5 w-5 mr-2 text-blue-500" />
+                            <CardTitle className="text-lg flex items-center text-white">
+                              <Layers className="h-5 w-5 mr-2 text-blue-400" />
                               Inventory
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="text-2xl font-bold">
+                            <div className="text-2xl font-bold text-white">
                               {predictions.projections.oneMonth.inventory}
                             </div>
-                            <p className="text-sm text-muted-foreground">Expected active listings</p>
+                            <p className="text-sm text-gray-400">Expected active listings</p>
                             
                             <div className="mt-4">
-                              <p className="font-medium">Market Type:</p>
-                              <p className="text-lg">{predictions.marketOutlook}</p>
+                              <p className="font-medium text-white">Market Type:</p>
+                              <p className="text-lg text-[#FF7A00]">{predictions.marketOutlook}</p>
                             </div>
                           </CardContent>
                         </Card>
 
-                        <Card className="bg-muted/50">
+                        <Card className="bg-[#162233] border border-gray-700">
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-lg flex items-center">
-                              <Clock className="h-5 w-5 mr-2 text-amber-500" />
+                            <CardTitle className="text-lg flex items-center text-white">
+                              <Clock className="h-5 w-5 mr-2 text-amber-400" />
                               Days on Market
                             </CardTitle>
                           </CardHeader>
