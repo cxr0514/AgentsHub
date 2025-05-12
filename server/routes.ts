@@ -25,6 +25,7 @@ import { login, logout, register, getCurrentUser, updateUserProfile, changePassw
 import propertyRoutes from "./routes/properties";
 import mlsRoutes from "./routes/mls";
 import attomRoutes from "./routes/attom";
+import attomTestRoutes from "./routes/attom-test";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes

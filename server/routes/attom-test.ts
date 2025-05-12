@@ -1,10 +1,6 @@
 import express from "express";
-import { storage } from "../storage";
 import { PropertyFilters } from "../storage";
-import { hasPermission, Permission } from "../../shared/permissions";
 import { searchPropertiesViaAttom } from "../services/propertySearchService";
-import { requirePermission } from "../middleware/permissions";
-import { Property } from "../../shared/schema";
 
 const router = express.Router();
 
@@ -59,17 +55,17 @@ router.get("/health", async (req, res) => {
   }
 });
 
-// Search for properties using the ATTOM API (authenticated users only)
-router.get("/search", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
+// Test search endpoint (no authentication required for testing)
+router.get("/search", async (req, res) => {
   try {
+    // This endpoint can be used for testing the ATTOM API directly
+    console.log("ATTOM Test Search API called with params:", req.query);
     
     // Extract search parameters from query string
     const filters: PropertyFilters = {};
     
     // Location-based search parameters
     if (req.query.location) filters.location = req.query.location as string;
-    // Add city, state to filters (these are valid in PropertyFilters interface)
-    if (req.query.city) filters.location = `${req.query.city}, ${req.query.state || ''}`;
     if (req.query.state) filters.state = req.query.state as string;
     if (req.query.zipCode) filters.zipCode = req.query.zipCode as string;
     
@@ -99,99 +95,22 @@ router.get("/search", requirePermission(Permission.VIEW_PROPERTIES), async (req,
     
     // Property status
     if (req.query.status) filters.status = req.query.status as string;
-    if (req.query.statusList) {
-      if (Array.isArray(req.query.statusList)) {
-        filters.statusList = req.query.statusList as string[];
-      } else {
-        filters.statusList = [(req.query.statusList as string)];
-      }
-    }
     
-    console.log('ATTOM search request with filters:', filters);
-    
-    // If no search parameters are provided, return an error
+    // If no search parameters are provided, use default filters (Atlanta area)
     if (Object.keys(filters).length === 0) {
-      return res.status(400).json({ message: "At least one search parameter is required" });
+      filters.location = "Atlanta";
+      filters.state = "GA";
+      filters.propertyType = "Single Family";
     }
     
     // Perform the search via ATTOM API
     const properties = await searchPropertiesViaAttom(filters);
     
-    // Track search for analytics (in the background, don't wait for it)
-    if (req.user) {
-      const searchParameters = JSON.stringify(filters);
-      // You might want to save this search to the user's search history
-      // storage.createSavedSearch({ userId: req.user.id, parameters: searchParameters, name: "ATTOM Search" });
-    }
-    
     return res.json(properties);
   } catch (error) {
-    console.error("Error searching properties via ATTOM API:", error);
+    console.error("Error in ATTOM test search:", error);
     res.status(500).json({ 
       message: "Error searching properties", 
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
-  }
-});
-
-// Get property details using ATTOM API (authenticated users only)
-router.get("/property/:id", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
-  try {
-    
-    const propertyId = parseInt(req.params.id);
-    if (isNaN(propertyId)) {
-      return res.status(400).json({ message: "Invalid property ID" });
-    }
-    
-    // First check our database for the property
-    const property = await storage.getProperty(propertyId);
-    if (!property) {
-      return res.status(404).json({ message: "Property not found" });
-    }
-    
-    // Return with extended ATTOM data if available
-    if (property.externalId) {
-      // TODO: If needed, fetch additional ATTOM details using property.externalId
-      // For now, return the property from our database
-    }
-    
-    return res.json(property);
-  } catch (error) {
-    console.error("Error fetching property details:", error);
-    res.status(500).json({ 
-      message: "Error fetching property details", 
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
-  }
-});
-
-// Get market trends for a specific location using ATTOM API (authenticated users only)
-router.get("/market-trends", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
-  try {
-    
-    // Extract location parameters
-    const { city, state, zipCode } = req.query;
-    
-    if (!city || !state) {
-      return res.status(400).json({ message: "City and state are required parameters" });
-    }
-    
-    // Get market data from our database (which is synced with ATTOM API)
-    const marketData = await storage.getMarketDataByLocation(
-      city as string, 
-      state as string, 
-      zipCode as string
-    );
-    
-    if (!marketData || marketData.length === 0) {
-      return res.status(404).json({ message: "No market data found for this location" });
-    }
-    
-    return res.json(marketData);
-  } catch (error) {
-    console.error("Error fetching market trends:", error);
-    res.status(500).json({ 
-      message: "Error fetching market trends", 
       error: error instanceof Error ? error.message : "Unknown error"
     });
   }

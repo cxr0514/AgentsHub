@@ -81,8 +81,8 @@ const AttomPropertySearch = ({ onResultsLoaded }: AttomPropertySearchProps) => {
       
       console.log(`Searching properties with params: ${queryParams.toString()}`);
       
-      // Make API request to our backend
-      const response = await fetch(`/api/properties/search?${queryParams.toString()}`);
+      // Make API request to our backend ATTOM endpoint
+      const response = await fetch(`/api/attom/search?${queryParams.toString()}`);
       
       if (!response.ok) {
         const errorData = await response.json();
