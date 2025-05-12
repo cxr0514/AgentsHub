@@ -533,28 +533,28 @@ export default function PropertiesPage() {
                   </div>
                   
                   <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div className="flex flex-col items-center p-2 bg-muted/50 rounded-md">
-                      <div className="flex items-center gap-1 text-muted-foreground mb-1">
-                        <Bed className="h-3.5 w-3.5" />
+                    <div className="flex flex-col items-center p-2 bg-[#071224] border border-[#0f1d31] rounded-md">
+                      <div className="flex items-center gap-1 text-slate-400 mb-1">
+                        <Bed className="h-3.5 w-3.5 text-[#FF7A00]" />
                         <span>Beds</span>
                       </div>
-                      <span className="font-medium">{property.bedrooms}</span>
+                      <span className="font-medium text-white">{property.bedrooms}</span>
                     </div>
                     
-                    <div className="flex flex-col items-center p-2 bg-muted/50 rounded-md">
-                      <div className="flex items-center gap-1 text-muted-foreground mb-1">
-                        <Bath className="h-3.5 w-3.5" />
+                    <div className="flex flex-col items-center p-2 bg-[#071224] border border-[#0f1d31] rounded-md">
+                      <div className="flex items-center gap-1 text-slate-400 mb-1">
+                        <Bath className="h-3.5 w-3.5 text-[#FF7A00]" />
                         <span>Baths</span>
                       </div>
-                      <span className="font-medium">{property.bathrooms}</span>
+                      <span className="font-medium text-white">{property.bathrooms}</span>
                     </div>
                     
-                    <div className="flex flex-col items-center p-2 bg-muted/50 rounded-md">
-                      <div className="flex items-center gap-1 text-muted-foreground mb-1">
-                        <Ruler className="h-3.5 w-3.5" />
+                    <div className="flex flex-col items-center p-2 bg-[#071224] border border-[#0f1d31] rounded-md">
+                      <div className="flex items-center gap-1 text-slate-400 mb-1">
+                        <Ruler className="h-3.5 w-3.5 text-[#FF7A00]" />
                         <span>Sq Ft</span>
                       </div>
-                      <span className="font-medium">
+                      <span className="font-medium text-white">
                         {parseInt(property.squareFeet).toLocaleString()}
                       </span>
                     </div>
@@ -604,33 +604,33 @@ export default function PropertiesPage() {
                     
                     <div className="flex flex-wrap gap-x-6 gap-y-2 my-4">
                       <div className="flex items-center gap-1">
-                        <Bed className="h-4 w-4 text-muted-foreground" />
-                        <span>{property.bedrooms} Beds</span>
+                        <Bed className="h-4 w-4 text-[#FF7A00]" />
+                        <span className="text-white">{property.bedrooms} Beds</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Bath className="h-4 w-4 text-muted-foreground" />
-                        <span>{property.bathrooms} Baths</span>
+                        <Bath className="h-4 w-4 text-[#FF7A00]" />
+                        <span className="text-white">{property.bathrooms} Baths</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Ruler className="h-4 w-4 text-muted-foreground" />
-                        <span>{parseInt(property.squareFeet).toLocaleString()} sq ft</span>
+                        <Ruler className="h-4 w-4 text-[#FF7A00]" />
+                        <span className="text-white">{parseInt(property.squareFeet).toLocaleString()} sq ft</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Home className="h-4 w-4 text-muted-foreground" />
-                        <span>{property.propertyType}</span>
+                        <Home className="h-4 w-4 text-[#FF7A00]" />
+                        <span className="text-white">{property.propertyType}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>Built {property.yearBuilt}</span>
+                        <Calendar className="h-4 w-4 text-[#FF7A00]" />
+                        <span className="text-white">Built {property.yearBuilt}</span>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1 text-muted-foreground">
-                        <Clock className="h-4 w-4" />
+                      <div className="flex items-center gap-1 text-slate-400">
+                        <Clock className="h-4 w-4 text-[#FF7A00]" />
                         <span>{formatDate(property.createdAt)}</span>
                       </div>
-                      <Button asChild className="bg-[#FF7A00] hover:bg-[#FF9832]">
+                      <Button asChild className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
                         <Link href={`/properties/${property.id}`}>View Details</Link>
                       </Button>
                     </div>
