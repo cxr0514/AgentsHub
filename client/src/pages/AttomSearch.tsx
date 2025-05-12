@@ -9,7 +9,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import AttomPropertySearch from "@/components/AttomPropertySearch";
 import PropertyTable from "@/components/PropertyTable";
 import MapSearch from "@/components/MapSearch";
-import { Table, Map, Building, Info, ExternalLink } from "lucide-react";
+import { Table, Map, Building, Info, ExternalLink, HelpCircle } from "lucide-react";
+import { Link } from "wouter";
 
 const AttomSearch = () => {
   const [searchResults, setSearchResults] = useState<Property[]>([]);
@@ -39,7 +40,19 @@ const AttomSearch = () => {
             </p>
           </div>
           
-          <div>
+          <div className="flex items-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-gray-500 hover:text-gray-700 mr-2"
+              asChild
+            >
+              <Link href="/attom-search-help">
+                <HelpCircle className="h-4 w-4 mr-1" />
+                Help
+              </Link>
+            </Button>
+            
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -47,7 +60,7 @@ const AttomSearch = () => {
                     href="https://api.gateway.attomdata.com/propertyapi/swagger/index.html" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="ml-2 text-xs text-gray-500 hover:text-gray-700 flex items-center"
+                    className="text-xs text-gray-500 hover:text-gray-700 flex items-center"
                   >
                     <Info className="h-4 w-4 mr-1" />
                     <ExternalLink className="h-3 w-3" />

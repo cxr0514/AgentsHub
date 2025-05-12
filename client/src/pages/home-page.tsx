@@ -38,6 +38,11 @@ export default function HomePage() {
               <Search className="h-4 w-4" />
               <span>Property Search</span>
             </Link>
+            <Link href="/attom-search" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
+              <Search className="h-4 w-4 text-[#FF7A00]" />
+              <span>ATTOM Search</span>
+              <span className="ml-auto bg-[#FF7A00] text-white text-[10px] px-1.5 py-0.5 rounded-full">New</span>
+            </Link>
             <Link href="/market-analysis" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
               <BarChart4 className="h-4 w-4" />
               <span>Market Analysis</span>

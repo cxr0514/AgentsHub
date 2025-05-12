@@ -45,6 +45,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register ATTOM routes for market data
   apiRouter.use("/attom", attomRoutes);
   
+  // Register ATTOM test routes for development (no authentication required)
+  if (process.env.NODE_ENV !== 'production') {
+    apiRouter.use("/attom-test", attomTestRoutes);
+  }
+  
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {
     try {

@@ -13,6 +13,7 @@ import ApiKeyManagement from "@/pages/api-key-management";
 import PropertiesPage from "@/pages/properties-page";
 import SearchPage from "@/pages/search-page";
 import AttomSearch from "@/pages/AttomSearch";
+import AttomSearchHelp from "@/pages/attom-search-help";
 import MarketAnalysisPage from "@/pages/market-analysis-page";
 import PropertyComparisonPage from "@/pages/property-comparison-page";
 import ReportsPage from "@/pages/reports-page";
@@ -26,6 +27,7 @@ function Router() {
       <ProtectedRoute path="/properties" component={PropertiesPage} />
       <ProtectedRoute path="/search" component={SearchPage} />
       <ProtectedRoute path="/attom-search" component={AttomSearch} />
+      <ProtectedRoute path="/attom-search-help" component={AttomSearchHelp} />
       <ProtectedRoute path="/market-analysis" component={MarketAnalysisPage} />
       <ProtectedRoute path="/property-comparison" component={PropertyComparisonPage} />
       <ProtectedRoute path="/reports" component={ReportsPage} />
