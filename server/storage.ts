@@ -74,7 +74,7 @@ export interface PropertyFilters {
   maxSqft?: number;
   status?: string; // Active, Pending, Sold
   statusList?: string[]; // Multiple statuses
-  yearBuilt?: number;
+  yearBuilt?: number | string; // Can be a number or special string like 'any_year'
   zipCode?: string;
   radius?: number; // Miles radius for location search
   lat?: number; // Latitude for radius search
@@ -815,7 +815,12 @@ export class DatabaseStorage implements IStorage {
     // Year built filtering
     if (filters.yearBuilt && filters.yearBuilt !== 'any_year') {
       // Only apply the filter if it's not "any_year"
-      conditions.push(eq(properties.yearBuilt, filters.yearBuilt));
+      // Handle yearBuilt as either string or number
+      const yearBuiltValue = 
+        typeof filters.yearBuilt === 'string' && !isNaN(parseInt(filters.yearBuilt)) 
+          ? parseInt(filters.yearBuilt) 
+          : filters.yearBuilt;
+      conditions.push(eq(properties.yearBuilt, yearBuiltValue));
     }
     
     // Basement filtering

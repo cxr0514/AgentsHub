@@ -92,9 +92,13 @@ export async function searchPropertiesViaAttom(filters: PropertyFilters): Promis
       params.append('minBaths', filters.minBaths.toString());
     }
     // Add year built filter if provided and not 'any_year'
-    if (filters.yearBuilt && filters.yearBuilt !== 'any_year') {
-      params.append('minYearBuilt', filters.yearBuilt.toString());
-      params.append('maxYearBuilt', filters.yearBuilt.toString());
+    if (filters.yearBuilt) {
+      // Ensure we're comparing string to string for the 'any_year' check
+      const yearBuiltStr = String(filters.yearBuilt);
+      if (yearBuiltStr !== 'any_year') {
+        params.append('minYearBuilt', yearBuiltStr);
+        params.append('maxYearBuilt', yearBuiltStr);
+      }
     }
     if (filters.propertyType) {
       // Map our property types to ATTOM property types

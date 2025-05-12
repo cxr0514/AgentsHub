@@ -44,6 +44,7 @@ const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
   const [radius, setRadius] = useState<string>("5");
   const [minSqft, setMinSqft] = useState<string>("");
   const [maxSqft, setMaxSqft] = useState<string>("");
+  const [yearBuilt, setYearBuilt] = useState<string>("any_year");
   const [hasBasement, setHasBasement] = useState<boolean>(false);
   const [hasGarage, setHasGarage] = useState<boolean>(false);
   const [minGarageSpaces, setMinGarageSpaces] = useState<string>("0");
@@ -79,6 +80,8 @@ const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
       if (radius) filters.radius = radius;
       if (minSqft) filters.minSqft = minSqft;
       if (maxSqft) filters.maxSqft = maxSqft;
+      // Add yearBuilt filter (will be "any_year" by default)
+      filters.yearBuilt = yearBuilt;
       if (hasBasement) filters.hasBasement = hasBasement;
       if (hasGarage) filters.hasGarage = hasGarage;
       if (parseInt(minGarageSpaces) > 0) filters.minGarageSpaces = parseInt(minGarageSpaces);
@@ -103,6 +106,7 @@ const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
     setRadius("5");
     setMinSqft("");
     setMaxSqft("");
+    setYearBuilt("any_year");
     setHasBasement(false);
     setHasGarage(false);
     setMinGarageSpaces("0");
@@ -279,6 +283,30 @@ const SearchFilters = ({ onSearch }: SearchFiltersProps) => {
                   </div>
                 ))}
               </div>
+            </div>
+            
+            {/* Year Built Filter */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Year Built</label>
+              <Select value={yearBuilt} onValueChange={setYearBuilt}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select year built" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any_year">Any Year</SelectItem>
+                  <SelectItem value="2020">2020 or newer</SelectItem>
+                  <SelectItem value="2010">2010 or newer</SelectItem>
+                  <SelectItem value="2000">2000 or newer</SelectItem>
+                  <SelectItem value="1990">1990 or newer</SelectItem>
+                  <SelectItem value="1980">1980 or newer</SelectItem>
+                  <SelectItem value="1970">1970 or newer</SelectItem>
+                  <SelectItem value="1960">1960 or newer</SelectItem>
+                  <SelectItem value="1950">1950 or newer</SelectItem>
+                  <SelectItem value="1940">1940 or newer</SelectItem>
+                  <SelectItem value="1930">1930 or newer</SelectItem>
+                  <SelectItem value="1920">1920 or newer</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             {/* Additional Filters */}
