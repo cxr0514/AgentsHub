@@ -453,21 +453,18 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
           // The error shows "Invalid Parameter(s) in Request - STARTSALEDATE,ENDSALEDATE,SALETYPE"
           // Let's fix the parameters according to the actual API requirements
           
-          // Use geoid as the primary identifier - this is a required parameter
-          // For testing, use a well-known Atlanta area geoid
-          queryParams.append("geoid", "06037"); // Los Angeles County as example
+          // Instead of using geoid which requires specific county codes,
+          // Let's use address1 and address2 which are more universally applicable
+          queryParams.append("address1", city);
+          queryParams.append("address2", state);
           
           // Add minimum and maximum sale amounts - required parameters
           queryParams.append("minsaleamt", "100000");
           queryParams.append("maxsaleamt", "10000000");
           
-          // Use postalcode if available (optional)
+          // Add postal code if available (as an additional parameter)
           if (zipCode) {
             queryParams.append("postalcode", zipCode);
-          } else {
-            // City/state
-            queryParams.append("address1", city);
-            queryParams.append("address2", state);
           }
           
           // Add proper propertyType (required)

@@ -55,9 +55,28 @@ export async function searchPropertiesViaAttom(filters: PropertyFilters): Promis
     
     // Apply filters to query parameters
     if (filters.location) {
-      // If we have a specific location, use address search
-      endpoint = SEARCH_ENDPOINTS.ADDRESS_SEARCH;
-      params.append('address', filters.location);
+      // Check if location might be a zip code
+      if (filters.location.match(/^\d{5}$/)) {
+        // If location is a 5-digit zip code
+        endpoint = SEARCH_ENDPOINTS.ADDRESS_SEARCH;
+        params.append('postalcode', filters.location);
+      } else {
+        // If location is a city or address
+        endpoint = SEARCH_ENDPOINTS.ADDRESS_SEARCH;
+        
+        // If location is likely a full address, use address parameter
+        if (filters.location.includes(' ') && /\d/.test(filters.location)) {
+          params.append('address1', filters.location);
+        } else {
+          // Otherwise treat as city
+          params.append('address1', filters.location);
+        }
+        
+        // Add state if available
+        if (filters.state) {
+          params.append('address2', filters.state);
+        }
+      }
     } else if (filters.lat && filters.lng && filters.radius) {
       // If we have lat/lng and radius, use geo search
       endpoint = SEARCH_ENDPOINTS.GEO_SEARCH;
