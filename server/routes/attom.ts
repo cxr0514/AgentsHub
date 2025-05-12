@@ -35,6 +35,17 @@ router.get("/property-details", requirePermission(Permission.VIEW_PROPERTIES), a
       zipCode ? String(zipCode) : ""
     );
     
+    // If the result contains an error property, it's a fallback response
+    if (result.error) {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.message || "Used fallback data due to API error",
+        error: result.error
+      });
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching property details:", error);
@@ -64,6 +75,17 @@ router.get("/property-history", requirePermission(Permission.VIEW_PROPERTIES), a
       zipCode ? String(zipCode) : ""
     );
     
+    // If the result contains an error property, it's a fallback response
+    if (result.error) {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.message || "Used fallback data due to API error",
+        error: result.error
+      });
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching property sale history:", error);
@@ -91,6 +113,17 @@ router.get("/market-statistics", requirePermission(Permission.VIEW_PROPERTIES), 
       String(state),
       zipCode ? String(zipCode) : undefined
     );
+    
+    // If the result contains an error property, it's a fallback response
+    if (result.error || result.isFallback) {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.message || "Used fallback data due to API error",
+        error: result.error
+      });
+    }
     
     res.json({ success: true, data: result });
   } catch (error) {
@@ -120,6 +153,16 @@ router.post("/update-market-data", requirePermission(Permission.MANAGE_MLS_INTEG
       zipCode ? String(zipCode) : undefined
     );
     
+    // Check if the result contains a source indicating it's fallback data
+    if (result.source === "fallback" || result.source === "fallback_error") {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.error ? `Error: ${result.error}` : "Used fallback data due to API limitations"
+      });
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("Error updating market data:", error);
@@ -143,6 +186,24 @@ router.post("/sync-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRA
     }
     
     const result = await syncMarketData(locations);
+    
+    // Check if any of the results contain fallback data
+    const hasFallbacks = result.some(item => 
+      item.source === "fallback" || item.source === "fallback_error" || item.error
+    );
+    
+    if (hasFallbacks) {
+      // Count successes and failures
+      const successes = result.filter(item => item.success && !item.error && item.source !== "fallback_error").length;
+      const failures = result.length - successes;
+      
+      return res.json({
+        success: true,
+        data: result,
+        partialFallback: true,
+        message: `Synced ${result.length} locations. ${successes} succeeded with real data, ${failures} used fallback data.`
+      });
+    }
     
     res.json({ success: true, data: result });
   } catch (error) {
