@@ -102,20 +102,21 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <ul className="space-y-1 px-2">
                       {menuItems.map((item) => (
                         <li key={item.path}>
-                          <Link href={item.path}>
-                            <a
-                              className={cn(
-                                "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                                location === item.path 
-                                  ? "bg-white/10 text-white" 
-                                  : "hover:bg-white/5 text-white/70 hover:text-white"
-                              )}
-                              onClick={() => setOpen(false)}
-                            >
-                              <item.icon className="h-5 w-5" />
-                              <span>{item.label}</span>
-                            </a>
-                          </Link>
+                          <div
+                            className={cn(
+                              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer",
+                              location === item.path 
+                                ? "bg-white/10 text-white" 
+                                : "hover:bg-white/5 text-white/70 hover:text-white"
+                            )}
+                            onClick={() => {
+                              setOpen(false);
+                              window.location.href = item.path;
+                            }}
+                          >
+                            <item.icon className="h-5 w-5" />
+                            <span>{item.label}</span>
+                          </div>
                         </li>
                       ))}
                     </ul>
