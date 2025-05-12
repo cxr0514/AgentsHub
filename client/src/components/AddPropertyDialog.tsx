@@ -477,6 +477,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                         <FormControl>
                           <Switch
                             checked={field.value}
+                            className="data-[state=checked]:bg-[#FF7A00]"
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
