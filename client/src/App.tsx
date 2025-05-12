@@ -47,9 +47,9 @@ function Router() {
       <ProtectedRoute path="/reports" component={ReportsPage} />
       <ProtectedRoute path="/financial-calculators" component={FinancialCalculatorsPage} />
       <ProtectedRoute path="/settings" component={SettingsPage} />
-      <ProtectedRoute path="/api-keys" component={ApiKeyManagement} />
+      <ProtectedRoute path="/settings/api-keys" component={ApiKeyManagement} />
       <ProtectedRoute path="/shared-properties" component={SharedPropertiesPage} />
-      <ProtectedRoute path="/collaboration/teams" component={CollaborationTeamsPage} />
+      <ProtectedRoute path="/collaboration-teams" component={CollaborationTeamsPage} />
       <Route path="/shared/:token" component={SharedPropertyView} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />

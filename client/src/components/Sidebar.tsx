@@ -17,7 +17,7 @@ const Sidebar = () => {
   
   const collaborationItems = [
     { icon: <Share2 className="h-5 w-5" />, label: "Shared Properties", path: "/shared-properties" },
-    { icon: <Users className="h-5 w-5" />, label: "Teams", path: "/collaboration/teams" },
+    { icon: <Users className="h-5 w-5" />, label: "Teams", path: "/collaboration-teams" },
   ];
   
   const settingsItems = [
