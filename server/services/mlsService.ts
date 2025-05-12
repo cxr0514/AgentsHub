@@ -38,11 +38,13 @@ interface MLSProperty {
 // Config object for MLS API settings
 const MLS_CONFIG = {
   API_KEY: process.env.MLS_API_KEY || '',
-  API_ENDPOINT: process.env.MLS_API_ENDPOINT || 'https://api.mlsdatasource.com/v1',
+  // We need to fix the endpoint to use the correct Datafiniti API structure
+  // Current endpoint is set to /account, but we need the base URL
+  API_ENDPOINT: 'https://api.datafiniti.co/v4',
   CACHE_DURATION: 60 * 60 * 1000, // 1 hour in milliseconds
 };
 
-// Get actual API endpoint without trailing slash
+// Ensure we have the correct endpoint
 const normalizedEndpoint = MLS_CONFIG.API_ENDPOINT.endsWith('/') 
   ? MLS_CONFIG.API_ENDPOINT.slice(0, -1) 
   : MLS_CONFIG.API_ENDPOINT;
@@ -172,7 +174,9 @@ async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLS
     
     console.log('Sending query to Datafiniti API:', JSON.stringify(requestData));
     
-    const response = await fetch(`${normalizedEndpoint}/properties/search`, {
+    // Based on our tests, the correct Datafiniti endpoint structure is: /property/search
+    // The account credentials seem to be valid as we can retrieve account info
+    const response = await fetch(`${normalizedEndpoint}/property/search`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
