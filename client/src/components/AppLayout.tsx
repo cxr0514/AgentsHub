@@ -16,7 +16,8 @@ import {
   Sparkles,
   Brain,
   Map,
-  Calculator
+  Calculator,
+  FileSpreadsheet
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,6 +54,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { icon: LineChart, label: 'Market Analysis', path: '/market-analysis' },
     { icon: Map, label: 'Map Visualization', path: '/map-visualization' },
     { icon: Brain, label: 'AI Market Analysis', path: '/ai-market-analysis' },
+    { icon: FileSpreadsheet, label: 'Property Analyzer', path: '/property-analyzer' },
     { icon: BarChart2, label: 'Compare Properties', path: '/property-comparison' },
     { icon: Calculator, label: 'Calculators', path: '/financial-calculators' },
     { icon: FileText, label: 'Reports', path: '/reports' },
