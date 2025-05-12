@@ -653,7 +653,10 @@ export default function PropertiesPage() {
                       e.preventDefault();
                       setPage(p => Math.max(1, p - 1));
                     }}
-                    className={page === 1 ? "pointer-events-none opacity-50" : ""}
+                    className={page === 1 
+                      ? "pointer-events-none opacity-50 bg-[#071224] text-slate-600 border-[#0f1d31]" 
+                      : "bg-[#071224] text-white hover:text-[#FF7A00] border-[#0f1d31] hover:border-[#FF7A00]"
+                    }
                   />
                 </PaginationItem>
                 
@@ -666,6 +669,7 @@ export default function PropertiesPage() {
                         e.preventDefault();
                         setPage(pageNum);
                       }}
+                      className={page === pageNum ? 'bg-[#FF7A00] text-white border-[#FF7A00] hover:bg-[#FF7A00]/90' : 'bg-[#071224] text-white border-[#0f1d31] hover:border-[#FF7A00] hover:text-[#FF7A00]'}
                     >
                       {pageNum}
                     </PaginationLink>
@@ -679,7 +683,10 @@ export default function PropertiesPage() {
                       e.preventDefault();
                       setPage(p => Math.min(totalPages, p + 1));
                     }}
-                    className={page === totalPages ? "pointer-events-none opacity-50" : ""}
+                    className={page === totalPages 
+                      ? "pointer-events-none opacity-50 bg-[#071224] text-slate-600 border-[#0f1d31]" 
+                      : "bg-[#071224] text-white hover:text-[#FF7A00] border-[#0f1d31] hover:border-[#FF7A00]"
+                    }
                   />
                 </PaginationItem>
               </PaginationContent>
