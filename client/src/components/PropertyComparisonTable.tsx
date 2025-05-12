@@ -65,7 +65,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="text-white">
             <TableHeader>
               <TableRow className="bg-slate-800 border-slate-700">
                 <TableHead className="w-[200px] font-bold text-white">Feature</TableHead>
@@ -119,10 +119,10 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                     <span 
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
                         property.status === 'Active' 
-                          ? 'bg-green-100 text-green-800' 
+                          ? 'bg-green-900 text-green-300' 
                           : property.status === 'Pending' 
-                          ? 'bg-amber-100 text-amber-800' 
-                          : 'bg-blue-100 text-blue-800'
+                          ? 'bg-amber-900 text-amber-300' 
+                          : 'bg-blue-900 text-blue-300'
                       }`}
                     >
                       {property.status}
@@ -133,19 +133,19 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
 
               {/* Key Stats */}
               <TableRow>
-                <TableCell className="font-medium">Bedrooms</TableCell>
+                <TableCell className="font-medium text-white/90">Bedrooms</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-bedrooms`}>{property.bedrooms}</TableCell>
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Bathrooms</TableCell>
+                <TableCell className="font-medium text-white/90">Bathrooms</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-bathrooms`}>{property.bathrooms}</TableCell>
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Square Feet</TableCell>
+                <TableCell className="font-medium text-white/90">Square Feet</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-sqft`}>
                     {formatNumber(Number(property.squareFeet))}
@@ -153,7 +153,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Year Built</TableCell>
+                <TableCell className="font-medium text-white/90">Year Built</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-year`}>
                     {property.yearBuilt || 'N/A'}
@@ -163,7 +163,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
 
               {/* Advanced Metrics */}
               <TableRow>
-                <TableCell className="font-medium">Price/SqFt</TableCell>
+                <TableCell className="font-medium text-white/90">Price/SqFt</TableCell>
                 {properties.map((property) => {
                   const stats = calculatePropertyStats(property);
                   return (
@@ -174,7 +174,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 })}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Price/Bedroom</TableCell>
+                <TableCell className="font-medium text-white/90">Price/Bedroom</TableCell>
                 {properties.map((property) => {
                   const stats = calculatePropertyStats(property);
                   return (
@@ -185,7 +185,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 })}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Days on Market</TableCell>
+                <TableCell className="font-medium text-white/90">Days on Market</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-dom`}>
                     {property.daysOnMarket || 'N/A'}
@@ -195,7 +195,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
 
               {/* Features */}
               <TableRow>
-                <TableCell className="font-medium">Basement</TableCell>
+                <TableCell className="font-medium text-white/90">Basement</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-basement`}>
                     {property.hasBasement ? 'Yes' : 'No'}
@@ -203,7 +203,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Garage</TableCell>
+                <TableCell className="font-medium text-white/90">Garage</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-garage`}>
                     {property.hasGarage ? `Yes (${property.garageSpaces || 1} spaces)` : 'No'}
@@ -211,7 +211,7 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                 ))}
               </TableRow>
               <TableRow>
-                <TableCell className="font-medium">Lot Size</TableCell>
+                <TableCell className="font-medium text-white/90">Lot Size</TableCell>
                 {properties.map((property) => (
                   <TableCell key={`${property.id}-lot`}>
                     {property.lotSize ? `${property.lotSize} acres` : 'N/A'}
