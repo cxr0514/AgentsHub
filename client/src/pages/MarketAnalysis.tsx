@@ -81,17 +81,17 @@ const MarketAnalysis = () => {
         <meta name="description" content="Analyze real estate market trends, inventory levels, and pricing data to make informed property decisions." />
       </Helmet>
       
-      <div className="text-white">
+      <div className="text-white bg-[#071224] -mx-4 -my-6 p-10 rounded-md min-h-screen">
         <h1 className="text-4xl font-bold mb-4">AI-Powered Market Analysis</h1>
         <p className="text-lg text-gray-300 mb-10">
           Leverage advanced AI algorithms to analyze real estate markets, predict trends, and get personalized
           recommendations.
         </p>
         
-        <Card className="bg-white rounded-lg shadow-md p-8 mb-10">
+        <Card className="bg-[#0F1D32] rounded-lg shadow-md p-8 mb-10 border border-gray-700">
           <CardContent className="p-0">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Location Selection</h2>
-            <p className="text-gray-600 mb-6">Select a location to analyze the real estate market</p>
+            <h2 className="text-2xl font-semibold text-white mb-4">Location Selection</h2>
+            <p className="text-gray-300 mb-6">Select a location to analyze the real estate market</p>
             
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-0 md:grid md:grid-cols-4 md:gap-4 items-end">
@@ -101,9 +101,9 @@ const MarketAnalysis = () => {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">City</FormLabel>
+                        <FormLabel className="text-gray-200">City</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter city" {...field} className="border-gray-300" />
+                          <Input placeholder="Enter city" {...field} className="border-gray-600 bg-[#172334] text-white" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -117,17 +117,17 @@ const MarketAnalysis = () => {
                     name="state"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">State</FormLabel>
+                        <FormLabel className="text-gray-200">State</FormLabel>
                         <Select 
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="border-gray-300">
+                            <SelectTrigger className="border-gray-600 bg-[#172334] text-white">
                               <SelectValue placeholder="Select state" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="bg-[#172334] text-white border-gray-600">
                             <SelectItem value="AL">Alabama</SelectItem>
                             <SelectItem value="AK">Alaska</SelectItem>
                             <SelectItem value="AZ">Arizona</SelectItem>
@@ -192,9 +192,9 @@ const MarketAnalysis = () => {
                     name="zipCode"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700">ZIP Code (Optional)</FormLabel>
+                        <FormLabel className="text-gray-200">ZIP Code (Optional)</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter ZIP code" {...field} className="border-gray-300" />
+                          <Input placeholder="Enter ZIP code" {...field} className="border-gray-600 bg-[#172334] text-white" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
