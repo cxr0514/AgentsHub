@@ -89,7 +89,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             {/* Mobile Menu Trigger */}
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="text-[#FF7A00]">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -104,10 +104,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         <li key={item.path}>
                           <div
                             className={cn(
-                              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors cursor-pointer",
+                              "flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer",
                               location === item.path 
                                 ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
-                                : "hover:bg-white/5 text-white/80 hover:text-white"
+                                : "text-white/80"
                             )}
                             onClick={() => {
                               setOpen(false);
@@ -148,10 +148,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <div
                 key={item.path}
                 className={cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer",
+                  "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium cursor-pointer",
                   location === item.path 
                     ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
-                    : "hover:bg-white/5 text-white/80 hover:text-white"
+                    : "text-white/80"
                 )}
                 onClick={() => window.location.href = item.path}
               >
@@ -164,7 +164,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2">
+              <Button variant="ghost" className="flex items-center gap-2 text-white">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#FF7A00] to-[#FF9832] flex items-center justify-center">
                   <span className="text-xs font-semibold text-white">
                     {user?.username?.substring(0, 2).toUpperCase()}
@@ -176,12 +176,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
             <DropdownMenuContent align="end" className="w-56 bg-[#050e1d] border border-[#0f1d31] text-white">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-[#0f1d31]" />
-              <DropdownMenuItem className="cursor-pointer hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]" onClick={() => window.location.href = "/settings"}>
+              <DropdownMenuItem className="cursor-pointer bg-[#050e1d]/80 text-white" onClick={() => window.location.href = "/settings"}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-[#0f1d31]" />
-              <DropdownMenuItem className="cursor-pointer hover:bg-[#FF7A00]/10 hover:text-[#FF7A00]" onClick={handleLogout}>
+              <DropdownMenuItem className="cursor-pointer bg-[#050e1d]/80 text-white" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
