@@ -135,13 +135,17 @@ const PropertyComparison = () => {
                       <Input
                         type="text"
                         placeholder="Search properties..."
-                        className="pl-8 bg-slate-800 border-slate-700 text-white placeholder:text-white/50"
+                        className="pl-8 bg-slate-800 border-[#FF7A00]/20 text-white placeholder:text-white/50 focus:border-[#FF7A00]/50 focus:ring-[#FF7A00]/20"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                       />
                     </div>
-                    <Button variant="outline" size="icon" className="border-slate-700 bg-slate-800 hover:bg-slate-700">
-                      <Filter className="h-4 w-4 text-white/70" />
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="border-[#FF7A00]/30 bg-[#FF7A00]/10 hover:bg-[#FF7A00]/20 hover:border-[#FF7A00]/50"
+                    >
+                      <Filter className="h-4 w-4 text-white" />
                     </Button>
                   </div>
                   
@@ -178,15 +182,15 @@ const PropertyComparison = () => {
                       {filteredProperties.map((property: Property) => (
                         <div 
                           key={property.id} 
-                          className={`flex items-start p-2 rounded-md mb-1 hover:bg-slate-800 cursor-pointer ${
-                            selectedPropertyIds.includes(property.id) ? 'bg-slate-800/80' : ''
+                          className={`flex items-start p-2 rounded-md mb-1 hover:bg-[#FF7A00]/10 cursor-pointer transition-colors ${
+                            selectedPropertyIds.includes(property.id) ? 'bg-[#FF7A00]/10 border border-[#FF7A00]/30' : ''
                           }`}
                           onClick={() => togglePropertySelection(property.id)}
                         >
                           <Checkbox
                             checked={selectedPropertyIds.includes(property.id)}
                             onCheckedChange={() => togglePropertySelection(property.id)}
-                            className="mr-3 mt-1"
+                            className="mr-3 mt-1 border-[#FF7A00]/50 data-[state=checked]:bg-[#FF7A00] data-[state=checked]:border-[#FF7A00]"
                           />
                           <div>
                             <div className="font-medium">{property.address}</div>
@@ -194,10 +198,10 @@ const PropertyComparison = () => {
                               {property.city}, {property.state} {property.zipCode}
                             </div>
                             <div className="flex gap-4 mt-1">
-                              <div className="text-sm">
+                              <div className="text-sm text-[#FF7A00] font-medium">
                                 {formatCurrency(Number(property.price))}
                               </div>
-                              <div className="text-sm">
+                              <div className="text-sm text-white/60">
                                 {property.bedrooms} bed | {property.bathrooms} bath | {property.squareFeet} sqft
                               </div>
                             </div>
@@ -239,16 +243,16 @@ const PropertyComparison = () => {
                       {selectedProperties?.map((property: Property) => (
                         <div key={property.id} className="flex justify-between items-center p-2 border-b border-slate-700 last:border-0">
                           <div>
-                            <div className="font-medium">{property.address}</div>
+                            <div className="font-medium text-[#FF7A00]">{property.address}</div>
                             <div className="text-sm text-white/70">
-                              {formatCurrency(Number(property.price))} · {property.bedrooms} bed · {property.bathrooms} bath
+                              <span className="text-white/90">{formatCurrency(Number(property.price))}</span> · {property.bedrooms} bed · {property.bathrooms} bath
                             </div>
                           </div>
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             onClick={() => removeProperty(property.id)}
-                            className="text-white/70 hover:text-red-400"
+                            className="text-white/70 hover:text-[#FF7A00] transition-colors"
                           >
                             <Trash2 size={16} />
                           </Button>
