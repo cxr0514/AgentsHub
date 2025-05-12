@@ -120,6 +120,10 @@ export function convertAttomPropertyToAppProperty(attomProperty: any): Property 
     features: JSON.stringify(features),
     latitude: attomProperty.location?.latitude?.toString() || null,
     longitude: attomProperty.location?.longitude?.toString() || null,
+    saleDate: sale.saleTransDate ? new Date(sale.saleTransDate) : null,
+    hasBasement: false, // Not directly available from ATTOM
+    hasGarage: false, // Set default values
+    garageSpaces: 0, // Set default values
     createdAt: new Date(),
     updatedAt: new Date()
   };

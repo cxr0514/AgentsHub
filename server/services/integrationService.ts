@@ -2,8 +2,9 @@
  * Integration Service - Manages synchronization between MLS data and local storage
  */
 import { db } from '../db';
-import { properties, marketData } from '@shared/schema';
+import { properties, marketData, Property } from '@shared/schema';
 import { searchMLSProperties, refreshMLSData, getMLSPropertyDetails } from './mlsService';
+import { searchPropertiesViaAttom, getPropertyDetailsViaAttom } from './propertySearchService';
 import { PropertyFilters } from '../storage';
 import { eq, and, gte, lte, like, or } from 'drizzle-orm';
 
@@ -176,25 +177,40 @@ export async function searchProperties(filters: PropertyFilters = {}): Promise<a
       };
     });
     
-    // If we have enough local results or MLS API is not configured, return local results
-    if (localProperties.length >= 20 || !process.env.MLS_API_KEY) {
+    // If we have enough local results and no specific search criteria, return local results
+    if (localProperties.length >= 20 && !filters.location && !filters.zipCode) {
       return localProperties;
     }
     
-    // Otherwise, fetch additional properties from MLS
-    console.log('Fetching additional properties from MLS API...');
-    const mlsProperties = await searchMLSProperties(filters);
+    // Fetch additional properties from ATTOM API
+    console.log('Fetching additional properties from ATTOM API...');
+    let attomProperties: Property[] = [];
     
-    // Combine local and MLS properties, removing duplicates
+    try {
+      // First try ATTOM API if the key is available
+      if (process.env.ATTOM_API_KEY) {
+        attomProperties = await searchPropertiesViaAttom(filters);
+      } 
+      // Fallback to MLS/Datafiniti API if ATTOM fails or isn't configured
+      else if (process.env.MLS_API_KEY) {
+        console.log('ATTOM API key not configured, falling back to MLS API...');
+        attomProperties = await searchMLSProperties(filters);
+      }
+    } catch (error) {
+      console.error('Error fetching from external API:', error);
+      // Continue with local results if external API fails
+    }
+    
+    // Combine local and API properties, removing duplicates
     const combinedProperties = [...localProperties];
     const localAddresses = new Set(localProperties.map(p => 
       `${p.address}-${p.city}-${p.state}-${p.zipCode}`
     ));
     
-    for (const mlsProperty of mlsProperties) {
-      const addressKey = `${mlsProperty.address}-${mlsProperty.city}-${mlsProperty.state}-${mlsProperty.zipCode}`;
+    for (const apiProperty of attomProperties) {
+      const addressKey = `${apiProperty.address}-${apiProperty.city}-${apiProperty.state}-${apiProperty.zipCode}`;
       if (!localAddresses.has(addressKey)) {
-        combinedProperties.push(mlsProperty);
+        combinedProperties.push(apiProperty);
       }
     }
     
@@ -304,22 +320,31 @@ export async function getPropertyDetails(id: number): Promise<any | null> {
         features: processedFeatures
       };
       
-      // If MLS API is not configured or we have complete data, return processed local property
-      if (!process.env.MLS_API_KEY || (processedProperty.description && processedProperty.images.length > 0)) {
+      // If we have complete data, return processed local property
+      if (processedProperty.description && processedProperty.images.length > 0) {
         return processedProperty;
       }
       
-      // Otherwise, try to get more detailed data from MLS
+      // Try to get more detailed data from APIs
       try {
-        // Use property address as an identifier for MLS lookup
-        const mlsProperty = await getMLSPropertyDetails(`${processedProperty.address}-${processedProperty.city}-${processedProperty.state}`);
-        
-        if (mlsProperty) {
-          return mlsProperty;
+        // First try ATTOM API if the key is available
+        if (process.env.ATTOM_API_KEY) {
+          const attomProperty = await getPropertyDetailsViaAttom(id, processedProperty.externalId || undefined);
+          if (attomProperty) {
+            return attomProperty;
+          }
         }
-      } catch (mlsError) {
-        console.error('Error fetching MLS property details:', mlsError);
-        // Fall back to local property if MLS lookup fails
+        // Fallback to MLS/Datafiniti API if ATTOM fails or isn't configured
+        else if (process.env.MLS_API_KEY) {
+          console.log('ATTOM API key not configured, falling back to MLS API...');
+          const mlsProperty = await getMLSPropertyDetails(`${processedProperty.address}-${processedProperty.city}-${processedProperty.state}`);
+          if (mlsProperty) {
+            return mlsProperty;
+          }
+        }
+      } catch (apiError) {
+        console.error('Error fetching property details from external API:', apiError);
+        // Fall back to local property if API lookup fails
       }
     }
     

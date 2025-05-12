@@ -2,7 +2,7 @@
  * Scheduler Service - Manages scheduled background jobs
  */
 import { synchronizeMLSData } from './integrationService';
-import { syncAttomMarketData } from './attomService';
+import { syncMarketData } from './attomService';
 
 // Define job schedules (time in milliseconds)
 const SCHEDULES = {
@@ -78,7 +78,7 @@ async function runMarketDataSync() {
       { city: 'Alpharetta', state: 'GA' }
     ];
     
-    await syncAttomMarketData(locations);
+    await syncMarketData(locations);
     console.log('Scheduled market data synchronization completed successfully');
   } catch (error) {
     console.error('Error during scheduled market data synchronization:', error);
