@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { fetchMarketStatistics, updateMarketData, syncMarketData } from "../services/attomService";
+import { 
+  fetchMarketStatistics, 
+  updateMarketData, 
+  syncMarketData,
+  fetchPropertyDetails,
+  fetchPropertySaleHistory
+} from "../services/attomService";
 import { requirePermission } from "../middleware/permissions";
 import { Permission } from "../../shared/permissions";
 
@@ -154,6 +160,84 @@ router.get("/test-connection", async (req, res) => {
       error: error.message,
       source: "fallback_error",
       data: fallbackData
+    });
+  }
+});
+
+// Test route for property details (unprotected for testing)
+router.get("/test-property-details", async (req, res) => {
+  const address = req.query.address as string || "123 Main St";
+  const city = req.query.city as string || "Canton";
+  const state = req.query.state as string || "GA";
+  const zipCode = req.query.zipCode as string || "30115";
+
+  try {
+    console.log(`Testing property details for ${address}, ${city}, ${state} ${zipCode}`);
+    
+    // Test the connection to ATTOM API for property details
+    const data = await fetchPropertyDetails(address, city, state, zipCode);
+    
+    return res.json({
+      success: true,
+      message: "Successfully fetched property details from ATTOM API",
+      endpoint: "test-property-details",
+      address,
+      city,
+      state,
+      zipCode,
+      data
+    });
+  } catch (error: any) {
+    console.error("Error testing ATTOM API property details:", error);
+    
+    return res.json({ 
+      success: false,
+      message: "Error fetching property details from ATTOM API",
+      endpoint: "test-property-details",
+      error: error.message,
+      address,
+      city,
+      state,
+      zipCode
+    });
+  }
+});
+
+// Test route for property sale history (unprotected for testing)
+router.get("/test-property-history", async (req, res) => {
+  const address = req.query.address as string || "123 Main St";
+  const city = req.query.city as string || "Canton";
+  const state = req.query.state as string || "GA";
+  const zipCode = req.query.zipCode as string || "30115";
+
+  try {
+    console.log(`Testing property sale history for ${address}, ${city}, ${state} ${zipCode}`);
+    
+    // Test the connection to ATTOM API for property sale history
+    const data = await fetchPropertySaleHistory(address, city, state, zipCode);
+    
+    return res.json({
+      success: true,
+      message: "Successfully fetched property sale history from ATTOM API",
+      endpoint: "test-property-history",
+      address,
+      city,
+      state,
+      zipCode,
+      data
+    });
+  } catch (error: any) {
+    console.error("Error testing ATTOM API property sale history:", error);
+    
+    return res.json({ 
+      success: false,
+      message: "Error fetching property sale history from ATTOM API",
+      endpoint: "test-property-history",
+      error: error.message,
+      address,
+      city,
+      state,
+      zipCode
     });
   }
 });

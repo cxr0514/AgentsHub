@@ -327,6 +327,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Simple health check endpoint
+  apiRouter.get("/health", (req, res) => {
+    res.json({ 
+      status: "ok",
+      timestamp: new Date().toISOString()
+    });
+  });
+  
   // Database status endpoint
   apiRouter.get("/system/db-status", async (req, res) => {
     try {
