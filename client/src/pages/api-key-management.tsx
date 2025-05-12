@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Key, Loader2, Plus, Trash2 } from "lucide-react";
@@ -33,6 +33,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 // API key interface
 interface ApiKey {
@@ -43,10 +50,20 @@ interface ApiKey {
   createdAt: string;
 }
 
+// Available services
+const AVAILABLE_SERVICES = [
+  { id: "perplexity", name: "Perplexity AI" },
+  { id: "openai", name: "OpenAI" },
+  { id: "mapbox", name: "Mapbox" },
+  { id: "mls", name: "MLS Services" },
+  { id: "custom", name: "Custom Service" }
+];
+
 // Form schema
 const apiKeySchema = z.object({
   name: z.string().min(1, "Name is required"),
   service: z.string().min(1, "Service is required"),
+  customService: z.string().optional(),
 });
 
 type ApiKeyFormValues = z.infer<typeof apiKeySchema>;
@@ -71,8 +88,11 @@ export default function ApiKeyManagement() {
     defaultValues: {
       name: "",
       service: "",
+      customService: "",
     },
   });
+  
+  const [selectedService, setSelectedService] = useState<string>("");
 
   // Add API key mutation
   const addKeyMutation = useMutation({

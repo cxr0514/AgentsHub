@@ -72,9 +72,25 @@ function saveApiKeys(apiKeys: ApiKey[]) {
       fileContent += `# API_KEY_${apiKey.id}=${apiKey.name}|${apiKey.service}|${apiKey.key}|${apiKey.createdAt}\n`;
     }
     
-    // Add environment variables
+    // Add environment variables with standardized names
     for (const apiKey of apiKeys) {
-      fileContent += `${apiKey.service.toUpperCase()}_API_KEY=${apiKey.key}\n`;
+      const serviceLower = apiKey.service.toLowerCase();
+      let envVarName: string;
+      
+      if (serviceLower === 'perplexity' || serviceLower === 'pplx') {
+        envVarName = 'PERPLEXITY_API_KEY';
+      } else if (serviceLower === 'openai') {
+        envVarName = 'OPENAI_API_KEY';
+      } else if (serviceLower === 'mapbox') {
+        envVarName = 'MAPBOX_API_KEY';
+      } else if (serviceLower === 'mls') {
+        envVarName = 'MLS_API_KEY';
+      } else {
+        // For other services, use the standard format
+        envVarName = `${apiKey.service.toUpperCase()}_API_KEY`;
+      }
+      
+      fileContent += `${envVarName}=${apiKey.key}\n`;
     }
     
     fs.writeFileSync(API_KEYS_FILE, fileContent, "utf-8");
@@ -188,7 +204,26 @@ export function loadApiKeysIntoEnv() {
     const apiKeys = getApiKeys();
     
     for (const apiKey of apiKeys) {
-      process.env[`${apiKey.service.toUpperCase()}_API_KEY`] = apiKey.key;
+      // Normalize service name for environment variable
+      // Map known services to their standard environment variable names
+      let envVarName: string;
+      const serviceLower = apiKey.service.toLowerCase();
+      
+      if (serviceLower === 'perplexity' || serviceLower === 'pplx') {
+        envVarName = 'PERPLEXITY_API_KEY';
+      } else if (serviceLower === 'openai') {
+        envVarName = 'OPENAI_API_KEY';
+      } else if (serviceLower === 'mapbox') {
+        envVarName = 'MAPBOX_API_KEY';
+      } else if (serviceLower === 'mls') {
+        envVarName = 'MLS_API_KEY';
+      } else {
+        // For other services, use the standard format
+        envVarName = `${apiKey.service.toUpperCase()}_API_KEY`;
+      }
+      
+      process.env[envVarName] = apiKey.key;
+      console.log(`Loaded API key for service: ${apiKey.service} as ${envVarName}`);
     }
     
     console.log(`Loaded ${apiKeys.length} API keys into environment variables`);
