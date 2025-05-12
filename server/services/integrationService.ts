@@ -97,7 +97,8 @@ export async function searchProperties(filters: PropertyFilters = {}): Promise<a
       query = query.where(eq(properties.status, filters.status));
     }
     
-    if (filters.yearBuilt) {
+    if (filters.yearBuilt && filters.yearBuilt !== 'any_year') {
+      // Skip the yearBuilt filter if it's set to "any_year"
       query = query.where(eq(properties.yearBuilt, filters.yearBuilt));
     }
     

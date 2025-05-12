@@ -91,6 +91,11 @@ export async function searchPropertiesViaAttom(filters: PropertyFilters): Promis
     if (filters.minBaths) {
       params.append('minBaths', filters.minBaths.toString());
     }
+    // Add year built filter if provided and not 'any_year'
+    if (filters.yearBuilt && filters.yearBuilt !== 'any_year') {
+      params.append('minYearBuilt', filters.yearBuilt.toString());
+      params.append('maxYearBuilt', filters.yearBuilt.toString());
+    }
     if (filters.propertyType) {
       // Map our property types to ATTOM property types
       const propertyTypeMap: Record<string, string> = {
