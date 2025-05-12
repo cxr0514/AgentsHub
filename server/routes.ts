@@ -390,6 +390,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Test endpoints for Datafiniti API integration
+  apiRouter.get("/mls/test", async (req, res) => {
+    try {
+      const searchService = await import("./services/mlsService");
+      const mlsProperties = await searchService.searchMLSProperties({ limit: 5 });
+      
+      res.json({ 
+        success: true, 
+        message: 'Successfully retrieved properties from Datafiniti', 
+        count: mlsProperties.length,
+        properties: mlsProperties
+      });
+    } catch (error) {
+      console.error('Error testing Datafiniti API integration:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to retrieve properties from Datafiniti', 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  apiRouter.get("/mls/test/:id", async (req, res) => {
+    try {
+      const propertyId = req.params.id;
+      const searchService = await import("./services/mlsService");
+      const property = await searchService.getMLSPropertyDetails(propertyId);
+      
+      if (!property) {
+        return res.status(404).json({ 
+          success: false, 
+          message: `Property with ID ${propertyId} not found` 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Successfully retrieved property details from Datafiniti', 
+        property 
+      });
+    } catch (error) {
+      console.error('Error testing Datafiniti property details:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to retrieve property details from Datafiniti', 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
   // Advanced property search for Comp Matching Engine
   apiRouter.post("/properties/search", async (req, res) => {
     try {

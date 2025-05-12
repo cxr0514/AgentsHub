@@ -117,6 +117,14 @@ function convertMLSPropertyToAppProperty(mlsProperty: any): InsertProperty {
   // Check if this is a Datafiniti property format
   if (mlsProperty.id && mlsProperty.dateAdded) {
     // Datafiniti format - convert to our application format
+    // Extract numeric values, handling the format properly
+    let lotSizeValue = '0';
+    if (mlsProperty.lotSizeValue) {
+      // Extract just the numeric part if it contains units (like "0.243618 acs")
+      const lotSizeMatch = String(mlsProperty.lotSizeValue).match(/^(\d+\.?\d*)/);
+      lotSizeValue = lotSizeMatch ? lotSizeMatch[1] : '0';
+    }
+    
     return {
       address: mlsProperty.address || '',
       city: mlsProperty.city || '',
@@ -127,7 +135,7 @@ function convertMLSPropertyToAppProperty(mlsProperty: any): InsertProperty {
       bedrooms: mlsProperty.numBedroom || 0,
       bathrooms: mlsProperty.numBathroom ? String(mlsProperty.numBathroom) : '0',
       squareFeet: mlsProperty.floorSizeValue ? String(mlsProperty.floorSizeValue) : '0',
-      lotSize: mlsProperty.lotSizeValue ? `${mlsProperty.lotSizeValue} ${mlsProperty.lotSizeUnit || ''}` : '0',
+      lotSize: lotSizeValue, // Using cleaned numeric value
       yearBuilt: mlsProperty.yearBuilt || new Date().getFullYear() - 10, // Default to 10 years old if not provided
       propertyType: mlsProperty.propertyType || 'Unknown',
       status: mlsProperty.mostRecentStatus || 'Unknown',
@@ -137,7 +145,10 @@ function convertMLSPropertyToAppProperty(mlsProperty: any): InsertProperty {
         ? (mlsProperty.mostRecentPriceAmount / mlsProperty.floorSizeValue).toFixed(2)
         : '0',
       description: `${mlsProperty.propertyType || 'Property'} located in ${mlsProperty.city || 'Unknown City'}`,
-      features: JSON.stringify([]), // Features not directly provided in Datafiniti
+      features: JSON.stringify(mlsProperty.people || []), // Use people data as features for now
+      latitude: mlsProperty.latitude ? String(mlsProperty.latitude) : null,
+      longitude: mlsProperty.longitude ? String(mlsProperty.longitude) : null,
+      externalId: mlsProperty.id || null, // Store the Datafiniti ID
     };
   } else {
     // Original MLSProperty format
@@ -160,6 +171,9 @@ function convertMLSPropertyToAppProperty(mlsProperty: any): InsertProperty {
       pricePerSqft: (Number(mlsProperty.price.replace(/,/g, '')) / Number(mlsProperty.squareFeet.replace(/,/g, ''))).toFixed(2),
       description: mlsProperty.description,
       features: JSON.stringify(mlsProperty.features),
+      latitude: mlsProperty.latitude || null,
+      longitude: mlsProperty.longitude || null,
+      externalId: mlsProperty.id || null,
     };
   }
 }
