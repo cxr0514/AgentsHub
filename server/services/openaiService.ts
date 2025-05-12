@@ -1,16 +1,12 @@
-import OpenAI from "openai";
 import { MarketData, Property } from "@shared/schema";
 
-// The newest OpenAI model is "gpt-4o" which was released May 13, 2024. 
-// do not change this unless explicitly requested by the user
-const OPENAI_MODEL = "gpt-4o";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Use the Perplexity API instead of OpenAI
+const PERPLEXITY_API_KEY = process.env.PERPLEXITY_API_KEY || "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";
+const PERPLEXITY_MODEL = "llama-3.1-sonar-small-128k-online";
+const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
 
 /**
- * Generate market predictions using OpenAI's API
+ * Generate market predictions using Perplexity API
  * @param marketData Historical market data for a location
  * @returns Object containing market predictions and analysis
  */
@@ -19,36 +15,50 @@ async function generateMarketPrediction(marketData: MarketData[]) {
     // Format the market data to be more readable for the AI
     const formattedData = formatMarketDataForAI(marketData);
 
-    const response = await openai.chat.completions.create({
-      model: OPENAI_MODEL,
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert real estate market analyst. 
-          Your task is to analyze historical real estate market data and generate predictions 
-          and insights for future market conditions. Provide detailed, data-driven analysis 
-          with specific numerical projections where possible. Focus on price trends, inventory changes, 
-          days on market, and market balance (buyer's vs seller's market).`,
-        },
-        {
-          role: "user",
-          content: `Analyze this historical real estate market data and provide predictions for the next 1-3 months:
-          ${formattedData}
-          
-          Generate a comprehensive market prediction in JSON format with these fields:
-          - projections (object with oneMonth, threeMonths, sixMonths properties, each containing projected medianPrice, inventory, daysOnMarket, priceChange values)
-          - marketOutlook (string describing if it's a buyer's, seller's, or balanced market)
-          - keyFindings (array of strings with key insights)
-          - recommendedActions (object with buyers, sellers, investors arrays containing advice)
-          - timeRange (object with start and end dates for the data analyzed)
-          - confidenceScore (number from 0-1 indicating prediction confidence)`,
-        },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.3,
+    const response = await fetch(PERPLEXITY_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${PERPLEXITY_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: PERPLEXITY_MODEL,
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert real estate market analyst. 
+            Your task is to analyze historical real estate market data and generate predictions 
+            and insights for future market conditions. Provide detailed, data-driven analysis 
+            with specific numerical projections where possible. Focus on price trends, inventory changes, 
+            days on market, and market balance (buyer's vs seller's market).`
+          },
+          {
+            role: "user",
+            content: `Analyze this historical real estate market data and provide predictions for the next 1-3 months:
+            ${formattedData}
+            
+            Generate a comprehensive market prediction in JSON format with these fields:
+            - projections (object with oneMonth, threeMonths, sixMonths properties, each containing projected medianPrice, inventory, daysOnMarket, priceChange values)
+            - marketOutlook (string describing if it's a buyer's, seller's, or balanced market)
+            - keyFindings (array of strings with key insights)
+            - recommendedActions (object with buyers, sellers, investors arrays containing advice)
+            - timeRange (object with start and end dates for the data analyzed)
+            - confidenceScore (number from 0-1 indicating prediction confidence)`
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+        stream: false
+      })
     });
 
-    const prediction = JSON.parse(response.choices[0].message.content);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Perplexity API error: ${error.error?.message || JSON.stringify(error)}`);
+    }
+
+    const data = await response.json();
+    const prediction = JSON.parse(data.choices[0].message.content);
     return prediction;
   } catch (error) {
     console.error("Error generating market prediction:", error);
