@@ -174,9 +174,10 @@ async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLS
     
     console.log('Sending query to Datafiniti API:', JSON.stringify(requestData));
     
-    // Based on our tests, the correct Datafiniti endpoint structure is: /property/search
-    // The account credentials seem to be valid as we can retrieve account info
-    const response = await fetch(`${normalizedEndpoint}/property/search`, {
+    // Based on Datafiniti Postman collection, the correct endpoint for property search is: /properties/search
+    console.log(`Sending search request to: ${normalizedEndpoint}/properties/search`);
+    
+    const response = await fetch(`${normalizedEndpoint}/properties/search`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
@@ -186,7 +187,10 @@ async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLS
     });
 
     if (!response.ok) {
-      throw new Error(`MLS API error: ${response.status} ${response.statusText}`);
+      // Get more details about the error
+      const errorText = await response.text();
+      console.error('Datafiniti API error response:', errorText);
+      throw new Error(`MLS API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
@@ -298,27 +302,24 @@ export async function getMLSPropertyDetails(propertyId: string): Promise<Propert
   }
   
   try {
-    // Datafiniti API uses search with ID instead of direct ID lookup
-    const requestData = {
-      query: `id:"${propertyId}"`,
-      format: "JSON",
-      num_records: 1,
-      download: false
-    };
+    // Datafiniti API can look up by ID directly (GET /properties/:id) or using search
+    // We'll use the direct ID lookup endpoint from the Postman collection
+    console.log(`Fetching property with ID ${propertyId} from Datafiniti API`);
     
-    console.log('Sending property lookup to Datafiniti API:', JSON.stringify(requestData));
-    
-    const response = await fetch(`${normalizedEndpoint}/properties/search`, {
-      method: 'POST',
+    // The Postman collection shows the property lookup endpoint is /properties/:id (GET)
+    const response = await fetch(`${normalizedEndpoint}/properties/${propertyId}`, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestData)
+      }
     });
     
     if (!response.ok) {
-      throw new Error(`MLS API error: ${response.status} ${response.statusText}`);
+      // Get more details about the error
+      const errorText = await response.text();
+      console.error('Datafiniti property details API error response:', errorText);
+      throw new Error(`MLS API error: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const mlsProperty = await response.json();
