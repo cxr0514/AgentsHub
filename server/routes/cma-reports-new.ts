@@ -428,11 +428,14 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
     // Create report record in database
     const report = await storage.createReport({
       userId: req.body.userId ? parseInt(req.body.userId) : 1, // Default to user ID 1 if not provided
-      name: `CMA for ${subjectProperty.address}`,
+      title: `CMA for ${subjectProperty.address}`,
       type: 'CMA',
-      filePath: fileName,
-      propertyId: subjectPropertyId,
-      createdAt: new Date()
+      properties: {
+        filePath: fileName,
+        adjustments: options.includeAdjustments,
+        charts: options.includeCharts
+      },
+      propertyId: subjectPropertyId
     });
     
     // Return success response
@@ -443,7 +446,8 @@ router.post('/generate-cma', upload.single('logo'), async (req, res) => {
       downloadUrl: `/api/reports/download/${report.id}`
     });
     
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     log(`Error generating CMA report: ${error.message}`, 'cma-reports');
     return res.status(500).json({ message: `Failed to generate CMA report: ${error.message}` });
   }
@@ -459,7 +463,9 @@ router.get('/download/:id', async (req, res) => {
       return res.status(404).json({ message: 'Report not found' });
     }
     
-    const filePath = path.join(process.cwd(), 'uploads', report.filePath);
+    // Extract filePath from the properties JSON
+    const reportProperties = report.properties as any;
+    const filePath = path.join(process.cwd(), 'uploads', reportProperties.filePath);
     
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: 'Report file not found' });
@@ -467,13 +473,14 @@ router.get('/download/:id', async (req, res) => {
     
     // Set proper content type
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${report.filePath}"`);
+    res.setHeader('Content-Disposition', `attachment; filename="${reportProperties.filePath}"`);
     
     // Stream the file to the response
     const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
     
-  } catch (error) {
+  } catch (err) {
+    const error = err as Error;
     return res.status(500).json({ message: `Failed to download report: ${error.message}` });
   }
 });
