@@ -57,8 +57,8 @@ const MarketOverview = ({ city, state }: MarketOverviewProps) => {
     return (
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Market Overview: {city}, {state}</h2>
-        <Card className="p-6 text-center bg-white">
-          <p className="text-gray-700">No market data available for this location.</p>
+        <Card className="p-6 text-center">
+          <p className="text-gray-300">No market data available for this location.</p>
         </Card>
       </div>
     );
