@@ -422,14 +422,14 @@ export default function SearchPage() {
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <Button variant="ghost" size="sm" className="mb-2" asChild>
+            <Button variant="ghost" size="sm" className="mb-2 text-slate-400 hover:text-[#FF7A00] hover:bg-[#071224]" asChild>
               <Link href="/" className="flex items-center gap-1">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Dashboard
               </Link>
             </Button>
-            <h1 className="text-3xl font-bold">Property Search</h1>
-            <p className="text-muted-foreground">Find properties that match your criteria</p>
+            <h1 className="text-3xl font-bold text-white">Property Search</h1>
+            <p className="text-slate-400">Find properties that match your criteria</p>
           </div>
         </div>
         
