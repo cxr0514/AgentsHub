@@ -4,7 +4,10 @@
 import { Property, InsertProperty } from '@shared/schema';
 import { db } from '../db';
 import { properties } from '@shared/schema';
-import { eq } from 'drizzle-orm';
+import { eq, ne, desc, and, or, isNull } from 'drizzle-orm';
+
+// Track the last time MLS data was synchronized
+export const syncLastUpdated = new Date();
 
 // API response types for MLS data
 interface MLSApiResponse {

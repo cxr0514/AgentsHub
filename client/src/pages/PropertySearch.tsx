@@ -1,21 +1,84 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Property } from "@shared/schema";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import SearchFilters from "@/components/SearchFilters";
 import PropertyTable from "@/components/PropertyTable";
 import MapSearch from "@/components/MapSearch";
 import CsvUploadDialog from "@/components/CsvUploadDialog";
 import AddPropertyDialog from "@/components/AddPropertyDialog";
-import { Table, Map, Upload, FileUp, Plus } from "lucide-react";
+import { Table, Map, Upload, RefreshCw, Database, Info } from "lucide-react";
 
 const PropertySearch = () => {
+  const { toast } = useToast();
   const [searchFilters, setSearchFilters] = useState<Record<string, any>>({});
   const [viewMode, setViewMode] = useState<string>("list");
   const [properties, setProperties] = useState<Property[]>([]);
   const [showCsvUploadDialog, setShowCsvUploadDialog] = useState(false);
+  const [mlsStatus, setMlsStatus] = useState<{status: string; lastSync?: Date}>({status: 'unknown'});
+  
+  // Fetch MLS sync status
+  const { data: syncStatus } = useQuery({
+    queryKey: ['/api/mls/status'],
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/mls/status');
+        if (!response.ok) {
+          return { status: 'inactive', message: 'MLS integration inactive' };
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Error fetching MLS status:', error);
+        return { status: 'error', message: 'Could not determine MLS status' };
+      }
+    },
+    refetchInterval: 60000, // Refresh every minute
+  });
+
+  // Update MLS status when data changes
+  useEffect(() => {
+    if (syncStatus) {
+      setMlsStatus({
+        status: syncStatus.status,
+        lastSync: syncStatus.lastSync ? new Date(syncStatus.lastSync) : undefined
+      });
+    }
+  }, [syncStatus]);
+
+  // Mutation for synchronizing MLS data
+  const synchronizeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/mls/synchronize', {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to synchronize MLS data');
+      }
+      
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "MLS Sync Successful",
+        description: data.message || `Successfully synchronized ${data.count || 'all'} properties from MLS`,
+      });
+      // Refresh properties after sync
+      refetch();
+    },
+    onError: (error) => {
+      toast({
+        title: "MLS Sync Failed",
+        description: error instanceof Error ? error.message : "An unknown error occurred",
+        variant: "destructive",
+      });
+    },
+  });
   
   // Fetch properties with integrated search that combines local DB and MLS data
   const { data: fetchedProperties, isLoading, refetch } = useQuery({
@@ -101,6 +164,32 @@ const PropertySearch = () => {
             </div>
             <div className="flex gap-4">
               <AddPropertyDialog onAddSuccess={handlePropertyAdded} />
+              
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={mlsStatus.status === 'active' ? "default" : "outline"}
+                      className={`${mlsStatus.status === 'active' ? "bg-green-600 hover:bg-green-700" : "bg-transparent"} mr-2`}
+                      onClick={() => synchronizeMutation.mutate()}
+                      disabled={synchronizeMutation.isPending}
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${synchronizeMutation.isPending ? 'animate-spin' : ''}`} />
+                      {synchronizeMutation.isPending ? 'Syncing...' : 'Sync MLS Data'}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="flex flex-col">
+                      <span>MLS Status: {mlsStatus.status === 'active' ? 'Active' : mlsStatus.status === 'error' ? 'Error' : 'Inactive'}</span>
+                      {mlsStatus.lastSync && (
+                        <span className="text-xs text-gray-400">
+                          Last synchronized: {mlsStatus.lastSync.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               
               <Button
                 variant="outline"
