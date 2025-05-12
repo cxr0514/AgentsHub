@@ -225,6 +225,17 @@ testRouter.get("/property-details", async (req, res) => {
       zipCode ? String(zipCode) : ""
     );
     
+    // If the result contains an error property, it's a fallback response
+    if (result.error) {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.message || "Used fallback data due to API error",
+        error: result.error
+      });
+    }
+    
     res.json({ success: true, data: result });
   } catch (error) {
     console.error("Error fetching property details:", error);
@@ -253,6 +264,17 @@ testRouter.get("/property-history", async (req, res) => {
       String(state),
       zipCode ? String(zipCode) : ""
     );
+    
+    // If the result contains an error property, it's a fallback response
+    if (result.error) {
+      return res.json({
+        success: true,
+        data: result,
+        isFallback: true,
+        message: result.message || "Used fallback data due to API error",
+        error: result.error
+      });
+    }
     
     res.json({ success: true, data: result });
   } catch (error) {
