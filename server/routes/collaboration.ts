@@ -23,7 +23,7 @@ const emailSchema = z.string().email();
  * Share a property with someone via email
  * POST /api/collaboration/share-property
  */
-router.post('/share-property', ensureAuthenticated, async (req, res) => {
+router.post('/share-property', isAuthenticated, async (req, res) => {
   try {
     // Validate request body
     const shareSchema = insertSharedPropertySchema
@@ -72,7 +72,7 @@ router.post('/share-property', ensureAuthenticated, async (req, res) => {
  * Get all properties shared by the current user
  * GET /api/collaboration/shared-by-me
  */
-router.get('/shared-by-me', ensureAuthenticated, async (req, res) => {
+router.get('/shared-by-me', isAuthenticated, async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -103,7 +103,7 @@ router.get('/shared-by-me', ensureAuthenticated, async (req, res) => {
  * Get all properties shared with the current user
  * GET /api/collaboration/shared-with-me
  */
-router.get('/shared-with-me', ensureAuthenticated, async (req, res) => {
+router.get('/shared-with-me', isAuthenticated, async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -266,7 +266,7 @@ router.post('/shared/:token/comments', async (req, res) => {
  * Delete a shared property
  * DELETE /api/collaboration/shared/:id
  */
-router.delete('/shared/:id', ensureAuthenticated, async (req, res) => {
+router.delete('/shared/:id', isAuthenticated, async (req, res) => {
   try {
     const sharedPropertyId = parseInt(req.params.id);
     const userId = req.user?.id;
@@ -296,7 +296,7 @@ router.delete('/shared/:id', ensureAuthenticated, async (req, res) => {
  * Team Collaboration - Create a new team
  * POST /api/collaboration/teams
  */
-router.post('/teams', ensureAuthenticated, async (req, res) => {
+router.post('/teams', isAuthenticated, async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
@@ -334,7 +334,7 @@ router.post('/teams', ensureAuthenticated, async (req, res) => {
  * Team Collaboration - Get user's teams
  * GET /api/collaboration/teams
  */
-router.get('/teams', ensureAuthenticated, async (req, res) => {
+router.get('/teams', isAuthenticated, async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {

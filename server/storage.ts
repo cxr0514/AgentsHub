@@ -169,6 +169,13 @@ export class MemStorage implements IStorage {
     this.collaborationTeams = new Map();
     this.teamMembers = new Map();
     this.teamProperties = new Map();
+    
+    // Initialize collaboration maps
+    this.sharedProperties = new Map();
+    this.propertyComments = new Map();
+    this.collaborationTeams = new Map();
+    this.teamMembers = new Map();
+    this.teamProperties = new Map();
 
     this.userId = 1;
     this.propertyId = 1;
