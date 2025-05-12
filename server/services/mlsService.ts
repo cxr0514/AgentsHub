@@ -42,6 +42,11 @@ const MLS_CONFIG = {
   CACHE_DURATION: 60 * 60 * 1000, // 1 hour in milliseconds
 };
 
+// Get actual API endpoint without trailing slash
+const normalizedEndpoint = MLS_CONFIG.API_ENDPOINT.endsWith('/') 
+  ? MLS_CONFIG.API_ENDPOINT.slice(0, -1) 
+  : MLS_CONFIG.API_ENDPOINT;
+
 // Cache to reduce API calls
 let propertyCache: Map<string, { data: any; timestamp: number }> = new Map();
 
@@ -99,8 +104,8 @@ async function fetchFromMLS(searchParams: Record<string, any> = {}): Promise<MLS
       }
     });
 
-    // Make request to MLS API
-    const response = await fetch(`${MLS_CONFIG.API_ENDPOINT}/properties?${queryParams.toString()}`, {
+    // Make request to MLS API - Datafiniti API structure requires different endpoints
+    const response = await fetch(`${normalizedEndpoint}/properties?${queryParams.toString()}`, {
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
         'Content-Type': 'application/json',
@@ -220,7 +225,7 @@ export async function getMLSPropertyDetails(propertyId: string): Promise<Propert
   }
   
   try {
-    const response = await fetch(`${MLS_CONFIG.API_ENDPOINT}/properties/${propertyId}`, {
+    const response = await fetch(`${normalizedEndpoint}/properties/${propertyId}`, {
       headers: {
         'Authorization': `Bearer ${MLS_CONFIG.API_KEY}`,
         'Content-Type': 'application/json',
