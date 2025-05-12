@@ -497,10 +497,10 @@ export default function MarketAnalysisPage() {
                     </PermissionGuard>
                   </div>
                 ) : (
-                  <div className="text-center py-12 border border-dashed rounded-lg">
-                    <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-semibold mb-2">No predictions yet</h3>
-                    <p className="text-muted-foreground">
+                  <div className="text-center py-12 border border-dashed border-gray-700 rounded-lg bg-[#131F32]">
+                    <BarChart3 className="h-12 w-12 mx-auto mb-4 text-gray-500" />
+                    <h3 className="text-lg font-semibold mb-2 text-white">No predictions yet</h3>
+                    <p className="text-gray-400">
                       Select a location and click "Analyze Market" to generate AI-powered predictions.
                     </p>
                   </div>
@@ -510,24 +510,24 @@ export default function MarketAnalysisPage() {
           </TabsContent>
           
           <TabsContent value="report">
-            <Card>
+            <Card className="bg-[#0F1D32] border border-gray-700 text-white">
               <CardHeader>
-                <CardTitle>
+                <CardTitle className="text-white">
                   Market Analysis Report for {selectedLocation.city}, {selectedLocation.state}
                   {selectedLocation.zipCode && ` (${selectedLocation.zipCode})`}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-gray-300">
                   Comprehensive AI-generated market analysis report
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 {isReportLoading ? (
-                  <div className="flex justify-center items-center h-64">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  <div className="flex justify-center items-center h-64 text-gray-300">
+                    <Loader2 className="h-8 w-8 animate-spin text-[#FF7A00]" />
                     <span className="ml-2">Generating market report...</span>
                   </div>
                 ) : reportError ? (
-                  <div className="text-center py-8 text-destructive">
+                  <div className="text-center py-8 text-red-400">
                     <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold mb-2">Error Loading Report</h3>
                     <p>We encountered an error while generating the market report.</p>
@@ -535,75 +535,75 @@ export default function MarketAnalysisPage() {
                 ) : marketReport ? (
                   <div className="space-y-8">
                     <PermissionGuard permission={Permission.GENERATE_REPORTS}>
-                      <div className="bg-muted/30 p-4 rounded-lg">
-                        <h3 className="text-xl font-semibold mb-2">Executive Summary</h3>
-                        <p>{marketReport.executiveSummary}</p>
+                      <div className="bg-[#162233] p-4 rounded-lg border border-gray-700">
+                        <h3 className="text-xl font-semibold mb-2 text-white">Executive Summary</h3>
+                        <p className="text-gray-300">{marketReport.executiveSummary}</p>
                       </div>
                       
                       <div>
-                        <h3 className="text-xl font-semibold mb-4">Market Trends</h3>
+                        <h3 className="text-xl font-semibold mb-4 text-white">Market Trends</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                          <Card>
+                          <Card className="bg-[#162233] border border-gray-700">
                             <CardHeader className="pb-2">
-                              <CardTitle className="text-lg">Price Trends</CardTitle>
+                              <CardTitle className="text-lg text-white">Price Trends</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <div className="text-sm space-y-2">
+                              <div className="text-sm space-y-2 text-gray-300">
                                 <p>{marketReport.marketTrends.pricesTrend.description}</p>
                                 <div className="flex justify-between items-center font-medium">
-                                  <span>Annual Change:</span>
-                                  <span className={marketReport.marketTrends.pricesTrend.annualChange >= 0 ? "text-green-600" : "text-red-600"}>
+                                  <span className="text-gray-300">Annual Change:</span>
+                                  <span className={marketReport.marketTrends.pricesTrend.annualChange >= 0 ? "text-green-400" : "text-red-400"}>
                                     {marketReport.marketTrends.pricesTrend.annualChange > 0 ? "+" : ""}
                                     {marketReport.marketTrends.pricesTrend.annualChange}%
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                  <span>Outlook:</span>
-                                  <span>{marketReport.marketTrends.pricesTrend.outlook}</span>
+                                  <span className="text-gray-300">Outlook:</span>
+                                  <span className="text-[#FF7A00]">{marketReport.marketTrends.pricesTrend.outlook}</span>
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
                           
-                          <Card>
+                          <Card className="bg-[#162233] border border-gray-700">
                             <CardHeader className="pb-2">
-                              <CardTitle className="text-lg">Inventory Trends</CardTitle>
+                              <CardTitle className="text-lg text-white">Inventory Trends</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <div className="text-sm space-y-2">
+                              <div className="text-sm space-y-2 text-gray-300">
                                 <p>{marketReport.marketTrends.inventoryTrend.description}</p>
                                 <div className="flex justify-between items-center font-medium">
-                                  <span>Annual Change:</span>
-                                  <span className={marketReport.marketTrends.inventoryTrend.annualChange >= 0 ? "text-green-600" : "text-red-600"}>
+                                  <span className="text-gray-300">Annual Change:</span>
+                                  <span className={marketReport.marketTrends.inventoryTrend.annualChange >= 0 ? "text-green-400" : "text-red-400"}>
                                     {marketReport.marketTrends.inventoryTrend.annualChange > 0 ? "+" : ""}
                                     {marketReport.marketTrends.inventoryTrend.annualChange}%
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                  <span>Outlook:</span>
-                                  <span>{marketReport.marketTrends.inventoryTrend.outlook}</span>
+                                  <span className="text-gray-300">Outlook:</span>
+                                  <span className="text-[#FF7A00]">{marketReport.marketTrends.inventoryTrend.outlook}</span>
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
                           
-                          <Card>
+                          <Card className="bg-[#162233] border border-gray-700">
                             <CardHeader className="pb-2">
-                              <CardTitle className="text-lg">Days on Market</CardTitle>
+                              <CardTitle className="text-lg text-white">Days on Market</CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <div className="text-sm space-y-2">
+                              <div className="text-sm space-y-2 text-gray-300">
                                 <p>{marketReport.marketTrends.daysOnMarketTrend.description}</p>
                                 <div className="flex justify-between items-center font-medium">
-                                  <span>Annual Change:</span>
-                                  <span className={marketReport.marketTrends.daysOnMarketTrend.annualChange <= 0 ? "text-green-600" : "text-red-600"}>
+                                  <span className="text-gray-300">Annual Change:</span>
+                                  <span className={marketReport.marketTrends.daysOnMarketTrend.annualChange <= 0 ? "text-green-400" : "text-red-400"}>
                                     {marketReport.marketTrends.daysOnMarketTrend.annualChange > 0 ? "+" : ""}
                                     {marketReport.marketTrends.daysOnMarketTrend.annualChange}%
                                   </span>
                                 </div>
                                 <div className="flex justify-between items-center">
-                                  <span>Outlook:</span>
-                                  <span>{marketReport.marketTrends.daysOnMarketTrend.outlook}</span>
+                                  <span className="text-gray-300">Outlook:</span>
+                                  <span className="text-[#FF7A00]">{marketReport.marketTrends.daysOnMarketTrend.outlook}</span>
                                 </div>
                               </div>
                             </CardContent>
