@@ -57,7 +57,7 @@ router.post('/generate', async (req, res) => {
     };
 
     // Generate AI recommendations
-    const recommendations = await generatePropertyRecommendations(
+    const recommendations = await aiService.generatePropertyRecommendations(
       user,
       allProperties,
       userPreferences

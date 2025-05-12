@@ -244,7 +244,7 @@ async function generateMarketPrediction(marketData: MarketData[]) {
     return jsonContent;
   } catch (error) {
     console.error("Error generating market prediction:", error);
-    throw new Error(`Failed to generate market prediction: ${error.message}`);
+    throw new Error(`Failed to generate market prediction: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -367,7 +367,7 @@ async function generatePropertyRecommendations(user: any, properties: Property[]
     return enhancedRecommendations;
   } catch (error) {
     console.error("Error generating property recommendations:", error);
-    throw new Error(`Failed to generate property recommendations: ${error.message}`);
+    throw new Error(`Failed to generate property recommendations: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -443,7 +443,7 @@ async function detectPropertyAnomalies(properties: Property[], marketData: Marke
     return anomalyResults;
   } catch (error) {
     console.error("Error detecting property anomalies:", error);
-    throw new Error(`Failed to detect property anomalies: ${error.message}`);
+    throw new Error(`Failed to detect property anomalies: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
@@ -520,7 +520,7 @@ async function generateMarketReport(marketData: MarketData[], properties: Proper
     return report;
   } catch (error) {
     console.error("Error generating market report:", error);
-    throw new Error(`Failed to generate market report: ${error.message}`);
+    throw new Error(`Failed to generate market report: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
