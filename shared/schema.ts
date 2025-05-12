@@ -16,6 +16,7 @@ export const users = pgTable("users", {
 // Properties table
 export const properties = pgTable("properties", {
   id: serial("id").primaryKey(),
+  externalId: text("external_id"), // External ID from MLS/Datafiniti 
   address: text("address").notNull(),
   city: text("city").notNull(),
   state: text("state").notNull(),
@@ -144,6 +145,8 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  externalId: z.string().nullable().optional(),
 });
 
 export const insertMarketDataSchema = createInsertSchema(marketData).omit({

@@ -312,6 +312,11 @@ export async function searchMLSProperties(filters: Record<string, any> = {}): Pr
     mlsParams.yearBuilt = filters.yearBuilt;
   }
 
+  // Set a default limit if not provided
+  if (!mlsParams.limit && filters.limit) {
+    mlsParams.limit = filters.limit;
+  }
+
   // Call MLS API 
   const response = await fetchFromMLS(mlsParams);
   
@@ -324,19 +329,45 @@ export async function searchMLSProperties(filters: Record<string, any> = {}): Pr
   try {
     const propertiesData = response.properties.map(convertMLSPropertyToAppProperty);
     
-    // Insert properties into database, skipping duplicates
-    const insertedProperties = await db.insert(properties)
-      .values(propertiesData)
-      .onConflictDoUpdate({
-        target: [properties.address, properties.city, properties.state, properties.zipCode],
-        set: {
-          price: sql`EXCLUDED.price`,
-          status: sql`EXCLUDED.status`,
-          daysOnMarket: sql`EXCLUDED.days_on_market`,
-          updatedAt: sql`CURRENT_TIMESTAMP`,
-        },
-      })
-      .returning();
+    // Process each property individually to handle conflicts properly
+    const insertedProperties: Property[] = [];
+    
+    for (const propertyData of propertiesData) {
+      // Check if the property with this external ID already exists
+      if (propertyData.externalId) {
+        const existingProperty = await db.select()
+          .from(properties)
+          .where(eq(properties.externalId, propertyData.externalId))
+          .limit(1);
+          
+        if (existingProperty.length > 0) {
+          // Update the existing property
+          const [updated] = await db.update(properties)
+            .set({
+              price: propertyData.price,
+              status: propertyData.status,
+              daysOnMarket: propertyData.daysOnMarket,
+              updatedAt: new Date()
+            })
+            .where(eq(properties.externalId, propertyData.externalId))
+            .returning();
+            
+          if (updated) {
+            insertedProperties.push(updated);
+          }
+          continue; // Skip to next property
+        }
+      }
+      
+      // No existing property with this external ID, insert a new one
+      const [inserted] = await db.insert(properties)
+        .values(propertyData)
+        .returning();
+        
+      if (inserted) {
+        insertedProperties.push(inserted);
+      }
+    }
     
     return insertedProperties;
   } catch (error) {
@@ -465,4 +496,4 @@ export async function refreshMLSData(limit: number = 100): Promise<number> {
 }
 
 // Import missing dependencies
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
