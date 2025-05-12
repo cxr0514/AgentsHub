@@ -167,15 +167,15 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-green-600 hover:bg-green-700 text-white">
+        <Button className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
           <Plus className="h-4 w-4 mr-2" />
           Add Property
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-[#050e1d] border-[#0f1d31] text-white">
         <DialogHeader>
-          <DialogTitle>Add New Property</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-white">Add New Property</DialogTitle>
+          <DialogDescription className="text-slate-400">
             Enter the details of the property you want to add to the database.
           </DialogDescription>
         </DialogHeader>
@@ -184,7 +184,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Location Information</h3>
+                <h3 className="text-lg font-medium text-white">Location Information</h3>
                 
                 <FormField
                   control={form.control}
@@ -557,10 +557,13 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                 type="button" 
                 variant="outline" 
                 onClick={() => setOpen(false)}
+                className="border-[#0f1d31] bg-[#071224] text-white hover:bg-[#0f1d31] hover:text-white"
               >
                 Cancel
               </Button>
-              <Button type="submit">Add Property</Button>
+              <Button type="submit" className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
+                Add Property
+              </Button>
             </div>
           </form>
         </Form>
