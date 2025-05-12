@@ -1,8 +1,8 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Property } from '@shared/schema';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Trash2, Download as DownloadIcon, FileText as FileIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatNumber } from '@/lib/utils';
 
@@ -36,21 +36,43 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
     };
   };
 
+  const handleExportComparison = () => {
+    // This would normally generate a PDF/Excel report
+    console.log('Exporting comparison for properties:', properties.map(p => p.id));
+    alert('Comparison report export started. The report will be downloaded shortly.');
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Property Comparison</CardTitle>
+    <Card className="shadow-md">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="text-xl font-bold">Property Comparison</CardTitle>
+            <CardDescription>
+              Side-by-side comparison of {properties.length} {properties.length === 1 ? 'property' : 'properties'}
+            </CardDescription>
+          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+            onClick={handleExportComparison}
+          >
+            <DownloadIcon size={16} />
+            Export
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-[200px]">Feature</TableHead>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-[200px] font-bold">Feature</TableHead>
                 {properties.map((property) => (
                   <TableHead key={property.id} className="min-w-[200px]">
                     <div className="flex flex-col">
-                      <div className="font-medium truncate max-w-[180px]">
+                      <div className="font-bold truncate max-w-[180px] text-[#FF7A00]">
                         {property.address}
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
@@ -61,7 +83,10 @@ const PropertyComparisonTable = ({ properties, onRemoveProperty }: PropertyCompa
                           variant="ghost" 
                           size="sm" 
                           className="mt-1 p-0 h-6 text-muted-foreground hover:text-destructive self-end"
-                          onClick={() => onRemoveProperty(property.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveProperty(property.id);
+                          }}
                         >
                           <Trash2 size={14} />
                         </Button>

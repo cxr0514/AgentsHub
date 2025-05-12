@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Property } from '@shared/schema';
 import PropertyComparisonTable from '@/components/PropertyComparisonTable';
 import { Input } from '@/components/ui/input';
-import { Search, Filter } from 'lucide-react';
+import { Search, Filter, ArrowLeftRight, ChevronLeft, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import { Link } from 'wouter';
 
 const PropertyComparison = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,6 +63,21 @@ const PropertyComparison = () => {
     setSelectedPropertyIds(selectedPropertyIds.filter(id => id !== propertyId));
   };
   
+  // State for showing/hiding the comparison view
+  const [showComparison, setShowComparison] = useState(false);
+  
+  // Toggle comparison view
+  const startComparison = () => {
+    if (selectedPropertyIds.length > 0) {
+      setShowComparison(true);
+    }
+  };
+  
+  // Go back to selection
+  const backToSelection = () => {
+    setShowComparison(false);
+  };
+
   return (
     <>
       <Helmet>
@@ -69,98 +85,191 @@ const PropertyComparison = () => {
         <meta name="description" content="Compare multiple properties side by side to make informed investment decisions." />
       </Helmet>
       
-      <div className="container mx-auto p-4">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-2">Property Comparison</h1>
-          <p className="text-text-secondary">
-            Select up to 4 properties to compare side by side
-          </p>
+      <div className="container max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+          <div className="flex items-center gap-2 mb-4 md:mb-0">
+            <Link href="/" className="text-muted-foreground hover:text-foreground">
+              <Button variant="ghost" size="sm" className="gap-1">
+                <ChevronLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Properties Comparison</h1>
+          </div>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex gap-2 mb-4">
-                  <div className="relative flex-grow">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search properties..."
-                      className="pl-8"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <Button variant="outline" size="icon">
-                    <Filter className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <div className="text-sm text-muted-foreground mb-2">
-                  {selectedPropertyIds.length} of 4 properties selected
-                </div>
-                
-                {isLoading ? (
-                  <div className="space-y-2">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <div key={index} className="animate-pulse flex p-2">
-                        <div className="w-4 h-4 bg-muted rounded mr-3 mt-1"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                          <div className="h-3 bg-muted rounded w-1/2"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : filteredProperties?.length > 0 ? (
-                  <div className="max-h-[500px] overflow-y-auto pr-1">
-                    {filteredProperties.map((property: Property) => (
-                      <div 
-                        key={property.id} 
-                        className={`flex items-start p-2 rounded-md mb-1 hover:bg-muted cursor-pointer ${
-                          selectedPropertyIds.includes(property.id) ? 'bg-muted/60' : ''
-                        }`}
-                        onClick={() => togglePropertySelection(property.id)}
-                      >
-                        <Checkbox
-                          checked={selectedPropertyIds.includes(property.id)}
-                          onCheckedChange={() => togglePropertySelection(property.id)}
-                          className="mr-3 mt-1"
-                        />
-                        <div>
-                          <div className="font-medium">{property.address}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {property.city}, {property.state} {property.zipCode}
-                          </div>
-                          <div className="flex gap-4 mt-1">
-                            <div className="text-sm">
-                              {formatCurrency(Number(property.price))}
-                            </div>
-                            <div className="text-sm">
-                              {property.bedrooms} bed | {property.bathrooms} bath | {property.squareFeet} sqft
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center p-4">
-                    <p>No properties match your search.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-          
-          <div className="lg:col-span-2">
+        {showComparison ? (
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={backToSelection}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Back to Selection
+              </Button>
+              <div className="text-sm text-muted-foreground">
+                Comparing {selectedPropertyIds.length} {selectedPropertyIds.length === 1 ? 'property' : 'properties'}
+              </div>
+            </div>
             <PropertyComparisonTable 
               properties={selectedProperties || []}
               onRemoveProperty={removeProperty}
             />
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium">Select Properties</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  <div className="flex gap-2 mb-4">
+                    <div className="relative flex-grow">
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type="text"
+                        placeholder="Search properties..."
+                        className="pl-8"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
+                    <Button variant="outline" size="icon">
+                      <Filter className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="flex justify-between items-center mb-4">
+                    <div className="text-sm text-muted-foreground">
+                      {selectedPropertyIds.length} of 4 properties selected
+                    </div>
+                    <Button 
+                      variant="default" 
+                      size="sm" 
+                      onClick={startComparison}
+                      disabled={selectedPropertyIds.length === 0}
+                      className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
+                    >
+                      <ArrowLeftRight className="h-4 w-4 mr-1" />
+                      Compare
+                    </Button>
+                  </div>
+                  
+                  {isLoading ? (
+                    <div className="space-y-2">
+                      {Array.from({ length: 5 }).map((_, index) => (
+                        <div key={index} className="animate-pulse flex p-2">
+                          <div className="w-4 h-4 bg-muted rounded mr-3 mt-1"></div>
+                          <div className="flex-1">
+                            <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                            <div className="h-3 bg-muted rounded w-1/2"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : filteredProperties?.length > 0 ? (
+                    <div className="max-h-[500px] overflow-y-auto pr-1">
+                      {filteredProperties.map((property: Property) => (
+                        <div 
+                          key={property.id} 
+                          className={`flex items-start p-2 rounded-md mb-1 hover:bg-muted cursor-pointer ${
+                            selectedPropertyIds.includes(property.id) ? 'bg-muted/60' : ''
+                          }`}
+                          onClick={() => togglePropertySelection(property.id)}
+                        >
+                          <Checkbox
+                            checked={selectedPropertyIds.includes(property.id)}
+                            onCheckedChange={() => togglePropertySelection(property.id)}
+                            className="mr-3 mt-1"
+                          />
+                          <div>
+                            <div className="font-medium">{property.address}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {property.city}, {property.state} {property.zipCode}
+                            </div>
+                            <div className="flex gap-4 mt-1">
+                              <div className="text-sm">
+                                {formatCurrency(Number(property.price))}
+                              </div>
+                              <div className="text-sm">
+                                {property.bedrooms} bed | {property.bathrooms} bath | {property.squareFeet} sqft
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center p-4">
+                      <p>No properties match your search.</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="lg:col-span-2">
+              <Card className="mb-4">
+                <CardHeader>
+                  <CardTitle className="text-lg font-medium">How to Compare Properties</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ol className="list-decimal ml-4 space-y-2">
+                    <li>Select up to 4 properties from the list on the left.</li>
+                    <li>Click the "Compare" button to view the detailed comparison.</li>
+                    <li>Analyze key metrics like price per square foot and features.</li>
+                    <li>Remove properties from comparison by clicking the trash icon.</li>
+                  </ol>
+                </CardContent>
+              </Card>
+              
+              {selectedPropertyIds.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-medium">Selected Properties</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      {selectedProperties?.map((property: Property) => (
+                        <div key={property.id} className="flex justify-between items-center p-2 border-b last:border-0">
+                          <div>
+                            <div className="font-medium">{property.address}</div>
+                            <div className="text-sm text-muted-foreground">
+                              {formatCurrency(Number(property.price))} · {property.bedrooms} bed · {property.bathrooms} bath
+                            </div>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => removeProperty(property.id)}
+                            className="text-muted-foreground hover:text-destructive"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4">
+                      <Button 
+                        className="w-full bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white" 
+                        onClick={startComparison}
+                      >
+                        <ArrowLeftRight className="h-4 w-4 mr-2" />
+                        Start Comparison
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
