@@ -1,221 +1,12 @@
-import { Router } from "express";
-import { requirePermission } from "../middleware/permissions";
-import { Permission } from "@shared/permissions";
-import {
-  fetchPropertyDetails,
-  fetchPropertySaleHistory,
-  fetchMarketStatistics,
-  updateMarketData,
-  syncMarketData
-} from "../services/attomService";
+import express from "express";
+import { storage } from "../storage";
+import { PropertyFilters } from "../storage";
+import { hasPermission, Permission } from "../../shared/permissions";
+import { searchPropertiesViaAttom } from "../services/propertySearchService";
+import { isAuthenticated } from "../middleware/auth";
+import { Property } from "../../shared/schema";
 
-// Create two routers - one for authenticated routes, one for test routes
-const router = Router();
-const testRouter = Router();
-
-// Authentication will be applied to individual routes as needed
-// Removed the global authentication requirement to allow test endpoints
-
-// Property details endpoint (requires authentication)
-router.get("/property-details", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
-  try {
-    const { address, city, state, zipCode } = req.query;
-    
-    if (!address || !city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: address, city, and state are required" 
-      });
-    }
-    
-    const result = await fetchPropertyDetails(
-      String(address),
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : ""
-    );
-    
-    // If the result contains an error property, it's a fallback response
-    if (result.error) {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.message || "Used fallback data due to API error",
-        error: result.error
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error fetching property details:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
-
-// Property sale history endpoint (requires authentication)
-router.get("/property-history", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
-  try {
-    const { address, city, state, zipCode } = req.query;
-    
-    if (!address || !city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: address, city, and state are required" 
-      });
-    }
-    
-    const result = await fetchPropertySaleHistory(
-      String(address),
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : ""
-    );
-    
-    // If the result contains an error property, it's a fallback response
-    if (result.error) {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.message || "Used fallback data due to API error",
-        error: result.error
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error fetching property sale history:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
-
-// Market statistics endpoint (requires authentication)
-router.get("/market-statistics", requirePermission(Permission.VIEW_PROPERTIES), async (req, res) => {
-  try {
-    const { city, state, zipCode } = req.query;
-    
-    if (!city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: city and state are required" 
-      });
-    }
-    
-    const result = await fetchMarketStatistics(
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : undefined
-    );
-    
-    // If the result contains an error property, it's a fallback response
-    if (result.error || result.isFallback) {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.message || "Used fallback data due to API error",
-        error: result.error
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error fetching market statistics:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
-
-// Update market data endpoint
-router.post("/update-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRATION), async (req, res) => {
-  try {
-    const { city, state, zipCode } = req.body;
-    
-    if (!city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: city and state are required" 
-      });
-    }
-    
-    const result = await updateMarketData(
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : undefined
-    );
-    
-    // Check if the result contains a source indicating it's fallback data
-    if (result.source === "fallback" || result.source === "fallback_error") {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.error ? `Error: ${result.error}` : "Used fallback data due to API limitations"
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error updating market data:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
-
-// Sync market data for multiple locations
-router.post("/sync-market-data", requirePermission(Permission.MANAGE_MLS_INTEGRATION), async (req, res) => {
-  try {
-    const { locations } = req.body;
-    
-    if (!locations || !Array.isArray(locations) || locations.length === 0) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing or invalid locations parameter. Expected an array of {city, state, zipCode} objects." 
-      });
-    }
-    
-    const result = await syncMarketData(locations);
-    
-    // Check if any of the results contain fallback data
-    const hasFallbacks = result.results.some(item => 
-      item.source === "fallback" || item.source === "fallback_error"
-    ) || result.errors.length > 0;
-    
-    if (hasFallbacks) {
-      // Count successes and fallbacks
-      const successes = result.results.filter(item => 
-        item.success && item.source !== "fallback" && item.source !== "fallback_error"
-      ).length;
-      const failures = result.totalAttempted - successes;
-      
-      return res.json({
-        success: true,
-        data: result,
-        partialFallback: true,
-        message: `Synced ${result.totalAttempted} locations. ${successes} succeeded with real data, ${failures} used fallback data.`
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error syncing market data:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
+const router = express.Router();
 
 // Health check endpoint (does not require authentication)
 router.get("/health", async (req, res) => {
@@ -268,207 +59,154 @@ router.get("/health", async (req, res) => {
   }
 });
 
-// Test endpoints that don't require authentication (for development only)
-// Property details endpoint (for testing)
-testRouter.get("/property-details", async (req, res) => {
+// Search for properties using the ATTOM API (authenticated users only)
+router.get("/search", isAuthenticated, async (req, res) => {
   try {
-    const { address, city, state, zipCode } = req.query;
-    
-    if (!address || !city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: address, city, and state are required" 
-      });
+    // Only users with the view_properties permission can search properties
+    if (!hasPermission(req.user, Permission.VIEW_PROPERTIES)) {
+      return res.status(403).json({ message: "You don't have permission to search properties" });
     }
     
-    const result = await fetchPropertyDetails(
-      String(address),
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : ""
-    );
+    // Extract search parameters from query string
+    const filters: PropertyFilters = {};
     
-    // If the result contains an error property, it's a fallback response
-    if (result.error) {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.message || "Used fallback data due to API error",
-        error: result.error
-      });
+    // Location-based search parameters
+    if (req.query.location) filters.location = req.query.location as string;
+    // Add city, state to filters (these are valid in PropertyFilters interface)
+    if (req.query.city) filters.location = `${req.query.city}, ${req.query.state || ''}`;
+    if (req.query.state) filters.state = req.query.state as string;
+    if (req.query.zipCode) filters.zipCode = req.query.zipCode as string;
+    
+    // Geo-based search parameters
+    if (req.query.lat && req.query.lng) {
+      filters.lat = parseFloat(req.query.lat as string);
+      filters.lng = parseFloat(req.query.lng as string);
+      
+      if (req.query.radius) {
+        filters.radius = parseFloat(req.query.radius as string);
+      } else {
+        filters.radius = 5; // Default to 5 mile radius
+      }
     }
     
-    res.json({ success: true, data: result });
+    // Property characteristics
+    if (req.query.propertyType) filters.propertyType = req.query.propertyType as string;
+    if (req.query.minPrice) filters.minPrice = parseFloat(req.query.minPrice as string);
+    if (req.query.maxPrice) filters.maxPrice = parseFloat(req.query.maxPrice as string);
+    if (req.query.minBeds) filters.minBeds = parseFloat(req.query.minBeds as string);
+    if (req.query.maxBeds) filters.maxBeds = parseFloat(req.query.maxBeds as string);
+    if (req.query.minBaths) filters.minBaths = parseFloat(req.query.minBaths as string);
+    if (req.query.maxBaths) filters.maxBaths = parseFloat(req.query.maxBaths as string);
+    if (req.query.minSqft) filters.minSqft = parseFloat(req.query.minSqft as string);
+    if (req.query.maxSqft) filters.maxSqft = parseFloat(req.query.maxSqft as string);
+    if (req.query.yearBuilt) filters.yearBuilt = req.query.yearBuilt as string;
+    
+    // Property status
+    if (req.query.status) filters.status = req.query.status as string;
+    if (req.query.statusList) {
+      if (Array.isArray(req.query.statusList)) {
+        filters.statusList = req.query.statusList as string[];
+      } else {
+        filters.statusList = [(req.query.statusList as string)];
+      }
+    }
+    
+    console.log('ATTOM search request with filters:', filters);
+    
+    // If no search parameters are provided, return an error
+    if (Object.keys(filters).length === 0) {
+      return res.status(400).json({ message: "At least one search parameter is required" });
+    }
+    
+    // Perform the search via ATTOM API
+    const properties = await searchPropertiesViaAttom(filters);
+    
+    // Track search for analytics (in the background, don't wait for it)
+    if (req.user) {
+      const searchParameters = JSON.stringify(filters);
+      // You might want to save this search to the user's search history
+      // storage.createSavedSearch({ userId: req.user.id, parameters: searchParameters, name: "ATTOM Search" });
+    }
+    
+    return res.json(properties);
+  } catch (error) {
+    console.error("Error searching properties via ATTOM API:", error);
+    res.status(500).json({ 
+      message: "Error searching properties", 
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
+});
+
+// Get property details using ATTOM API (authenticated users only)
+router.get("/property/:id", isAuthenticated, async (req, res) => {
+  try {
+    // Only users with the view_properties permission can view property details
+    if (!hasPermission(req.user, Permission.VIEW_PROPERTIES)) {
+      return res.status(403).json({ message: "You don't have permission to view property details" });
+    }
+    
+    const propertyId = parseInt(req.params.id);
+    if (isNaN(propertyId)) {
+      return res.status(400).json({ message: "Invalid property ID" });
+    }
+    
+    // First check our database for the property
+    const property = await storage.getProperty(propertyId);
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    
+    // Return with extended ATTOM data if available
+    if (property.externalId) {
+      // TODO: If needed, fetch additional ATTOM details using property.externalId
+      // For now, return the property from our database
+    }
+    
+    return res.json(property);
   } catch (error) {
     console.error("Error fetching property details:", error);
     res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
+      message: "Error fetching property details", 
+      error: error instanceof Error ? error.message : "Unknown error"
     });
   }
 });
 
-// Property sale history endpoint (for testing)
-testRouter.get("/property-history", async (req, res) => {
+// Get market trends for a specific location using ATTOM API (authenticated users only)
+router.get("/market-trends", isAuthenticated, async (req, res) => {
   try {
-    const { address, city, state, zipCode } = req.query;
-    
-    if (!address || !city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: address, city, and state are required" 
-      });
+    // Check permissions
+    if (!hasPermission(req.user, Permission.VIEW_PROPERTIES)) {
+      return res.status(403).json({ message: "You don't have permission to view market trends" });
     }
     
-    const result = await fetchPropertySaleHistory(
-      String(address),
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : ""
-    );
-    
-    // If the result contains an error property, it's a fallback response
-    if (result.error) {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.message || "Used fallback data due to API error",
-        error: result.error
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error fetching property sale history:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
-
-// Market statistics endpoint (for testing)
-testRouter.get("/market-statistics", async (req, res) => {
-  try {
+    // Extract location parameters
     const { city, state, zipCode } = req.query;
     
     if (!city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: city and state are required" 
-      });
+      return res.status(400).json({ message: "City and state are required parameters" });
     }
     
-    const result = await fetchMarketStatistics(
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : undefined
+    // Get market data from our database (which is synced with ATTOM API)
+    const marketData = await storage.getMarketDataByLocation(
+      city as string, 
+      state as string, 
+      zipCode as string
     );
     
-    // If the result contains an error property, it's a fallback response
-    if (result.error || result.isFallback) {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.message || "Used fallback data due to API error",
-        error: result.error
-      });
+    if (!marketData || marketData.length === 0) {
+      return res.status(404).json({ message: "No market data found for this location" });
     }
     
-    res.json({ success: true, data: result });
+    return res.json(marketData);
   } catch (error) {
-    console.error("Error fetching market statistics:", error);
+    console.error("Error fetching market trends:", error);
     res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
+      message: "Error fetching market trends", 
+      error: error instanceof Error ? error.message : "Unknown error"
     });
   }
 });
 
-// Test endpoint for update-market-data
-testRouter.post("/update-market-data", async (req, res) => {
-  try {
-    const { city, state, zipCode } = req.body;
-    
-    if (!city || !state) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing required parameters: city and state are required" 
-      });
-    }
-    
-    const result = await updateMarketData(
-      String(city),
-      String(state),
-      zipCode ? String(zipCode) : undefined
-    );
-    
-    // Check if the result contains a source indicating it's fallback data
-    if (result.source === "fallback" || result.source === "fallback_error") {
-      return res.json({
-        success: true,
-        data: result,
-        isFallback: true,
-        message: result.error ? `Error: ${result.error}` : "Used fallback data due to API limitations"
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error updating market data:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
-
-// Test endpoint for sync-market-data
-testRouter.post("/sync-market-data", async (req, res) => {
-  try {
-    const { locations } = req.body;
-    
-    if (!locations || !Array.isArray(locations) || locations.length === 0) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Missing or invalid locations parameter. Expected an array of {city, state, zipCode} objects." 
-      });
-    }
-    
-    const result = await syncMarketData(locations);
-    
-    // Check if any of the results contain fallback data
-    const hasFallbacks = result.results.some(item => 
-      item.source === "fallback" || item.source === "fallback_error"
-    ) || result.errors.length > 0;
-    
-    if (hasFallbacks) {
-      // Count successes and fallbacks
-      const successes = result.results.filter(item => 
-        item.success && item.source !== "fallback" && item.source !== "fallback_error"
-      ).length;
-      const failures = result.totalAttempted - successes;
-      
-      return res.json({
-        success: true,
-        data: result,
-        partialFallback: true,
-        message: `Synced ${result.totalAttempted} locations. ${successes} succeeded with real data, ${failures} used fallback data.`
-      });
-    }
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    console.error("Error syncing market data:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error instanceof Error ? error.message : "Unknown error occurred" 
-    });
-  }
-});
-
-// Export both routers
-export { router, testRouter };
+export default router;

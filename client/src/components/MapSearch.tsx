@@ -61,7 +61,7 @@ const MapSearch = ({ properties, onPropertySelect }: MapSearchProps) => {
     // If no properties, center on default location
     if (properties.length === 0) {
       map.current.flyTo({
-        center: [-84.3963, 33.7756], // Atlanta, GA
+        center: [-84.3963, 33.7756] as [number, number], // Atlanta, GA
         zoom: 10,
         essential: true
       });
@@ -126,7 +126,8 @@ const MapSearch = ({ properties, onPropertySelect }: MapSearchProps) => {
 
   return (
     <div className="h-full w-full relative">
-      <style jsx>{`
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .mapbox-marker {
           width: auto;
           white-space: nowrap;
@@ -161,7 +162,8 @@ const MapSearch = ({ properties, onPropertySelect }: MapSearchProps) => {
           font-size: 16px;
           padding: 3px 6px;
         }
-      `}</style>
+      `
+      }} />
       
       <div ref={mapContainer} className="h-full w-full rounded-md overflow-hidden" />
       

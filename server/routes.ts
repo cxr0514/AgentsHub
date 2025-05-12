@@ -24,7 +24,7 @@ import { Permission } from "@shared/permissions";
 import { login, logout, register, getCurrentUser, updateUserProfile, changePassword, getAllUsers, deleteUser } from "./routes/auth";
 import propertyRoutes from "./routes/properties";
 import mlsRoutes from "./routes/mls";
-import { router as attomRoutes, testRouter as attomTestRouter } from "./routes/attom";
+import attomRoutes from "./routes/attom";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -43,11 +43,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register ATTOM routes for market data
   apiRouter.use("/attom", attomRoutes);
-  
-  // Register ATTOM test routes (no authentication required)
-  if (process.env.NODE_ENV === 'development') {
-    apiRouter.use("/attom/test", attomTestRouter);
-  }
   
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {
