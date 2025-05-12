@@ -193,7 +193,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                     <FormItem>
                       <FormLabel>Address</FormLabel>
                       <FormControl>
-                        <Input placeholder="123 Main St" {...field} />
+                        <Input placeholder="123 Main St" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -394,11 +394,11 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white">
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
                             <SelectItem value="Single Family">Single Family</SelectItem>
                             <SelectItem value="Multi-Family">Multi-Family</SelectItem>
                             <SelectItem value="Condo">Condo</SelectItem>
@@ -530,7 +530,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
               </div>
               
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Description</h3>
+                <h3 className="text-lg font-medium text-white">Description</h3>
                 
                 <FormField
                   control={form.control}
