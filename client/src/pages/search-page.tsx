@@ -621,53 +621,62 @@ export default function SearchPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="yearBuilt">Year Built</Label>
+                  <Label htmlFor="yearBuilt" className="text-white">Year Built</Label>
                   <Select
                     value={filters.yearBuilt}
                     onValueChange={(value) => handleFilterChange('yearBuilt', value)}
                   >
-                    <SelectTrigger id="yearBuilt">
+                    <SelectTrigger id="yearBuilt" className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                       <SelectValue placeholder="Any Year" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any_year">Any Year</SelectItem>
-                      <SelectItem value="2020">2020 or newer</SelectItem>
-                      <SelectItem value="2010">2010 or newer</SelectItem>
-                      <SelectItem value="2000">2000 or newer</SelectItem>
-                      <SelectItem value="1990">1990 or newer</SelectItem>
-                      <SelectItem value="1980">1980 or newer</SelectItem>
-                      <SelectItem value="1950">1950 or newer</SelectItem>
+                    <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                      <SelectItem value="any_year" className="focus:bg-[#0f1d31] focus:text-white">Any Year</SelectItem>
+                      <SelectItem value="2020" className="focus:bg-[#0f1d31] focus:text-white">2020 or newer</SelectItem>
+                      <SelectItem value="2010" className="focus:bg-[#0f1d31] focus:text-white">2010 or newer</SelectItem>
+                      <SelectItem value="2000" className="focus:bg-[#0f1d31] focus:text-white">2000 or newer</SelectItem>
+                      <SelectItem value="1990" className="focus:bg-[#0f1d31] focus:text-white">1990 or newer</SelectItem>
+                      <SelectItem value="1980" className="focus:bg-[#0f1d31] focus:text-white">1980 or newer</SelectItem>
+                      <SelectItem value="1950" className="focus:bg-[#0f1d31] focus:text-white">1950 or newer</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 
-                <Separator />
+                <Separator className="bg-[#0f1d31]" />
                 
                 <div className="space-y-4">
-                  <Label>Features</Label>
+                  <Label className="text-white">Features</Label>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
                       id="hasBasement" 
                       checked={filters.hasBasement}
                       onCheckedChange={(checked) => handleFilterChange('hasBasement', Boolean(checked))}
+                      className="border-[#0f1d31] data-[state=checked]:bg-[#FF7A00] data-[state=checked]:border-[#FF7A00]"
                     />
-                    <Label htmlFor="hasBasement" className="cursor-pointer">Has Basement</Label>
+                    <Label htmlFor="hasBasement" className="cursor-pointer text-white">Has Basement</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox 
                       id="hasGarage" 
                       checked={filters.hasGarage}
                       onCheckedChange={(checked) => handleFilterChange('hasGarage', Boolean(checked))}
+                      className="border-[#0f1d31] data-[state=checked]:bg-[#FF7A00] data-[state=checked]:border-[#FF7A00]"
                     />
-                    <Label htmlFor="hasGarage" className="cursor-pointer">Has Garage</Label>
+                    <Label htmlFor="hasGarage" className="cursor-pointer text-white">Has Garage</Label>
                   </div>
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col space-y-2">
-                <Button className="w-full" onClick={handleSearch}>
+                <Button 
+                  className="w-full bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white border-none" 
+                  onClick={handleSearch}
+                >
                   Search Properties
                 </Button>
-                <Button variant="outline" className="w-full" onClick={resetFilters}>
+                <Button 
+                  variant="outline" 
+                  className="w-full border-[#0f1d31] text-white hover:bg-[#071224] hover:text-[#FF7A00]" 
+                  onClick={resetFilters}
+                >
                   Reset Filters
                 </Button>
               </CardFooter>
@@ -750,14 +759,14 @@ export default function SearchPage() {
             {/* Results header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h2 className="text-xl font-bold">
+                <h2 className="text-xl font-bold text-white">
                   {isLoading ? (
-                    <Skeleton className="h-7 w-32" />
+                    <Skeleton className="h-7 w-32 bg-[#071224]" />
                   ) : (
                     `${totalItems} ${totalItems === 1 ? 'Property' : 'Properties'} Found`
                   )}
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   {filters.location ? `Location: ${filters.location}` : 'All Locations'}
                   {filters.propertyType ? ` • Type: ${filters.propertyType}` : ''}
                 </p>
@@ -768,22 +777,22 @@ export default function SearchPage() {
                   value={resultsPerPage.toString()}
                   onValueChange={(value) => setResultsPerPage(parseInt(value))}
                 >
-                  <SelectTrigger className="w-[100px]">
+                  <SelectTrigger className="w-[100px] bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:ring-1">
                     <SelectValue placeholder="Show" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="6">6 per page</SelectItem>
-                    <SelectItem value="12">12 per page</SelectItem>
-                    <SelectItem value="24">24 per page</SelectItem>
-                    <SelectItem value="48">48 per page</SelectItem>
+                  <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
+                    <SelectItem value="6" className="focus:bg-[#0f1d31] focus:text-white">6 per page</SelectItem>
+                    <SelectItem value="12" className="focus:bg-[#0f1d31] focus:text-white">12 per page</SelectItem>
+                    <SelectItem value="24" className="focus:bg-[#0f1d31] focus:text-white">24 per page</SelectItem>
+                    <SelectItem value="48" className="focus:bg-[#0f1d31] focus:text-white">48 per page</SelectItem>
                   </SelectContent>
                 </Select>
                 
-                <div className="border rounded-md p-1 flex">
+                <div className="border border-[#0f1d31] rounded-md p-1 flex bg-[#050e1d]">
                   <Button 
                     variant={viewMode === "grid" ? "default" : "ghost"} 
                     size="icon" 
-                    className="h-8 w-8"
+                    className={`h-8 w-8 ${viewMode === "grid" ? "bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white" : "text-slate-400 hover:text-white hover:bg-[#071224]"}`}
                     onClick={() => setViewMode("grid")}
                   >
                     <LayoutGrid className="h-4 w-4" />
@@ -791,7 +800,7 @@ export default function SearchPage() {
                   <Button 
                     variant={viewMode === "list" ? "default" : "ghost"} 
                     size="icon" 
-                    className="h-8 w-8"
+                    className={`h-8 w-8 ${viewMode === "list" ? "bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white" : "text-slate-400 hover:text-white hover:bg-[#071224]"}`}
                     onClick={() => setViewMode("list")}
                   >
                     <ListFilter className="h-4 w-4" />
@@ -799,7 +808,7 @@ export default function SearchPage() {
                   <Button 
                     variant={viewMode === "map" ? "default" : "ghost"} 
                     size="icon" 
-                    className="h-8 w-8"
+                    className={`h-8 w-8 ${viewMode === "map" ? "bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white" : "text-slate-400 hover:text-white hover:bg-[#071224]"}`}
                     onClick={() => setViewMode("map")}
                   >
                     <MapIcon className="h-4 w-4" />
@@ -810,14 +819,14 @@ export default function SearchPage() {
             
             {/* Error message */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-                <h3 className="text-lg font-medium text-red-800 mb-2">Failed to load properties</h3>
-                <p className="text-red-600">
+              <div className="bg-[#0c1e36] border border-red-800 rounded-lg p-6 text-center">
+                <h3 className="text-lg font-medium text-red-500 mb-2">Failed to load properties</h3>
+                <p className="text-red-400">
                   {error instanceof Error ? error.message : 'An unknown error occurred'}
                 </p>
                 <Button 
                   variant="outline" 
-                  className="mt-4" 
+                  className="mt-4 border-red-800 text-red-500 hover:bg-[#071224] hover:text-red-400" 
                   onClick={() => refetch()}
                 >
                   Retry
