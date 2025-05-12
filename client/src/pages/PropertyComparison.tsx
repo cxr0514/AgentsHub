@@ -85,11 +85,11 @@ const PropertyComparison = () => {
         <meta name="description" content="Compare multiple properties side by side to make informed investment decisions." />
       </Helmet>
       
-      <div className="container max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 py-6">
+      <div className="container max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 py-6 bg-[#071224] text-white">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
           <div className="flex items-center gap-2 mb-4 md:mb-0">
             <Link href="/" className="text-muted-foreground hover:text-foreground">
-              <Button variant="ghost" size="sm" className="gap-1">
+              <Button variant="ghost" size="sm" className="gap-1 text-white hover:text-white/80">
                 <ChevronLeft className="h-4 w-4" />
                 Back to Dashboard
               </Button>
@@ -107,7 +107,7 @@ const PropertyComparison = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={backToSelection}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-white hover:text-white/80"
               >
                 <ChevronLeft className="h-4 w-4 mr-1" />
                 Back to Selection
@@ -124,9 +124,9 @@ const PropertyComparison = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-1">
-              <Card>
+              <Card className="bg-slate-900 border-slate-800 text-white">
                 <CardHeader>
-                  <CardTitle className="text-lg font-medium">Select Properties</CardTitle>
+                  <CardTitle className="text-lg font-medium text-white">Select Properties</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                   <div className="flex gap-2 mb-4">
@@ -154,7 +154,7 @@ const PropertyComparison = () => {
                       size="sm" 
                       onClick={startComparison}
                       disabled={selectedPropertyIds.length === 0}
-                      className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
+                      className="bg-[#FF7A00] hover:bg-[#FF7A00]/80 text-white"
                     >
                       <ArrowLeftRight className="h-4 w-4 mr-1" />
                       Compare
@@ -178,8 +178,8 @@ const PropertyComparison = () => {
                       {filteredProperties.map((property: Property) => (
                         <div 
                           key={property.id} 
-                          className={`flex items-start p-2 rounded-md mb-1 hover:bg-muted cursor-pointer ${
-                            selectedPropertyIds.includes(property.id) ? 'bg-muted/60' : ''
+                          className={`flex items-start p-2 rounded-md mb-1 hover:bg-slate-800 cursor-pointer ${
+                            selectedPropertyIds.includes(property.id) ? 'bg-slate-800/80' : ''
                           }`}
                           onClick={() => togglePropertySelection(property.id)}
                         >
@@ -215,9 +215,9 @@ const PropertyComparison = () => {
             </div>
             
             <div className="lg:col-span-2">
-              <Card className="mb-4">
+              <Card className="mb-4 bg-slate-900 border-slate-800 text-white">
                 <CardHeader>
-                  <CardTitle className="text-lg font-medium">How to Compare Properties</CardTitle>
+                  <CardTitle className="text-lg font-medium text-white">How to Compare Properties</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ol className="list-decimal ml-4 space-y-2">
@@ -230,14 +230,14 @@ const PropertyComparison = () => {
               </Card>
               
               {selectedPropertyIds.length > 0 && (
-                <Card>
+                <Card className="bg-slate-900 border-slate-800 text-white">
                   <CardHeader>
-                    <CardTitle className="text-lg font-medium">Selected Properties</CardTitle>
+                    <CardTitle className="text-lg font-medium text-white">Selected Properties</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
                       {selectedProperties?.map((property: Property) => (
-                        <div key={property.id} className="flex justify-between items-center p-2 border-b last:border-0">
+                        <div key={property.id} className="flex justify-between items-center p-2 border-b border-slate-700 last:border-0">
                           <div>
                             <div className="font-medium">{property.address}</div>
                             <div className="text-sm text-muted-foreground">
@@ -257,7 +257,7 @@ const PropertyComparison = () => {
                     </div>
                     <div className="mt-4">
                       <Button 
-                        className="w-full bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white" 
+                        className="w-full bg-[#FF7A00] hover:bg-[#FF7A00]/80 text-white" 
                         onClick={startComparison}
                       >
                         <ArrowLeftRight className="h-4 w-4 mr-2" />
