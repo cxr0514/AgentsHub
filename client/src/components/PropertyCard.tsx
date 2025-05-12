@@ -35,7 +35,7 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
 
   return (
     <Link href={`/properties/${property.id}`}>
-      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full border border-gray-700 bg-[#1a202c]">
+      <Card className="overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full border border-gray-700 bg-gray-800">
         <div className="relative">
           {mainImage ? (
             <img
@@ -44,7 +44,7 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
               className="h-48 w-full object-cover"
             />
           ) : (
-            <div className="h-48 w-full bg-gray-800 flex items-center justify-center">
+            <div className="h-48 w-full bg-gray-700 flex items-center justify-center">
               <Home className="h-12 w-12 text-gray-500" />
             </div>
           )}
@@ -52,7 +52,7 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
             <Button
               variant="secondary"
               size="icon"
-              className={`rounded-full ${isSaved ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-300 border border-gray-700'}`}
+              className={`rounded-full ${isSaved ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white border border-gray-600'}`}
               onClick={handleSaveClick}
             >
               <Bookmark className="h-4 w-4" />
@@ -65,21 +65,21 @@ const PropertyCard = ({ property, onSave, isSaved = false }: PropertyCardProps) 
             <StatusBadge status={property.status} />
           </div>
 
-          <h3 className="font-medium text-gray-200 truncate">{property.address}</h3>
-          <p className="text-sm text-gray-400 truncate">
+          <h3 className="font-medium text-white truncate">{property.address}</h3>
+          <p className="text-sm text-gray-300 truncate">
             {property.neighborhood ? `${property.neighborhood}, ` : ''}
             {property.city}, {property.state}
           </p>
 
-          <div className="flex justify-between mt-3 text-sm text-gray-300 font-medium">
+          <div className="flex justify-between mt-3 text-sm text-white font-medium">
             <div className="flex items-center">
-              <span className="bg-gray-800 px-2 py-1 rounded">{property.bedrooms} bed</span>
+              <span className="bg-gray-700 px-2 py-1 rounded">{property.bedrooms} bed</span>
             </div>
             <div className="flex items-center">
-              <span className="bg-gray-800 px-2 py-1 rounded">{property.bathrooms} bath</span>
+              <span className="bg-gray-700 px-2 py-1 rounded">{property.bathrooms} bath</span>
             </div>
             <div className="flex items-center">
-              <span className="bg-gray-800 px-2 py-1 rounded">{Number(property.squareFeet).toLocaleString()} sqft</span>
+              <span className="bg-gray-700 px-2 py-1 rounded">{Number(property.squareFeet).toLocaleString()} sqft</span>
             </div>
           </div>
         </CardContent>
