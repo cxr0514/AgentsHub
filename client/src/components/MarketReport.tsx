@@ -7,8 +7,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart4, FileText, Printer, Download, AlertTriangle, Buildings, Home, Building2 } from 'lucide-react';
+import { BarChart4, FileText, Printer, Download, AlertTriangle, Building, Home, Building2 } from 'lucide-react';
 import jsPDF from 'jspdf';
+// @ts-ignore
 import 'jspdf-autotable';
 
 interface MarketReportProps {
@@ -71,6 +72,7 @@ export function MarketReport({ initialLocation = 'Atlanta, GA' }: MarketReportPr
       // Add report content
       doc.setFontSize(12);
       
+      // @ts-ignore - jspdf-autotable adds this method to jsPDF
       const finalY = doc.autoTable({
         startY: 35,
         head: [['Market Report']],
@@ -207,7 +209,7 @@ export function MarketReport({ initialLocation = 'Atlanta, GA' }: MarketReportPr
                 </SelectItem>
                 <SelectItem value="multifamily">
                   <div className="flex items-center gap-2">
-                    <Buildings className="h-4 w-4" />
+                    <Building className="h-4 w-4" />
                     <span>Multi-Family</span>
                   </div>
                 </SelectItem>

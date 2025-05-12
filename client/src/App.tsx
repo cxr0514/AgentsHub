@@ -20,6 +20,7 @@ import PropertyComparisonPage from "@/pages/property-comparison-page";
 import ReportsPage from "@/pages/reports-page";
 import SettingsPage from "@/pages/settings-page";
 import FinancialCalculatorsPage from "@/pages/financial-calculators";
+import AIMarketAnalysisPage from "@/pages/ai-market-analysis";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
       <ProtectedRoute path="/attom-search" component={AttomSearch} />
       <ProtectedRoute path="/attom-search-help" component={AttomSearchHelp} />
       <ProtectedRoute path="/market-analysis" component={MarketAnalysisPage} />
+      <ProtectedRoute path="/ai-market-analysis" component={AIMarketAnalysisPage} />
       <ProtectedRoute path="/map-visualization" component={MapVisualizationPage} />
       <ProtectedRoute path="/property-comparison" component={PropertyComparisonPage} />
       <ProtectedRoute path="/reports" component={ReportsPage} />
