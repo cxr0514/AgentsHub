@@ -46,6 +46,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     { icon: Building2, label: 'Properties', path: '/properties' },
     { icon: Search, label: 'Search', path: '/search' },
     { icon: LineChart, label: 'Market Analysis', path: '/market-analysis' },
+    { icon: BarChart2, label: 'Compare Properties', path: '/property-comparison' },
     { icon: FileText, label: 'Reports', path: '/reports' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];

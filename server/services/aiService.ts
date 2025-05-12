@@ -250,28 +250,39 @@ async function generateMarketPrediction(marketData: MarketData[]) {
 
 /**
  * Generate property recommendations based on user preferences
+ * @param user User object
  * @param properties Available properties
- * @param preferences User preferences 
+ * @param preferences User preferences including saved searches and saved properties
  * @returns Property recommendations with reasoning
  */
-async function generatePropertyRecommendations(properties: Property[], preferences: any) {
+async function generatePropertyRecommendations(user: any, properties: Property[], preferences: any) {
   try {
     // Format properties data for the AI
-    const propertiesData = properties.map(p => ({
-      id: p.id,
-      address: p.address,
-      city: p.city,
-      state: p.state,
-      zipCode: p.zipCode,
-      price: p.price,
-      bedrooms: p.bedrooms,
-      bathrooms: p.bathrooms,
-      squareFeet: p.squareFeet,
-      propertyType: p.propertyType,
-      yearBuilt: p.yearBuilt,
-      description: p.description,
-      status: p.status
-    }));
+    const propertiesData = properties
+      .filter(p => p.status === "Active") // Only consider active properties
+      .map(p => ({
+        id: p.id,
+        address: p.address,
+        city: p.city,
+        state: p.state,
+        zipCode: p.zipCode,
+        price: p.price,
+        bedrooms: p.bedrooms,
+        bathrooms: p.bathrooms,
+        squareFeet: p.squareFeet,
+        propertyType: p.propertyType,
+        yearBuilt: p.yearBuilt,
+        description: p.description,
+        status: p.status,
+        hasBasement: p.hasBasement,
+        hasGarage: p.hasGarage,
+        garageSpaces: p.garageSpaces,
+        lotSize: p.lotSize,
+        pricePerSqft: p.pricePerSqft
+      }));
+
+    // Limit to 50 properties to avoid token limits
+    const limitedProperties = propertiesData.slice(0, 50);
 
     const response = await fetch(PERPLEXITY_API_URL, {
       method: 'POST',
@@ -293,14 +304,21 @@ async function generatePropertyRecommendations(properties: Property[], preferenc
             content: `Based on these user preferences:
             ${JSON.stringify(preferences, null, 2)}
             
-            Recommend the best properties from this list:
-            ${JSON.stringify(propertiesData, null, 2)}
+            Recommend 3-5 of the best properties from this list:
+            ${JSON.stringify(limitedProperties, null, 2)}
             
-            Generate recommendations in JSON format with these fields:
-            - topRecommendations (array of objects, each with propertyId, matchScore from 0-100, and reasons array)
-            - alternativeOptions (array of objects with propertyId, matchScore, and reasons)
-            - summary (string explaining the overall recommendation strategy)
-            - keyConsiderations (array of strings with important factors to consider)`
+            Generate recommendations as a JSON array where each recommendation object contains:
+            - address
+            - city
+            - state
+            - zipCode
+            - price (as a number)
+            - bedrooms (as a number)
+            - bathrooms (as a number)
+            - squareFeet (as a number)
+            - propertyType
+            - matchScore (percentage from 0-100)
+            - reasonForRecommendation (a short paragraph explaining why this property matches the user's preferences)`
           }
         ],
         temperature: 0.3,
@@ -315,9 +333,38 @@ async function generatePropertyRecommendations(properties: Property[], preferenc
     }
 
     const data = await response.json();
+    
     // Extract JSON from the response, which might contain markdown formatting
     const recommendations = extractJsonFromText(data.choices[0].message.content);
-    return recommendations;
+    
+    // If recommendations is not an array, look for nested array structure
+    const recommendationsArray = Array.isArray(recommendations) 
+      ? recommendations 
+      : recommendations.recommendations || recommendations.properties || [];
+    
+    // Add propertyId from original data and imageUrl placeholder
+    const enhancedRecommendations = recommendationsArray.map((rec: any) => {
+      // Find matching property by address to get the ID
+      const matchingProperty = properties.find(p => 
+        p.address.toLowerCase() === rec.address?.toLowerCase() &&
+        p.city.toLowerCase() === rec.city?.toLowerCase()
+      );
+      
+      return {
+        ...rec,
+        propertyId: matchingProperty?.id || null,
+        // Set image URL if property has images
+        imageUrl: matchingProperty?.images ? 
+          (Array.isArray(matchingProperty.images) ? 
+            matchingProperty.images[0] : 
+            typeof matchingProperty.images === 'object' ? 
+              Object.values(matchingProperty.images)[0] : 
+              null) : 
+          null
+      };
+    });
+    
+    return enhancedRecommendations;
   } catch (error) {
     console.error("Error generating property recommendations:", error);
     throw new Error(`Failed to generate property recommendations: ${error.message}`);
