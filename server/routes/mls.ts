@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { fetchPropertiesFromMLS, syncLastUpdated } from '../services/mlsService';
+import { fetchPropertiesFromMLS, syncLastUpdated, refreshMLSData } from '../services/mlsService';
 import { isAdmin, hasPermission, Permission } from '@shared/permissions';
 import { db } from '../db';
-import { eq } from 'drizzle-orm';
+import { isNotNull, count } from 'drizzle-orm';
 import { properties } from '@shared/schema';
 
 const router = Router();
@@ -23,18 +23,16 @@ router.get('/status', async (req, res) => {
     }
     
     // Count properties with externalId not null (MLS properties)
-    const mlsPropertiesCount = await db
-      .select({ count: db.fn.count() })
+    const [result] = await db
+      .select({ count: count() })
       .from(properties)
-      .where(
-        eq(properties.externalId, null)
-      );
+      .where(isNotNull(properties.externalId));
     
     return res.json({
       status: 'active',
       message: 'MLS integration is active',
       lastSync: syncLastUpdated,
-      propertiesCount: mlsPropertiesCount[0].count
+      propertiesCount: Number(result?.count || 0)
     });
   } catch (error) {
     console.error('Error checking MLS status:', error);
@@ -65,20 +63,14 @@ router.post('/synchronize', async (req, res) => {
       });
     }
     
-    // Fetch latest properties from MLS
-    const { importedProperties, errors } = await fetchPropertiesFromMLS({
-      force: true,  // Force refresh all properties
-      limit: 50     // Limit to 50 properties for manual sync
-    });
-    
-    // Update the last updated timestamp
-    syncLastUpdated.setTime(Date.now());
+    // Use our function to refresh MLS data (limit to 50 properties for manual sync)
+    const syncCount = await refreshMLSData(50);
     
     return res.json({
       status: 'success',
-      message: `Successfully synced ${importedProperties.length} properties`,
-      count: importedProperties.length,
-      errors: errors.length > 0 ? errors : undefined
+      message: `Successfully synced ${syncCount} properties`,
+      count: syncCount,
+      timestamp: syncLastUpdated
     });
   } catch (error) {
     console.error('Error synchronizing MLS data:', error);

@@ -22,6 +22,7 @@ import { requireAdmin, requirePermission, loadUser } from "./middleware/permissi
 import { Permission } from "@shared/permissions";
 import { login, logout, register, getCurrentUser, updateUserProfile, changePassword, getAllUsers, deleteUser } from "./routes/auth";
 import propertyRoutes from "./routes/properties";
+import mlsRoutes from "./routes/mls";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -34,6 +35,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register our custom property routes with image upload
   apiRouter.use("/properties", propertyRoutes);
+  
+  // Register MLS routes for synchronization and status
+  apiRouter.use("/mls", mlsRoutes);
   
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {

@@ -464,35 +464,117 @@ export function clearMLSCache(): void {
 /**
  * Function to refresh MLS data in the database
  */
+/**
+ * Fetch properties from MLS API and store them in the database
+ */
+export async function fetchPropertiesFromMLS(options: { 
+  limit?: number; 
+  offset?: number; 
+  force?: boolean;
+  filters?: Record<string, any>;
+} = {}): Promise<{ 
+  importedProperties: Property[]; 
+  errors: string[];
+}> {
+  const errors: string[] = [];
+  const importedProperties: Property[] = [];
+  
+  try {
+    // Set default options
+    const { 
+      limit = 20, 
+      offset = 0, 
+      force = false,
+      filters = {}
+    } = options;
+    
+    // Call MLS API using our existing function
+    const response = await fetchFromMLS({
+      ...filters,
+      limit
+    });
+    
+    if (!response.success || !response.properties) {
+      errors.push(response.error || 'Failed to fetch properties from MLS');
+      return { importedProperties, errors };
+    }
+    
+    // Convert properties to our format
+    const propertiesData = response.properties.map(convertMLSPropertyToAppProperty);
+    
+    // Process each property individually to handle conflicts properly
+    for (const propertyData of propertiesData) {
+      try {
+        // Check if the property with this external ID already exists
+        if (propertyData.externalId) {
+          const existingProperty = await db.select()
+            .from(properties)
+            .where(eq(properties.externalId, propertyData.externalId))
+            .limit(1);
+            
+          if (existingProperty.length > 0 && !force) {
+            // Update the existing property
+            const [updated] = await db.update(properties)
+              .set({
+                ...propertyData,
+                updatedAt: new Date()
+              })
+              .where(eq(properties.externalId, propertyData.externalId))
+              .returning();
+              
+            if (updated) {
+              importedProperties.push(updated);
+            }
+            continue; // Skip to next property
+          }
+        }
+        
+        // No existing property with this external ID, insert a new one
+        const [inserted] = await db.insert(properties)
+          .values({
+            ...propertyData,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          })
+          .returning();
+          
+        if (inserted) {
+          importedProperties.push(inserted);
+        }
+      } catch (error) {
+        errors.push(`Error processing property: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+    
+    // Update sync timestamp
+    syncLastUpdated.setTime(Date.now());
+    
+    return { importedProperties, errors };
+  } catch (error) {
+    errors.push(`MLS synchronization error: ${error instanceof Error ? error.message : String(error)}`);
+    return { importedProperties, errors };
+  }
+}
+
 export async function refreshMLSData(limit: number = 100): Promise<number> {
   // Clear cache to ensure fresh data
   clearMLSCache();
   
   try {
-    const response = await fetchFromMLS({ limit });
+    // Use our new fetchPropertiesFromMLS function
+    const { importedProperties, errors } = await fetchPropertiesFromMLS({
+      limit,
+      force: true // Force refresh all properties
+    });
     
-    if (!response.success || !response.properties) {
-      console.error('Failed to refresh MLS data:', response.error);
-      return 0;
+    if (errors.length > 0) {
+      console.error('Errors during MLS data refresh:', errors);
     }
     
-    const propertiesData = response.properties.map(convertMLSPropertyToAppProperty);
+    // Update the last synchronization timestamp
+    syncLastUpdated.setTime(Date.now());
     
-    // Insert or update properties
-    const insertedProperties = await db.insert(properties)
-      .values(propertiesData)
-      .onConflictDoUpdate({
-        target: [properties.address, properties.city, properties.state, properties.zipCode],
-        set: {
-          price: sql`EXCLUDED.price`,
-          status: sql`EXCLUDED.status`,
-          daysOnMarket: sql`EXCLUDED.days_on_market`,
-          updatedAt: sql`CURRENT_TIMESTAMP`,
-        },
-      })
-      .returning();
-    
-    return insertedProperties.length;
+    return importedProperties.length;
   } catch (error) {
     console.error('Error refreshing MLS data:', error);
     return 0;
