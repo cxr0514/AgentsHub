@@ -56,7 +56,7 @@ export async function fetchPropertyDetails(address: string, city: string, state:
     
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching property details:", error);
     throw error;
   }
@@ -92,7 +92,7 @@ export async function fetchPropertySaleHistory(address: string, city: string, st
     
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching property sale history:", error);
     throw error;
   }
@@ -129,7 +129,7 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
     
     const data = await response.json();
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching market statistics:", error);
     throw error;
   }
@@ -207,7 +207,7 @@ export async function updateMarketData(city: string, state: string, zipCode?: st
     
     console.log(`Successfully updated market data for ${city}, ${state}${zipCode ? ` ${zipCode}` : ''}`);
     return { success: true, data: newMarketData };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating market data:", error);
     throw error;
   }
@@ -225,10 +225,10 @@ function extractMetric(areaStats: any, metricName: string): string {
         }
       }
     }
-    return null;
-  } catch (error) {
+    return "";
+  } catch (error: any) {
     console.error(`Error extracting ${metricName}:`, error);
-    return null;
+    return "";
   }
 }
 
@@ -260,7 +260,7 @@ export async function syncMarketData(locations: Array<{city: string, state: stri
         success: true,
         data: result
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error syncing market data for ${location.city}, ${location.state}:`, error);
       errors.push({
         location,
