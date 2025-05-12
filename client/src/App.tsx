@@ -18,6 +18,7 @@ import MarketAnalysisPage from "@/pages/market-analysis-page";
 import PropertyComparisonPage from "@/pages/property-comparison-page";
 import ReportsPage from "@/pages/reports-page";
 import SettingsPage from "@/pages/settings-page";
+import FinancialCalculatorsPage from "@/pages/financial-calculators";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -31,6 +32,7 @@ function Router() {
       <ProtectedRoute path="/market-analysis" component={MarketAnalysisPage} />
       <ProtectedRoute path="/property-comparison" component={PropertyComparisonPage} />
       <ProtectedRoute path="/reports" component={ReportsPage} />
+      <ProtectedRoute path="/financial-calculators" component={FinancialCalculatorsPage} />
       <ProtectedRoute path="/settings" component={SettingsPage} />
       <ProtectedRoute path="/api-keys" component={ApiKeyManagement} />
       <Route path="/auth" component={AuthPage} />

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { PermissionGuard } from "@/components/PermissionGuard";
 import { Permission } from "@shared/permissions";
 import { Link } from "wouter";
-import { Building2, Settings, ClipboardList, Key, Search, Home, BarChart4, LogOut } from "lucide-react";
+import { Building2, Settings, ClipboardList, Key, Search, Home, BarChart4, LogOut, Calculator } from "lucide-react";
 
 export default function HomePage() {
   const { user, logoutMutation } = useAuth();
@@ -50,6 +50,11 @@ export default function HomePage() {
             <Link href="/reports" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
               <ClipboardList className="h-4 w-4" />
               <span>Reports</span>
+            </Link>
+            <Link href="/financial-calculators" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
+              <Calculator className="h-4 w-4 text-[#FF7A00]" />
+              <span>Financial Tools</span>
+              <span className="ml-auto bg-[#FF7A00] text-white text-[10px] px-1.5 py-0.5 rounded-full">New</span>
             </Link>
           </div>
 
