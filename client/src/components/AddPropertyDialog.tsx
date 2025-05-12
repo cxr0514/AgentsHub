@@ -1,0 +1,555 @@
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { insertPropertySchema } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
+
+// Create a schema for property creation form with more specific validations
+const propertyFormSchema = z.object({
+  address: z.string().min(3, "Address is required and must be at least 3 characters"),
+  city: z.string().min(2, "City is required"),
+  state: z.string().min(2, "State is required"),
+  zipCode: z.string().min(5, "Zip code is required"),
+  neighborhood: z.string().optional(),
+  latitude: z.string().optional(),
+  longitude: z.string().optional(),
+  price: z.string().min(1, "Price is required"),
+  bedrooms: z.string().min(1, "Number of bedrooms is required"),
+  bathrooms: z.string().min(1, "Number of bathrooms is required"),
+  squareFeet: z.string().min(1, "Square footage is required"),
+  lotSize: z.string().optional(),
+  yearBuilt: z.string().optional(),
+  propertyType: z.string().min(1, "Property type is required"),
+  status: z.string().min(1, "Status is required"),
+  daysOnMarket: z.string().optional(),
+  saleDate: z.string().optional(),
+  hasBasement: z.boolean().default(false),
+  hasGarage: z.boolean().default(false),
+  garageSpaces: z.string().optional(),
+  pricePerSqft: z.string().optional(),
+  description: z.string().optional(),
+});
+
+type PropertyFormData = z.infer<typeof propertyFormSchema>;
+
+interface AddPropertyDialogProps {
+  onAddSuccess?: () => void;
+}
+
+export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogProps) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const form = useForm<PropertyFormData>({
+    resolver: zodResolver(propertyFormSchema),
+    defaultValues: {
+      address: "",
+      city: "",
+      state: "",
+      zipCode: "",
+      neighborhood: "",
+      latitude: "",
+      longitude: "",
+      price: "",
+      bedrooms: "",
+      bathrooms: "",
+      squareFeet: "",
+      lotSize: "",
+      yearBuilt: "",
+      propertyType: "Single Family",
+      status: "Active",
+      daysOnMarket: "0",
+      saleDate: "",
+      hasBasement: false,
+      hasGarage: false,
+      garageSpaces: "",
+      pricePerSqft: "",
+      description: "",
+    },
+  });
+  
+  const onSubmit = async (data: PropertyFormData) => {
+    try {
+      // Convert string values to appropriate types for the API
+      const propertyData = {
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode,
+        neighborhood: data.neighborhood || undefined,
+        latitude: data.latitude ? parseFloat(data.latitude) : undefined,
+        longitude: data.longitude ? parseFloat(data.longitude) : undefined,
+        price: parseFloat(data.price),
+        bedrooms: parseInt(data.bedrooms),
+        bathrooms: parseFloat(data.bathrooms),
+        squareFeet: parseFloat(data.squareFeet),
+        lotSize: data.lotSize ? parseFloat(data.lotSize) : undefined,
+        yearBuilt: data.yearBuilt ? parseInt(data.yearBuilt) : undefined,
+        propertyType: data.propertyType,
+        status: data.status,
+        daysOnMarket: data.daysOnMarket ? parseInt(data.daysOnMarket) : undefined,
+        saleDate: data.saleDate ? new Date(data.saleDate).toISOString() : undefined,
+        hasBasement: data.hasBasement,
+        hasGarage: data.hasGarage,
+        garageSpaces: data.garageSpaces ? parseInt(data.garageSpaces) : undefined,
+        pricePerSqft: data.pricePerSqft ? parseFloat(data.pricePerSqft) : undefined,
+        description: data.description || undefined,
+        features: ["Added manually"],
+        images: [],
+      };
+      
+      const response = await fetch("/api/properties", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(propertyData),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to add property");
+      }
+      
+      const newProperty = await response.json();
+      
+      toast({
+        title: "Property Added",
+        description: `Successfully added property at ${newProperty.address}`,
+      });
+      
+      // Invalidate properties query to refetch data
+      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+      
+      // Close dialog and reset form
+      setOpen(false);
+      form.reset();
+      
+      // Call success callback if provided
+      if (onAddSuccess) {
+        onAddSuccess();
+      }
+    } catch (error) {
+      toast({
+        title: "Error Adding Property",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-green-600 hover:bg-green-700 text-white">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Property
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Add New Property</DialogTitle>
+          <DialogDescription>
+            Enter the details of the property you want to add to the database.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Location Information</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="address"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123 Main St" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Atlanta" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <FormControl>
+                          <Input placeholder="GA" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="zipCode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Zip Code</FormLabel>
+                        <FormControl>
+                          <Input placeholder="30066" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="neighborhood"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Neighborhood</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Optional" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="latitude"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Latitude</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Optional" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="longitude"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Longitude</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Optional" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Property Details</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price ($)</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="450000" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="grid grid-cols-3 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="bedrooms"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bedrooms</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="3" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="bathrooms"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bathrooms</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="2" step="0.5" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="squareFeet"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sq Ft</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="2000" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="yearBuilt"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Year Built</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="Optional" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="lotSize"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Lot Size (acres)</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="Optional" step="0.01" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="propertyType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Property Type</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Single Family">Single Family</SelectItem>
+                            <SelectItem value="Multi-Family">Multi-Family</SelectItem>
+                            <SelectItem value="Condo">Condo</SelectItem>
+                            <SelectItem value="Townhouse">Townhouse</SelectItem>
+                            <SelectItem value="Apartment">Apartment</SelectItem>
+                            <SelectItem value="Land">Land</SelectItem>
+                            <SelectItem value="Commercial">Commercial</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Status</FormLabel>
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                            <SelectItem value="Sold">Sold</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Additional Information</h3>
+                
+                <div className="flex items-center space-x-2">
+                  <FormField
+                    control={form.control}
+                    name="hasBasement"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="cursor-pointer">Has Basement</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <FormField
+                    control={form.control}
+                    name="hasGarage"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="cursor-pointer">Has Garage</FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                
+                <FormField
+                  control={form.control}
+                  name="garageSpaces"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Garage Spaces</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="Optional" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                {form.watch("status") === "Active" && (
+                  <FormField
+                    control={form.control}
+                    name="daysOnMarket"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Days on Market</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="0" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+                
+                {form.watch("status") === "Sold" && (
+                  <FormField
+                    control={form.control}
+                    name="saleDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sale Date</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </div>
+              
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium">Description</h3>
+                
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Property Description</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="Enter property description" 
+                          className="resize-none h-32"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Add Property</Button>
+            </div>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

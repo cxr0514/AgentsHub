@@ -8,7 +8,8 @@ import SearchFilters from "@/components/SearchFilters";
 import PropertyTable from "@/components/PropertyTable";
 import MapSearch from "@/components/MapSearch";
 import CsvUploadDialog from "@/components/CsvUploadDialog";
-import { Table, Map, Upload, FileUp } from "lucide-react";
+import AddPropertyDialog from "@/components/AddPropertyDialog";
+import { Table, Map, Upload, FileUp, Plus } from "lucide-react";
 
 const PropertySearch = () => {
   const [searchFilters, setSearchFilters] = useState<Record<string, any>>({});
@@ -17,7 +18,7 @@ const PropertySearch = () => {
   const [showCsvUploadDialog, setShowCsvUploadDialog] = useState(false);
   
   // Fetch properties
-  const { data: fetchedProperties, isLoading } = useQuery({
+  const { data: fetchedProperties, isLoading, refetch } = useQuery({
     queryKey: ['/api/properties', searchFilters],
     queryFn: async () => {
       // If we have filters, use them to filter properties
@@ -75,6 +76,11 @@ const PropertySearch = () => {
     });
   };
   
+  const handlePropertyAdded = () => {
+    // Refetch properties when a new one is added
+    refetch();
+  };
+  
   return (
     <>
       <Helmet>
@@ -92,6 +98,8 @@ const PropertySearch = () => {
               </p>
             </div>
             <div className="flex gap-4">
+              <AddPropertyDialog onAddSuccess={handlePropertyAdded} />
+              
               <Button
                 variant="outline"
                 className="border-accent text-accent hover:bg-accent/10"

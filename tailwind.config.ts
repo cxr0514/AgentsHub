@@ -79,10 +79,28 @@ export default {
             height: "0",
           },
         },
+        "wave": {
+          "0%": { transform: "translateY(0) translateX(0)" },
+          "50%": { transform: "translateY(-15px) translateX(15px)" },
+          "100%": { transform: "translateY(0) translateX(0)" },
+        },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "0.8" },
+        },
+        "pulse-slower": {
+          "0%, 100%": { opacity: "0.3" },
+          "50%": { opacity: "0.6" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "wave": "wave 8s ease-in-out infinite",
+        "wave-slow": "wave 12s ease-in-out infinite reverse",
+        "wave-slower": "wave 16s ease-in-out infinite",
+        "pulse-slow": "pulse-slow 4s ease-in-out infinite",
+        "pulse-slower": "pulse-slower 7s ease-in-out infinite",
       },
     },
   },
