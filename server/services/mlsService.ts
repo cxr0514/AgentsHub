@@ -113,27 +113,55 @@ let propertyCache: Map<string, { data: any; timestamp: number }> = new Map();
 /**
  * Convert MLS property data to our application's property format
  */
-function convertMLSPropertyToAppProperty(mlsProperty: MLSProperty): InsertProperty {
-  return {
-    address: mlsProperty.address,
-    city: mlsProperty.city,
-    state: mlsProperty.state,
-    zipCode: mlsProperty.zipCode,
-    neighborhood: mlsProperty.neighborhood || null,
-    price: mlsProperty.price,
-    bedrooms: mlsProperty.bedrooms,
-    bathrooms: mlsProperty.bathrooms,
-    squareFeet: mlsProperty.squareFeet,
-    lotSize: mlsProperty.lotSize,
-    yearBuilt: mlsProperty.yearBuilt,
-    propertyType: mlsProperty.propertyType,
-    status: mlsProperty.status,
-    daysOnMarket: mlsProperty.daysOnMarket,
-    images: JSON.stringify(mlsProperty.images),
-    pricePerSqft: (Number(mlsProperty.price.replace(/,/g, '')) / Number(mlsProperty.squareFeet.replace(/,/g, ''))).toFixed(2),
-    description: mlsProperty.description,
-    features: JSON.stringify(mlsProperty.features),
-  };
+function convertMLSPropertyToAppProperty(mlsProperty: any): InsertProperty {
+  // Check if this is a Datafiniti property format
+  if (mlsProperty.id && mlsProperty.dateAdded) {
+    // Datafiniti format - convert to our application format
+    return {
+      address: mlsProperty.address || '',
+      city: mlsProperty.city || '',
+      state: mlsProperty.province || '',
+      zipCode: mlsProperty.postalCode || '',
+      neighborhood: mlsProperty.neighborhoods ? mlsProperty.neighborhoods[0] : null,
+      price: mlsProperty.mostRecentPriceAmount ? String(mlsProperty.mostRecentPriceAmount) : '0',
+      bedrooms: mlsProperty.numBedroom || 0,
+      bathrooms: mlsProperty.numBathroom ? String(mlsProperty.numBathroom) : '0',
+      squareFeet: mlsProperty.floorSizeValue ? String(mlsProperty.floorSizeValue) : '0',
+      lotSize: mlsProperty.lotSizeValue ? `${mlsProperty.lotSizeValue} ${mlsProperty.lotSizeUnit || ''}` : '0',
+      yearBuilt: mlsProperty.yearBuilt || new Date().getFullYear() - 10, // Default to 10 years old if not provided
+      propertyType: mlsProperty.propertyType || 'Unknown',
+      status: mlsProperty.mostRecentStatus || 'Unknown',
+      daysOnMarket: 0, // Not directly provided in Datafiniti response
+      images: JSON.stringify(mlsProperty.imageURLs || []),
+      pricePerSqft: mlsProperty.floorSizeValue && mlsProperty.mostRecentPriceAmount 
+        ? (mlsProperty.mostRecentPriceAmount / mlsProperty.floorSizeValue).toFixed(2)
+        : '0',
+      description: `${mlsProperty.propertyType || 'Property'} located in ${mlsProperty.city || 'Unknown City'}`,
+      features: JSON.stringify([]), // Features not directly provided in Datafiniti
+    };
+  } else {
+    // Original MLSProperty format
+    return {
+      address: mlsProperty.address,
+      city: mlsProperty.city,
+      state: mlsProperty.state,
+      zipCode: mlsProperty.zipCode,
+      neighborhood: mlsProperty.neighborhood || null,
+      price: mlsProperty.price,
+      bedrooms: mlsProperty.bedrooms,
+      bathrooms: mlsProperty.bathrooms,
+      squareFeet: mlsProperty.squareFeet,
+      lotSize: mlsProperty.lotSize,
+      yearBuilt: mlsProperty.yearBuilt,
+      propertyType: mlsProperty.propertyType,
+      status: mlsProperty.status,
+      daysOnMarket: mlsProperty.daysOnMarket,
+      images: JSON.stringify(mlsProperty.images),
+      pricePerSqft: (Number(mlsProperty.price.replace(/,/g, '')) / Number(mlsProperty.squareFeet.replace(/,/g, ''))).toFixed(2),
+      description: mlsProperty.description,
+      features: JSON.stringify(mlsProperty.features),
+    };
+  }
 }
 
 /**
