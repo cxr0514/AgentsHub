@@ -81,60 +81,75 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
   
   const onSubmit = async (data: PropertyFormData) => {
     try {
+      console.log("Form data:", data);
+      
       // Convert string values to appropriate types for the API
       const propertyData = {
         address: data.address,
         city: data.city,
         state: data.state,
         zipCode: data.zipCode,
-        neighborhood: data.neighborhood || undefined,
-        latitude: data.latitude ? parseFloat(data.latitude) : undefined,
-        longitude: data.longitude ? parseFloat(data.longitude) : undefined,
-        price: parseFloat(data.price),
+        neighborhood: data.neighborhood || null,
+        latitude: data.latitude ? parseFloat(data.latitude) : null,
+        longitude: data.longitude ? parseFloat(data.longitude) : null,
+        price: data.price, // Keep as string for numeric fields
         bedrooms: parseInt(data.bedrooms),
-        bathrooms: parseFloat(data.bathrooms),
-        squareFeet: parseFloat(data.squareFeet),
-        lotSize: data.lotSize ? parseFloat(data.lotSize) : undefined,
-        yearBuilt: data.yearBuilt ? parseInt(data.yearBuilt) : undefined,
+        bathrooms: data.bathrooms, // Keep as string for numeric fields
+        squareFeet: data.squareFeet, // Keep as string for numeric fields
+        lotSize: data.lotSize || null,
+        yearBuilt: data.yearBuilt ? parseInt(data.yearBuilt) : null,
         propertyType: data.propertyType,
         status: data.status,
-        daysOnMarket: data.daysOnMarket ? parseInt(data.daysOnMarket) : undefined,
-        saleDate: data.saleDate ? new Date(data.saleDate).toISOString() : undefined,
+        daysOnMarket: data.daysOnMarket ? parseInt(data.daysOnMarket) : null,
+        saleDate: data.saleDate ? new Date(data.saleDate).toISOString() : null,
         hasBasement: data.hasBasement,
         hasGarage: data.hasGarage,
-        garageSpaces: data.garageSpaces ? parseInt(data.garageSpaces) : undefined,
-        pricePerSqft: data.pricePerSqft ? parseFloat(data.pricePerSqft) : undefined,
-        description: data.description || undefined,
+        garageSpaces: data.garageSpaces ? parseInt(data.garageSpaces) : null,
+        pricePerSqft: data.pricePerSqft || null,
+        description: data.description || null,
         features: ["Added manually"],
         images: [],
       };
       
-      const response = await fetch("/api/properties", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(propertyData),
-      });
+      console.log("Sending property data:", propertyData);
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add property");
+      try {
+        const response = await fetch("/api/properties", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(propertyData),
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Server error:", errorData);
+          throw new Error(errorData.message || "Failed to add property");
+        }
+        
+        const newProperty = await response.json();
+        console.log("Property added successfully:", newProperty);
+        
+        toast({
+          title: "Property Added",
+          description: `Successfully added property at ${newProperty.address}`,
+        });
+        
+        // Invalidate properties query to refetch data
+        queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+        
+        // Close dialog and reset form
+        setOpen(false);
+        form.reset();
+      } catch (apiError) {
+        console.error("API request error:", apiError);
+        toast({
+          title: "Error Adding Property",
+          description: apiError instanceof Error ? apiError.message : "Server error occurred",
+          variant: "destructive",
+        });
       }
-      
-      const newProperty = await response.json();
-      
-      toast({
-        title: "Property Added",
-        description: `Successfully added property at ${newProperty.address}`,
-      });
-      
-      // Invalidate properties query to refetch data
-      queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
-      
-      // Close dialog and reset form
-      setOpen(false);
-      form.reset();
       
       // Call success callback if provided
       if (onAddSuccess) {

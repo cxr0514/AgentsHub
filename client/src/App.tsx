@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
+import AppLayout from "@/components/AppLayout";
 
 import HomePage from "@/pages/home-page";
 import AuthPage from "@/pages/auth-page";
@@ -38,7 +39,9 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <AuthProvider>
-          <Router />
+          <AppLayout>
+            <Router />
+          </AppLayout>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
