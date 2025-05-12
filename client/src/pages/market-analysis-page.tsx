@@ -1,612 +1,803 @@
-import { useAuth } from "@/hooks/use-auth";
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { apiRequest } from '@/lib/queryClient';
+import { useAuth } from '@/hooks/use-auth';
+import { useToast } from '@/hooks/use-toast';
+import { PermissionGuard } from '@/components/PermissionGuard';
+import { Permission } from '@/lib/permissions';
+
+// Components
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
 import { 
-  ArrowLeft, 
-  Search, 
+  PieChart, Pie, LineChart, Line, AreaChart, Area, 
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
+  ResponsiveContainer, BarChart, Bar 
+} from 'recharts';
+import { 
   TrendingUp, 
+  TrendingDown, 
+  AlertTriangle, 
   Home, 
   DollarSign, 
-  Calendar, 
   Clock, 
+  Layers, 
+  Award, 
+  BarChart3, 
   Building, 
-  PieChart,
-  ArrowDownCircle,
-  ArrowUpCircle,
-  BarChart4,
-  RefreshCw
-} from "lucide-react";
-import { Link } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  PieChart as RechartsPieChart,
-  Pie,
-  Cell,
-  Legend
-} from "recharts";
+  Loader2 
+} from 'lucide-react';
 
-interface MarketData {
-  id: number;
-  city: string;
-  state: string;
-  zipCode: string;
-  daysOnMarket: number | null;
-  year: number;
-  month: number;
-  medianPrice: string | null;
-  averagePricePerSqft: string | null;
-  inventory: number | null;
-  soldCount: number | null;
-  newListings: number | null;
-  marketType: string | null;
-  createdAt: string;
-}
+// Form schema
+const locationFormSchema = z.object({
+  city: z.string().min(1, { message: "City is required" }),
+  state: z.string().min(1, { message: "State is required" }),
+  zipCode: z.string().optional(),
+});
 
-const MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-];
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+type LocationFormValues = z.infer<typeof locationFormSchema>;
 
 export default function MarketAnalysisPage() {
   const { user } = useAuth();
-  const [location, setLocation] = useState({
-    city: "Austin",
-    state: "TX",
-    zipCode: ""
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState('predictions');
+  const [selectedLocation, setSelectedLocation] = useState<LocationFormValues | null>(null);
+  
+  // Form for location selection
+  const form = useForm<LocationFormValues>({
+    resolver: zodResolver(locationFormSchema),
+    defaultValues: {
+      city: '',
+      state: '',
+      zipCode: '',
+    },
   });
 
-  // Fetch market data
-  const { data: marketData, isLoading, error, refetch } = useQuery({
-    queryKey: ['/api/market-data', location],
-    queryFn: async () => {
+  // Handle location form submission
+  const onSubmit = (values: LocationFormValues) => {
+    setSelectedLocation(values);
+  };
+
+  // Query for market predictions
+  const {
+    data: predictions,
+    isLoading: isPredictionsLoading,
+    error: predictionsError,
+  } = useQuery({
+    queryKey: ['/api/market-predictions', selectedLocation?.city, selectedLocation?.state, selectedLocation?.zipCode],
+    queryFn: () => {
+      if (!selectedLocation) return null;
+      
       const params = new URLSearchParams({
-        city: location.city,
-        state: location.state,
+        city: selectedLocation.city,
+        state: selectedLocation.state,
       });
       
-      if (location.zipCode) {
-        params.append('zipCode', location.zipCode);
+      if (selectedLocation.zipCode) {
+        params.append('zipCode', selectedLocation.zipCode);
       }
       
-      const url = `/api/market-data?${params.toString()}`;
-      const response = await apiRequest('GET', url);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch market data');
-      }
-      
-      return response.json();
+      return apiRequest('GET', `/api/market-predictions?${params.toString()}`).then(res => res.json());
     },
-    enabled: !!location.city && !!location.state
+    enabled: !!selectedLocation,
   });
-  
-  // Handle search form submission
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const locationString = formData.get('location') as string;
-    
-    // Parse location string (e.g., "Austin, TX 78701")
-    const match = locationString.match(/^(.*?)(?:,\s*([A-Z]{2}))?(?:\s+(\d{5}))?$/i);
-    
-    if (match) {
-      const [, city, state, zipCode] = match;
-      setLocation({
-        city: city || location.city,
-        state: state || location.state,
-        zipCode: zipCode || ""
+
+  // Query for market report
+  const {
+    data: marketReport,
+    isLoading: isReportLoading,
+    error: reportError,
+  } = useQuery({
+    queryKey: ['/api/market-report', selectedLocation?.city, selectedLocation?.state, selectedLocation?.zipCode],
+    queryFn: () => {
+      if (!selectedLocation) return null;
+      
+      const params = new URLSearchParams({
+        city: selectedLocation.city,
+        state: selectedLocation.state,
       });
-    }
-  };
-  
-  // Format price for display
-  const formatPrice = (price: string | null) => {
-    if (!price) return 'N/A';
-    
-    const numPrice = parseFloat(price);
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0
-    }).format(numPrice);
-  };
-  
-  // Format date for monthly labels
-  const formatMonthYear = (year: number, month: number) => {
-    return `${MONTHS[month-1]} ${year}`;
-  };
-  
-  // Prepare chart data
-  const prepareChartData = () => {
-    if (!marketData || !Array.isArray(marketData)) return [];
-    
-    // Sort data by year and month
-    return [...marketData].sort((a, b) => {
-      if (a.year !== b.year) return a.year - b.year;
-      return a.month - b.month;
-    }).map(data => ({
-      ...data,
-      monthYear: formatMonthYear(data.year, data.month),
-      medianPriceValue: data.medianPrice ? parseFloat(data.medianPrice) : 0
-    }));
-  };
-  
-  const chartData = prepareChartData();
-  
-  // Calculate market trends
-  const calculateTrends = () => {
-    if (!marketData || !Array.isArray(marketData) || marketData.length === 0) {
-      return {
-        priceChange: { amount: 0, percent: 0, direction: 'neutral' },
-        domChange: { amount: 0, percent: 0, direction: 'neutral' },
-        inventoryChange: { amount: 0, percent: 0, direction: 'neutral' }
-      };
-    }
-    
-    // Get the most recent two months of data
-    const sortedData = [...marketData].sort((a, b) => {
-      if (a.year !== b.year) return b.year - a.year;
-      return b.month - a.month;
-    });
-    
-    const current = sortedData[0];
-    const previous = sortedData[1] || current;
-    
-    // Calculate price change
-    const currentPrice = current.medianPrice ? parseFloat(current.medianPrice) : 0;
-    const previousPrice = previous.medianPrice ? parseFloat(previous.medianPrice) : 0;
-    const priceChange = currentPrice - previousPrice;
-    const priceChangePercent = previousPrice ? (priceChange / previousPrice) * 100 : 0;
-    
-    // Calculate days on market change
-    const currentDOM = current.daysOnMarket || 0;
-    const previousDOM = previous.daysOnMarket || 0;
-    const domChange = currentDOM - previousDOM;
-    const domChangePercent = previousDOM ? (domChange / previousDOM) * 100 : 0;
-    
-    // Calculate inventory change
-    const currentInventory = current.inventory || 0;
-    const previousInventory = previous.inventory || 0;
-    const inventoryChange = currentInventory - previousInventory;
-    const inventoryChangePercent = previousInventory ? (inventoryChange / previousInventory) * 100 : 0;
-    
-    return {
-      priceChange: { 
-        amount: priceChange, 
-        percent: priceChangePercent,
-        direction: priceChange > 0 ? 'up' : priceChange < 0 ? 'down' : 'neutral'
-      },
-      domChange: { 
-        amount: domChange, 
-        percent: domChangePercent,
-        // For DOM, up is negative (slower market), down is positive (faster market)
-        direction: domChange > 0 ? 'up' : domChange < 0 ? 'down' : 'neutral'
-      },
-      inventoryChange: { 
-        amount: inventoryChange, 
-        percent: inventoryChangePercent,
-        direction: inventoryChange > 0 ? 'up' : inventoryChange < 0 ? 'down' : 'neutral'
+      
+      if (selectedLocation.zipCode) {
+        params.append('zipCode', selectedLocation.zipCode);
       }
+      
+      return apiRequest('GET', `/api/market-report?${params.toString()}`).then(res => res.json());
+    },
+    enabled: !!selectedLocation && activeTab === 'report',
+  });
+
+  // Mutation for property recommendations
+  const propertyRecommendationsMutation = useMutation({
+    mutationFn: (preferences: any) => {
+      return apiRequest('POST', `/api/property-recommendations/${user?.id}`, preferences)
+        .then(res => res.json());
+    },
+    onSuccess: () => {
+      toast({
+        title: "Recommendations Generated",
+        description: "Your personalized property recommendations have been generated.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/property-recommendations'] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to generate recommendations: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Function to get recommendations
+  const getRecommendations = () => {
+    if (!user) return;
+    
+    // Example preferences
+    const preferences = {
+      priceRange: { min: 100000, max: 500000 },
+      bedrooms: 3,
+      propertyTypes: ["Single Family"],
+      locations: [selectedLocation?.city]
     };
+    
+    propertyRecommendationsMutation.mutate(preferences);
   };
   
-  const trends = calculateTrends();
-  
-  // Calculate property type distribution
-  const calculatePropertyDistribution = () => {
-    if (!marketData || !Array.isArray(marketData) || marketData.length === 0) {
-      return [];
-    }
-    
-    // Use the most recent data
-    const latestData = [...marketData].sort((a, b) => {
-      if (a.year !== b.year) return b.year - a.year;
-      return b.month - a.month;
-    })[0];
-    
-    // This would normally come from the API but we'll use sample data for now
-    return [
-      { name: 'Single Family', value: 65 },
-      { name: 'Condo', value: 15 },
-      { name: 'Townhouse', value: 10 },
-      { name: 'Multi-Family', value: 5 },
-      { name: 'Land', value: 3 },
-      { name: 'Other', value: 2 }
-    ];
+  // Function to detect property anomalies
+  const detectAnomalies = () => {
+    // For demonstration, we would need property IDs to analyze
+    toast({
+      title: "Feature Coming Soon",
+      description: "Property anomaly detection will be available soon.",
+    });
   };
-  
-  const propertyDistribution = calculatePropertyDistribution();
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <Button variant="ghost" size="sm" className="mb-2" asChild>
-              <Link href="/" className="flex items-center gap-1">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Dashboard
-              </Link>
-            </Button>
-            <h1 className="text-3xl font-bold">Market Analysis</h1>
-            <p className="text-muted-foreground">Analyze property market trends and data</p>
-          </div>
-          
-          <Button onClick={() => refetch()} className="flex items-center gap-1">
-            <RefreshCw className="h-4 w-4" />
-            Refresh Data
-          </Button>
-        </div>
-
-        {/* Location search */}
-        <div className="bg-card border border-border rounded-lg p-6 mb-6">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input 
-                name="location"
-                placeholder="Enter city, state, or ZIP (e.g., Austin, TX 78701)" 
-                className="pl-10"
-                defaultValue={`${location.city}, ${location.state}${location.zipCode ? ' ' + location.zipCode : ''}`}
+    <div className="container py-10">
+      <h1 className="text-3xl font-bold mb-6">AI-Powered Market Analysis</h1>
+      <p className="text-muted-foreground mb-8">
+        Leverage advanced AI algorithms to analyze real estate markets, predict trends, and get personalized recommendations.
+      </p>
+      
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Location Selection</CardTitle>
+          <CardDescription>
+            Select a location to analyze the real estate market
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-0 md:flex md:space-x-4">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter city" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-            <Button type="submit">Analyze Market</Button>
-          </form>
-        </div>
-
-        {/* Loading state */}
-        {isLoading && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <Card key={index}>
-                <CardHeader>
-                  <Skeleton className="h-6 w-3/4 mb-2" />
-                  <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent>
-                  <Skeleton className="h-20 w-full" />
-                </CardContent>
-              </Card>
-            ))}
-            
-            <Card className="col-span-1 md:col-span-3">
-              <CardHeader>
-                <Skeleton className="h-6 w-3/4 mb-2" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-64 w-full" />
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Error state */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center mb-6">
-            <h3 className="text-lg font-medium text-red-800 mb-2">Failed to load market data</h3>
-            <p className="text-red-600">
-              {error instanceof Error ? error.message : 'An unknown error occurred'}
-            </p>
-            <Button 
-              variant="outline" 
-              className="mt-4" 
-              onClick={() => refetch()}
-            >
-              Retry
-            </Button>
-          </div>
-        )}
-
-        {/* Market insights */}
-        {!isLoading && marketData && Array.isArray(marketData) && marketData.length > 0 && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              {/* Median Price Card */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-sm font-medium">Median Home Price</CardTitle>
-                    <CardDescription>Current market average</CardDescription>
-                  </div>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {formatPrice(marketData[0]?.medianPrice || null)}
-                  </div>
-                  <div className="mt-2 flex items-center text-sm">
-                    {trends.priceChange.direction === 'up' ? (
-                      <ArrowUpCircle className="h-4 w-4 text-green-500 mr-1" />
-                    ) : trends.priceChange.direction === 'down' ? (
-                      <ArrowDownCircle className="h-4 w-4 text-red-500 mr-1" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4 text-gray-500 mr-1" />
-                    )}
-                    <span className={trends.priceChange.direction === 'up' ? 'text-green-500' : 
-                          trends.priceChange.direction === 'down' ? 'text-red-500' : 'text-gray-500'}>
-                      {trends.priceChange.percent.toFixed(1)}% from last month
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
               
-              {/* Days on Market Card */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-sm font-medium">Days on Market</CardTitle>
-                    <CardDescription>Average time to sell</CardDescription>
-                  </div>
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {marketData[0]?.daysOnMarket || 'N/A'} days
-                  </div>
-                  <div className="mt-2 flex items-center text-sm">
-                    {/* For DOM, opposite colors (up is bad, down is good) */}
-                    {trends.domChange.direction === 'up' ? (
-                      <ArrowUpCircle className="h-4 w-4 text-red-500 mr-1" />
-                    ) : trends.domChange.direction === 'down' ? (
-                      <ArrowDownCircle className="h-4 w-4 text-green-500 mr-1" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4 text-gray-500 mr-1" />
-                    )}
-                    <span className={trends.domChange.direction === 'up' ? 'text-red-500' : 
-                          trends.domChange.direction === 'down' ? 'text-green-500' : 'text-gray-500'}>
-                      {trends.domChange.percent.toFixed(1)}% from last month
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>State</FormLabel>
+                    <Select 
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select state" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="AL">Alabama</SelectItem>
+                        <SelectItem value="AK">Alaska</SelectItem>
+                        <SelectItem value="AZ">Arizona</SelectItem>
+                        <SelectItem value="AR">Arkansas</SelectItem>
+                        <SelectItem value="CA">California</SelectItem>
+                        <SelectItem value="CO">Colorado</SelectItem>
+                        <SelectItem value="CT">Connecticut</SelectItem>
+                        <SelectItem value="DE">Delaware</SelectItem>
+                        <SelectItem value="FL">Florida</SelectItem>
+                        <SelectItem value="GA">Georgia</SelectItem>
+                        <SelectItem value="HI">Hawaii</SelectItem>
+                        <SelectItem value="ID">Idaho</SelectItem>
+                        <SelectItem value="IL">Illinois</SelectItem>
+                        <SelectItem value="IN">Indiana</SelectItem>
+                        <SelectItem value="IA">Iowa</SelectItem>
+                        <SelectItem value="KS">Kansas</SelectItem>
+                        <SelectItem value="KY">Kentucky</SelectItem>
+                        <SelectItem value="LA">Louisiana</SelectItem>
+                        <SelectItem value="ME">Maine</SelectItem>
+                        <SelectItem value="MD">Maryland</SelectItem>
+                        <SelectItem value="MA">Massachusetts</SelectItem>
+                        <SelectItem value="MI">Michigan</SelectItem>
+                        <SelectItem value="MN">Minnesota</SelectItem>
+                        <SelectItem value="MS">Mississippi</SelectItem>
+                        <SelectItem value="MO">Missouri</SelectItem>
+                        <SelectItem value="MT">Montana</SelectItem>
+                        <SelectItem value="NE">Nebraska</SelectItem>
+                        <SelectItem value="NV">Nevada</SelectItem>
+                        <SelectItem value="NH">New Hampshire</SelectItem>
+                        <SelectItem value="NJ">New Jersey</SelectItem>
+                        <SelectItem value="NM">New Mexico</SelectItem>
+                        <SelectItem value="NY">New York</SelectItem>
+                        <SelectItem value="NC">North Carolina</SelectItem>
+                        <SelectItem value="ND">North Dakota</SelectItem>
+                        <SelectItem value="OH">Ohio</SelectItem>
+                        <SelectItem value="OK">Oklahoma</SelectItem>
+                        <SelectItem value="OR">Oregon</SelectItem>
+                        <SelectItem value="PA">Pennsylvania</SelectItem>
+                        <SelectItem value="RI">Rhode Island</SelectItem>
+                        <SelectItem value="SC">South Carolina</SelectItem>
+                        <SelectItem value="SD">South Dakota</SelectItem>
+                        <SelectItem value="TN">Tennessee</SelectItem>
+                        <SelectItem value="TX">Texas</SelectItem>
+                        <SelectItem value="UT">Utah</SelectItem>
+                        <SelectItem value="VT">Vermont</SelectItem>
+                        <SelectItem value="VA">Virginia</SelectItem>
+                        <SelectItem value="WA">Washington</SelectItem>
+                        <SelectItem value="WV">West Virginia</SelectItem>
+                        <SelectItem value="WI">Wisconsin</SelectItem>
+                        <SelectItem value="WY">Wyoming</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
-              {/* Inventory Card */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-sm font-medium">Housing Inventory</CardTitle>
-                    <CardDescription>Active listings</CardDescription>
-                  </div>
-                  <Home className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {marketData[0]?.inventory?.toLocaleString() || 'N/A'} properties
-                  </div>
-                  <div className="mt-2 flex items-center text-sm">
-                    {trends.inventoryChange.direction === 'up' ? (
-                      <ArrowUpCircle className="h-4 w-4 text-green-500 mr-1" />
-                    ) : trends.inventoryChange.direction === 'down' ? (
-                      <ArrowDownCircle className="h-4 w-4 text-red-500 mr-1" />
-                    ) : (
-                      <RefreshCw className="h-4 w-4 text-gray-500 mr-1" />
-                    )}
-                    <span className={trends.inventoryChange.direction === 'up' ? 'text-green-500' : 
-                          trends.inventoryChange.direction === 'down' ? 'text-red-500' : 'text-gray-500'}>
-                      {trends.inventoryChange.percent.toFixed(1)}% from last month
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Market charts */}
-            <Tabs defaultValue="price-trends" className="mb-6">
-              <TabsList className="grid grid-cols-3 mb-4">
-                <TabsTrigger value="price-trends">Price Trends</TabsTrigger>
-                <TabsTrigger value="property-types">Property Types</TabsTrigger>
-                <TabsTrigger value="sales-inventory">Sales & Inventory</TabsTrigger>
-              </TabsList>
+              <FormField
+                control={form.control}
+                name="zipCode"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>ZIP Code (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter ZIP code" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
-              <TabsContent value="price-trends">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Median Home Price Trends</CardTitle>
-                    <CardDescription>
-                      Monthly median price changes in {location.city}, {location.state}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart
-                          data={chartData}
-                          margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="monthYear" 
-                            angle={-45} 
-                            textAnchor="end" 
-                            height={70}
-                            tick={{ fontSize: 12 }}
-                          />
-                          <YAxis 
-                            tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
-                            tick={{ fontSize: 12 }}
-                          />
-                          <Tooltip 
-                            formatter={(value) => [`$${Number(value).toLocaleString()}`, "Median Price"]}
-                            labelFormatter={(label) => `Date: ${label}`}
-                          />
-                          <Line
-                            type="monotone"
-                            dataKey="medianPriceValue"
-                            stroke="#8884d8"
-                            strokeWidth={2}
-                            activeDot={{ r: 8 }}
-                            name="Median Price"
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="property-types">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Property Type Distribution</CardTitle>
-                    <CardDescription>
-                      Market breakdown by property category
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex justify-center">
-                    <div className="h-80 w-full max-w-2xl">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RechartsPieChart>
-                          <Pie
-                            data={propertyDistribution}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={120}
-                            paddingAngle={5}
-                            dataKey="value"
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                          >
-                            {propertyDistribution.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Legend />
-                          <Tooltip formatter={(value) => [`${value}%`, "Percentage"]} />
-                        </RechartsPieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="sales-inventory">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Monthly Sales and Inventory</CardTitle>
-                    <CardDescription>
-                      Properties sold vs. new listings
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={chartData}
-                          margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis 
-                            dataKey="monthYear" 
-                            angle={-45} 
-                            textAnchor="end" 
-                            height={70}
-                            tick={{ fontSize: 12 }}
-                          />
-                          <YAxis tick={{ fontSize: 12 }} />
-                          <Tooltip />
-                          <Legend />
-                          <Bar dataKey="soldCount" name="Properties Sold" fill="#8884d8" />
-                          <Bar dataKey="newListings" name="New Listings" fill="#82ca9d" />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-            
-            {/* Market insights */}
+              <div className="flex items-end">
+                <Button type="submit" className="w-full md:w-auto">
+                  Analyze Market
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      
+      {selectedLocation && (
+        <Tabs defaultValue="predictions" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-4 mb-8">
+            <TabsTrigger value="predictions">Market Predictions</TabsTrigger>
+            <TabsTrigger value="report">Market Report</TabsTrigger>
+            <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+            <TabsTrigger value="anomalies">Anomaly Detection</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="predictions">
             <Card>
               <CardHeader>
-                <CardTitle>Market Insights</CardTitle>
+                <CardTitle>
+                  Market Predictions for {selectedLocation.city}, {selectedLocation.state}
+                  {selectedLocation.zipCode && ` (${selectedLocation.zipCode})`}
+                </CardTitle>
                 <CardDescription>
-                  Current real estate market conditions in {location.city}, {location.state}
+                  AI-powered predictions based on historical market data
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4">
-                  <div>
-                    <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Market Summary
-                    </h3>
+                {isPredictionsLoading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2">Generating market predictions...</span>
+                  </div>
+                ) : predictionsError ? (
+                  <div className="text-center py-8 text-destructive">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Error Loading Predictions</h3>
+                    <p>We encountered an error while generating market predictions.</p>
+                  </div>
+                ) : predictions ? (
+                  <div className="space-y-8">
+                    <PermissionGuard permission={Permission.GENERATE_REPORTS}>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <Card className="bg-muted/50">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-lg flex items-center">
+                              <DollarSign className="h-5 w-5 mr-2 text-green-500" />
+                              Price Trend
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-2xl font-bold">
+                              {predictions.projections?.oneMonth?.priceChange > 0 ? (
+                                <span className="text-green-600 flex items-center">
+                                  +{predictions.projections.oneMonth.priceChange.toFixed(1)}%
+                                  <TrendingUp className="h-5 w-5 ml-2" />
+                                </span>
+                              ) : (
+                                <span className="text-red-600 flex items-center">
+                                  {predictions.projections.oneMonth.priceChange.toFixed(1)}%
+                                  <TrendingDown className="h-5 w-5 ml-2" />
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">Projected 1-month change</p>
+                            
+                            <div className="mt-4">
+                              <p className="font-medium">3-Month Projection:</p>
+                              <p className="text-lg">
+                                {new Intl.NumberFormat('en-US', {
+                                  style: 'currency',
+                                  currency: 'USD',
+                                  maximumFractionDigits: 0,
+                                }).format(predictions.projections.threeMonths.medianPrice)}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="bg-muted/50">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-lg flex items-center">
+                              <Layers className="h-5 w-5 mr-2 text-blue-500" />
+                              Inventory
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-2xl font-bold">
+                              {predictions.projections.oneMonth.inventory}
+                            </div>
+                            <p className="text-sm text-muted-foreground">Expected active listings</p>
+                            
+                            <div className="mt-4">
+                              <p className="font-medium">Market Type:</p>
+                              <p className="text-lg">{predictions.marketOutlook}</p>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card className="bg-muted/50">
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-lg flex items-center">
+                              <Clock className="h-5 w-5 mr-2 text-amber-500" />
+                              Days on Market
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="text-2xl font-bold">
+                              {predictions.projections.oneMonth.daysOnMarket} days
+                            </div>
+                            <p className="text-sm text-muted-foreground">Average time to sell</p>
+                            
+                            <div className="mt-4">
+                              <p className="font-medium">3-Month Projection:</p>
+                              <p className="text-lg">
+                                {predictions.projections.threeMonths.daysOnMarket} days
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+
+                      <div>
+                        <h3 className="text-xl font-semibold mb-3">Key Insights</h3>
+                        <ul className="space-y-2">
+                          {predictions.keyFindings?.map((finding: string, index: number) => (
+                            <li key={index} className="flex items-start">
+                              <span className="mr-2 text-primary flex-shrink-0">•</span>
+                              <span>{finding}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div>
+                        <h3 className="text-xl font-semibold mb-3">Recommendations</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center">
+                              <Home className="h-4 w-4 mr-1" /> For Buyers
+                            </h4>
+                            <ul className="space-y-1 text-sm">
+                              {predictions.recommendedActions?.buyers.map((rec: string, index: number) => (
+                                <li key={index} className="flex items-start">
+                                  <span className="mr-2 text-blue-500 flex-shrink-0">→</span>
+                                  <span>{rec}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center">
+                              <Building className="h-4 w-4 mr-1" /> For Sellers
+                            </h4>
+                            <ul className="space-y-1 text-sm">
+                              {predictions.recommendedActions?.sellers.map((rec: string, index: number) => (
+                                <li key={index} className="flex items-start">
+                                  <span className="mr-2 text-green-500 flex-shrink-0">→</span>
+                                  <span>{rec}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          <div>
+                            <h4 className="font-medium mb-2 flex items-center">
+                              <Award className="h-4 w-4 mr-1" /> For Investors
+                            </h4>
+                            <ul className="space-y-1 text-sm">
+                              {predictions.recommendedActions?.investors.map((rec: string, index: number) => (
+                                <li key={index} className="flex items-start">
+                                  <span className="mr-2 text-amber-500 flex-shrink-0">→</span>
+                                  <span>{rec}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </PermissionGuard>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 border border-dashed rounded-lg">
+                    <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No predictions yet</h3>
                     <p className="text-muted-foreground">
-                      The {location.city} real estate market is currently
-                      {marketData[0]?.marketType === 'seller' ? ' a seller\'s market' : 
-                       marketData[0]?.marketType === 'buyer' ? ' a buyer\'s market' : 
-                       ' a balanced market'}, with median home prices 
-                      {trends.priceChange.direction === 'up' ? ' rising' : 
-                       trends.priceChange.direction === 'down' ? ' falling' : ' stable'} and
-                      properties spending an average of {marketData[0]?.daysOnMarket || 'N/A'} days on the market.
+                      Select a location and click "Analyze Market" to generate AI-powered predictions.
                     </p>
                   </div>
-                  
-                  <div>
-                    <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <BarChart4 className="h-5 w-5" />
-                      Price Trends
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Median home prices in this area are currently {formatPrice(marketData[0]?.medianPrice || null)},
-                      which represents a {Math.abs(trends.priceChange.percent).toFixed(1)}% 
-                      {trends.priceChange.direction === 'up' ? ' increase' : 
-                       trends.priceChange.direction === 'down' ? ' decrease' : ' change'} from the previous month.
-                      The average price per square foot is {marketData[0]?.averagePricePerSqft ? `$${marketData[0].averagePricePerSqft}` : 'N/A'}.
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold mb-2 flex items-center gap-2">
-                      <Building className="h-5 w-5" />
-                      Inventory Analysis
-                    </h3>
-                    <p className="text-muted-foreground">
-                      There are currently {marketData[0]?.inventory?.toLocaleString() || 'N/A'} active listings in the area, with
-                      {marketData[0]?.newListings?.toLocaleString() || 'N/A'} new properties listed in the past month.
-                      The market absorbed {marketData[0]?.soldCount?.toLocaleString() || 'N/A'} properties through sales.
-                      The current supply-demand balance indicates a 
-                      {marketData[0]?.marketType === 'seller' ? ' shortage of inventory favoring sellers.' : 
-                       marketData[0]?.marketType === 'buyer' ? ' surplus of inventory favoring buyers.' : 
-                       ' balanced market between buyers and sellers.'}
-                    </p>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
-          </>
-        )}
-        
-        {/* No data state */}
-        {!isLoading && (!marketData || !Array.isArray(marketData) || marketData.length === 0) && !error && (
-          <div className="bg-card border border-border rounded-lg p-12 text-center mb-6">
-            <PieChart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No Market Data Available</h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-              We don't have market data for {location.city}, {location.state}{location.zipCode ? ` ${location.zipCode}` : ''} yet. 
-              Try searching for a different location or check back later.
-            </p>
-            <Button onClick={() => setLocation({ city: "Austin", state: "TX", zipCode: "" })}>
-              View Austin, TX Market
-            </Button>
-          </div>
-        )}
-      </div>
+          </TabsContent>
+          
+          <TabsContent value="report">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  Market Analysis Report for {selectedLocation.city}, {selectedLocation.state}
+                  {selectedLocation.zipCode && ` (${selectedLocation.zipCode})`}
+                </CardTitle>
+                <CardDescription>
+                  Comprehensive AI-generated market analysis report
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isReportLoading ? (
+                  <div className="flex justify-center items-center h-64">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2">Generating market report...</span>
+                  </div>
+                ) : reportError ? (
+                  <div className="text-center py-8 text-destructive">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Error Loading Report</h3>
+                    <p>We encountered an error while generating the market report.</p>
+                  </div>
+                ) : marketReport ? (
+                  <div className="space-y-8">
+                    <PermissionGuard permission={Permission.GENERATE_REPORTS}>
+                      <div className="bg-muted/30 p-4 rounded-lg">
+                        <h3 className="text-xl font-semibold mb-2">Executive Summary</h3>
+                        <p>{marketReport.executiveSummary}</p>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-4">Market Trends</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <Card>
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-lg">Price Trends</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-sm space-y-2">
+                                <p>{marketReport.marketTrends.pricesTrend.description}</p>
+                                <div className="flex justify-between items-center font-medium">
+                                  <span>Annual Change:</span>
+                                  <span className={marketReport.marketTrends.pricesTrend.annualChange >= 0 ? "text-green-600" : "text-red-600"}>
+                                    {marketReport.marketTrends.pricesTrend.annualChange > 0 ? "+" : ""}
+                                    {marketReport.marketTrends.pricesTrend.annualChange}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span>Outlook:</span>
+                                  <span>{marketReport.marketTrends.pricesTrend.outlook}</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          
+                          <Card>
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-lg">Inventory Trends</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-sm space-y-2">
+                                <p>{marketReport.marketTrends.inventoryTrend.description}</p>
+                                <div className="flex justify-between items-center font-medium">
+                                  <span>Annual Change:</span>
+                                  <span className={marketReport.marketTrends.inventoryTrend.annualChange >= 0 ? "text-green-600" : "text-red-600"}>
+                                    {marketReport.marketTrends.inventoryTrend.annualChange > 0 ? "+" : ""}
+                                    {marketReport.marketTrends.inventoryTrend.annualChange}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span>Outlook:</span>
+                                  <span>{marketReport.marketTrends.inventoryTrend.outlook}</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                          
+                          <Card>
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-lg">Days on Market</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-sm space-y-2">
+                                <p>{marketReport.marketTrends.daysOnMarketTrend.description}</p>
+                                <div className="flex justify-between items-center font-medium">
+                                  <span>Annual Change:</span>
+                                  <span className={marketReport.marketTrends.daysOnMarketTrend.annualChange <= 0 ? "text-green-600" : "text-red-600"}>
+                                    {marketReport.marketTrends.daysOnMarketTrend.annualChange > 0 ? "+" : ""}
+                                    {marketReport.marketTrends.daysOnMarketTrend.annualChange}%
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                  <span>Outlook:</span>
+                                  <span>{marketReport.marketTrends.daysOnMarketTrend.outlook}</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <h3 className="text-xl font-semibold mb-4">Market Health Indicators</h3>
+                          <Card>
+                            <CardContent className="pt-6">
+                              <div className="space-y-4">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-medium">Overall Market Health:</span>
+                                  <span className="px-3 py-1 rounded-full bg-muted text-secondary-foreground">
+                                    {marketReport.marketHealthIndicators.overall}
+                                  </span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between items-center">
+                                  <span>Affordability:</span>
+                                  <span>{marketReport.marketHealthIndicators.affordability}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between items-center">
+                                  <span>Competitiveness:</span>
+                                  <span>{marketReport.marketHealthIndicators.competitiveness}</span>
+                                </div>
+                                <Separator />
+                                <div className="flex justify-between items-center">
+                                  <span>Stability:</span>
+                                  <span>{marketReport.marketHealthIndicators.stability}</span>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        
+                        <div>
+                          <h3 className="text-xl font-semibold mb-4">Opportunity Analysis</h3>
+                          <Card>
+                            <CardContent className="pt-6">
+                              <div className="space-y-3">
+                                <div>
+                                  <h4 className="text-sm font-medium mb-1">For Buyers:</h4>
+                                  <ul className="text-sm list-disc pl-5 space-y-1">
+                                    {marketReport.opportunityAnalysis.buyerOpportunities.map((opp: string, i: number) => (
+                                      <li key={i}>{opp}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                
+                                <Separator />
+                                
+                                <div>
+                                  <h4 className="text-sm font-medium mb-1">For Sellers:</h4>
+                                  <ul className="text-sm list-disc pl-5 space-y-1">
+                                    {marketReport.opportunityAnalysis.sellerOpportunities.map((opp: string, i: number) => (
+                                      <li key={i}>{opp}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                
+                                <Separator />
+                                
+                                <div>
+                                  <h4 className="text-sm font-medium mb-1">For Investors:</h4>
+                                  <ul className="text-sm list-disc pl-5 space-y-1">
+                                    {marketReport.opportunityAnalysis.investorOpportunities.map((opp: string, i: number) => (
+                                      <li key={i}>{opp}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h3 className="text-xl font-semibold mb-4">Local Factors</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <Card>
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-lg">Economic Indicators</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ul className="text-sm list-disc pl-5 space-y-1">
+                                {marketReport.localFactors.economicIndicators.map((indicator: string, i: number) => (
+                                  <li key={i}>{indicator}</li>
+                                ))}
+                              </ul>
+                            </CardContent>
+                          </Card>
+                          
+                          <Card>
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-lg">Demographic Trends</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ul className="text-sm list-disc pl-5 space-y-1">
+                                {marketReport.localFactors.demographicTrends.map((trend: string, i: number) => (
+                                  <li key={i}>{trend}</li>
+                                ))}
+                              </ul>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-muted/30 p-4 rounded-lg">
+                        <h3 className="text-xl font-semibold mb-2">Conclusion</h3>
+                        <p>{marketReport.conclusion}</p>
+                      </div>
+                      
+                      <div className="text-sm text-muted-foreground text-right">
+                        <p>Report generated on {new Date(marketReport.generatedAt).toLocaleDateString()}</p>
+                        <p>Based on data from {marketReport.timeRange?.start} to {marketReport.timeRange?.end}</p>
+                      </div>
+                    </PermissionGuard>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 border border-dashed rounded-lg">
+                    <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">No report yet</h3>
+                    <p className="text-muted-foreground">
+                      Select a location and click "Analyze Market" to generate an AI-powered market report.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="recommendations">
+            <Card>
+              <CardHeader>
+                <CardTitle>Personalized Property Recommendations</CardTitle>
+                <CardDescription>
+                  AI-powered property recommendations based on your preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PermissionGuard permission={Permission.VIEW_PROPERTIES}>
+                  <div className="text-center py-12 border border-dashed rounded-lg mb-8">
+                    <Building className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">Get Personalized Recommendations</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Our AI will analyze your preferences and the current market to find the best properties for you.
+                    </p>
+                    
+                    <Button 
+                      onClick={getRecommendations}
+                      disabled={propertyRecommendationsMutation.isPending || !selectedLocation}
+                    >
+                      {propertyRecommendationsMutation.isPending && (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      )}
+                      Generate Recommendations
+                    </Button>
+                  </div>
+                  
+                  {/* Display recommendations (mocked for now) */}
+                  {propertyRecommendationsMutation.isPending ? (
+                    <div className="flex justify-center items-center h-64">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      <span className="ml-2">Generating personalized recommendations...</span>
+                    </div>
+                  ) : null}
+                </PermissionGuard>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="anomalies">
+            <Card>
+              <CardHeader>
+                <CardTitle>Property Anomaly Detection</CardTitle>
+                <CardDescription>
+                  AI-powered analysis to detect anomalies in property listings
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PermissionGuard permission={Permission.VIEW_PROPERTIES}>
+                  <div className="text-center py-12 border border-dashed rounded-lg mb-8">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-semibold mb-2">Detect Market Anomalies</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Our AI will analyze property listings to detect mispricing, fraud, or unusual patterns.
+                    </p>
+                    
+                    <Button 
+                      onClick={detectAnomalies}
+                      disabled={!selectedLocation}
+                    >
+                      Analyze Properties
+                    </Button>
+                  </div>
+                </PermissionGuard>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }

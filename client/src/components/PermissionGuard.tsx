@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { useAuth } from "@/hooks/use-auth";
-import { Permission, hasPermission } from "@shared/permissions";
+import React, { ReactNode } from 'react';
+import { useAuth } from '@/hooks/use-auth';
+import { hasPermission, Permission, isAdmin } from '@/lib/permissions';
 
 interface PermissionGuardProps {
   permission: Permission;
@@ -8,14 +8,34 @@ interface PermissionGuardProps {
   fallback?: ReactNode;
 }
 
-export function PermissionGuard({ permission, children, fallback = null }: PermissionGuardProps) {
+export function PermissionGuard({
+  permission,
+  children,
+  fallback = null
+}: PermissionGuardProps) {
   const { user } = useAuth();
   
-  // Check if the user has the required permission
   if (hasPermission(user, permission)) {
     return <>{children}</>;
   }
   
-  // Return fallback if user doesn't have permission
+  return <>{fallback}</>;
+}
+
+interface AdminGuardProps {
+  children: ReactNode;
+  fallback?: ReactNode;
+}
+
+export function AdminGuard({
+  children,
+  fallback = null
+}: AdminGuardProps) {
+  const { user } = useAuth();
+  
+  if (isAdmin(user)) {
+    return <>{children}</>;
+  }
+  
   return <>{fallback}</>;
 }
