@@ -319,7 +319,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Bedrooms</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="3" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
+                          <Input type="number" placeholder="3" {...field} className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00] placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -333,7 +333,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Bathrooms</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="2" step="0.5" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
+                          <Input type="number" placeholder="2" step="0.5" {...field} className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00] placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -347,7 +347,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Sq Ft</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="2000" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
+                          <Input type="number" placeholder="2000" {...field} className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00] placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -363,7 +363,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Year Built</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="Optional" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
+                          <Input type="number" placeholder="Optional" {...field} className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00] placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -377,7 +377,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                       <FormItem>
                         <FormLabel>Lot Size (acres)</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="Optional" step="0.01" {...field} className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500" />
+                          <Input type="number" placeholder="Optional" step="0.01" {...field} className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00] placeholder:text-slate-500" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -397,7 +397,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white">
+                            <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00]">
                               <SelectValue placeholder="Select type" />
                             </SelectTrigger>
                           </FormControl>
@@ -427,7 +427,7 @@ export default function AddPropertyDialog({ onAddSuccess }: AddPropertyDialogPro
                           defaultValue={field.value}
                         >
                           <FormControl>
-                            <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white">
+                            <SelectTrigger className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00]">
                               <SelectValue placeholder="Select status" />
                             </SelectTrigger>
                           </FormControl>
