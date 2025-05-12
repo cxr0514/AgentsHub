@@ -348,10 +348,30 @@ export default function MarketAnalysisPage() {
                     <span className="ml-2">Generating market predictions...</span>
                   </div>
                 ) : predictionsError ? (
-                  <div className="text-center py-8 text-red-400">
-                    <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">Error Loading Predictions</h3>
-                    <p>We encountered an error while generating market predictions.</p>
+                  <div className="text-center py-8 text-gray-300 bg-[#131F32] rounded-lg p-8 border border-gray-700">
+                    <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-[#FF7A00]" />
+                    <h3 className="text-xl font-semibold mb-3 text-white">No Market Data Available</h3>
+                    <p className="mb-4">We couldn't find market data for this location. Try one of these popular areas:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-2xl mx-auto">
+                      {['San Francisco, CA', 'New York, NY', 'Seattle, WA', 'Boston, MA', 'Miami, FL', 'Austin, TX'].map(location => (
+                        <Button 
+                          key={location} 
+                          variant="outline" 
+                          className="text-sm py-1 border-gray-700 hover:border-[#FF7A00] hover:bg-[#162233] text-gray-300"
+                          onClick={() => {
+                            const [city, state] = location.split(', ');
+                            form.setValue('city', city);
+                            form.setValue('state', state);
+                            form.handleSubmit(onSubmit)();
+                          }}
+                        >
+                          {location}
+                        </Button>
+                      ))}
+                    </div>
+                    <p className="mt-6 text-sm text-gray-400">
+                      Note: Market data is updated regularly. If you don't see your area, try again soon.
+                    </p>
                   </div>
                 ) : predictions ? (
                   <div className="space-y-8">
