@@ -55,6 +55,15 @@ export async function getMarketPredictions(req: Request, res: Response) {
     // Generate market prediction using Perplexity AI
     const prediction = await aiService.generateMarketPrediction(marketData);
 
+    // Extract relevant dates with error handling
+    const startDate = prediction.timeRange?.start ? new Date(prediction.timeRange.start) : null;
+    const endDate = prediction.timeRange?.end ? new Date(prediction.timeRange.end) : null;
+    
+    // Make sure we have valid dates or provide defaults
+    const validStartDate = startDate && !isNaN(startDate.getTime()) ? startDate : new Date();
+    const validEndDate = endDate && !isNaN(endDate.getTime()) ? endDate : new Date();
+    validEndDate.setMonth(validEndDate.getMonth() + 3); // Default to 3 months in the future if not valid
+    
     // Save prediction to storage
     await storage.createMarketPrediction({
       city,
@@ -62,8 +71,8 @@ export async function getMarketPredictions(req: Request, res: Response) {
       zipCode: zipCode || null,
       predictions: prediction,
       dataPoints: marketData.length,
-      startDate: new Date(prediction.timeRange?.start),
-      endDate: new Date(prediction.timeRange?.end),
+      startDate: validStartDate,
+      endDate: validEndDate,
       predictionDate: new Date(),
       generatedBy: "perplexity"
     });
