@@ -158,7 +158,10 @@
 [data-theme="dark"] textarea,
 [data-theme="dark"] select,
 .dark .select-trigger,
-.dark .select-content {
+.dark .select-content,
+input.bg-\[\#071224\],
+textarea.bg-\[\#071224\],
+select.bg-\[\#071224\] {
   background-color: #071224 !important;
   border-color: #0f1d31 !important;
   color: white !important;
@@ -167,6 +170,8 @@
 .dark input::placeholder,
 .dark textarea::placeholder,
 [data-theme="dark"] input::placeholder,
-[data-theme="dark"] textarea::placeholder {
+[data-theme="dark"] textarea::placeholder,
+input.bg-\[\#071224\]::placeholder,
+textarea.bg-\[\#071224\]::placeholder {
   color: rgb(100 116 139) !important; /* text-slate-500 */
 }

@@ -21,6 +21,7 @@ import { addApiKey, getApiKeysList, deleteApiKey, loadApiKeysIntoEnv } from "./r
 import { requireAdmin, requirePermission, loadUser } from "./middleware/permissions";
 import { Permission } from "@shared/permissions";
 import { login, logout, register, getCurrentUser, updateUserProfile, changePassword, getAllUsers, deleteUser } from "./routes/auth";
+import propertyRoutes from "./routes/properties";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -31,7 +32,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.use("/api", apiRouter);
 
-  // Properties routes
+  // Register our custom property routes with image upload
+  apiRouter.use("/properties", propertyRoutes);
+  
+  // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {
     try {
       let properties;
