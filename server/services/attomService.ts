@@ -2,29 +2,38 @@ import { db } from "../db";
 import { marketData } from "../../shared/schema";
 import { eq, and } from "drizzle-orm";
 
-// ATTOM API configuration - updated based on documentation: https://api.developer.attomdata.com/docs
+// ATTOM API configuration - updated based on latest documentation and testing
 const ATTOM_API_KEY = process.env.ATTOM_API_KEY;
 const ATTOM_API_BASE_URL = "https://api.gateway.attomdata.com"; // Primary endpoint URL
 
-// ATTOM API Endpoints - updated based on documentation: https://api.developer.attomdata.com/docs
+// ATTOM API Endpoints - updated based on testing and available endpoints
 const ENDPOINTS = {
-  PROPERTY_DETAILS: "/api/property/detailwithschools",
-  PROPERTY_VALUATION: "/api/property/valuation",
-  PROPERTY_SALE_HISTORY: "/api/property/salehistory",
-  MARKET_STATS: "/api/property/areastats",
-  MARKET_SNAPSHOT: "/api/property/snapshot",
-  PROPERTY_DETAIL_MGET: "/api/property/detailmget",
-  PROPERTY_EXPAND_DETAIL: "/api/property/expanddetail",
-  PROPERTY_BASIC_DETAIL: "/api/property/basicprofile",
+  // Property endpoints
+  PROPERTY_DETAILS: "/propertyapi/v1.0.0/property/detail",
+  PROPERTY_VALUATION: "/propertyapi/v1.0.0/property/valuation",
+  PROPERTY_SALE_HISTORY: "/propertyapi/v1.0.0/property/salehistory",
+  
+  // Market data endpoints
+  MARKET_STATS: "/propertyapi/v1.0.0/property/areastats",
+  MARKET_SNAPSHOT: "/propertyapi/v1.0.0/property/snapshot",
+  
+  // Additional property detail endpoints
+  PROPERTY_DETAIL_MGET: "/propertyapi/v1.0.0/property/detailmget",
+  PROPERTY_EXPAND_DETAIL: "/propertyapi/v1.0.0/property/expandedprofile",
+  PROPERTY_BASIC_DETAIL: "/propertyapi/v1.0.0/property/basicprofile",
+  
+  // Alternative property search endpoints
+  PROPERTY_ADDRESS_SEARCH: "/propertyapi/v1.0.0/property/address",
+  PROPERTY_ID_SEARCH: "/propertyapi/v1.0.0/property/id",
 };
 
-// Headers for ATTOM API requests - updated based on documentation: https://api.developer.attomdata.com/docs
+// Headers for ATTOM API requests - updated based on latest documentation
 const getHeaders = () => {
   if (!ATTOM_API_KEY) {
     throw new Error("ATTOM API Key is not configured");
   }
   return {
-    "APIKey": ATTOM_API_KEY,           // Note the capitalization per documentation
+    "apikey": ATTOM_API_KEY,           // API key header name is case-sensitive
     "Accept": "application/json",
     "Accept-Encoding": "gzip",         // Support compression
     "Accept-Language": "en-US,en;q=0.9"
@@ -50,9 +59,10 @@ export async function fetchPropertyDetails(address: string, city: string, state:
     
     // Try multiple endpoints to get property details
     const endpoints = [
-      ENDPOINTS.PROPERTY_DETAILS,
-      ENDPOINTS.PROPERTY_BASIC_DETAIL,
-      ENDPOINTS.PROPERTY_EXPAND_DETAIL
+      ENDPOINTS.PROPERTY_ADDRESS_SEARCH, // Try address search first
+      ENDPOINTS.PROPERTY_DETAILS,        // Then try property detail
+      ENDPOINTS.PROPERTY_EXPAND_DETAIL,  // Then try expanded profile
+      ENDPOINTS.PROPERTY_BASIC_DETAIL    // Finally try basic profile
     ];
     
     let response = null;
@@ -63,23 +73,23 @@ export async function fetchPropertyDetails(address: string, city: string, state:
       try {
         const queryParams = new URLSearchParams();
         
-        // Different parameters for different endpoints based on documentation
-        if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
-          // detailwithschools endpoint
+        // Different parameters for different endpoints based on ATTOM API v1.0.0 documentation
+        if (endpoint === ENDPOINTS.PROPERTY_ADDRESS_SEARCH) {
+          // address search endpoint
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
+        } else if (endpoint === ENDPOINTS.PROPERTY_DETAILS) {
+          // detail endpoint
           queryParams.append("address1", address);
           queryParams.append("address2", `${city}, ${state} ${zipCode}`);
         } else if (endpoint === ENDPOINTS.PROPERTY_BASIC_DETAIL) {
-          // basicprofile endpoint
-          queryParams.append("address", address);
-          queryParams.append("cityname", city);
-          queryParams.append("stateabbr", state);
-          queryParams.append("postalcode", zipCode);
+          // basic profile endpoint
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
         } else if (endpoint === ENDPOINTS.PROPERTY_EXPAND_DETAIL) {
-          // expanddetail endpoint
-          queryParams.append("address", address);
-          queryParams.append("cityname", city);
-          queryParams.append("stateabbr", state);
-          queryParams.append("postalcode", zipCode);
+          // expanded profile endpoint
+          queryParams.append("address1", address);
+          queryParams.append("address2", `${city}, ${state} ${zipCode}`);
         }
         
         console.log(`Trying ATTOM API endpoint: ${endpoint} with params: ${queryParams.toString()}`);
