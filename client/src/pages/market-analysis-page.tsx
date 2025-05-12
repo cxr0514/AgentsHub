@@ -421,14 +421,14 @@ export default function MarketAnalysisPage() {
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="text-2xl font-bold">
+                            <div className="text-2xl font-bold text-white">
                               {predictions.projections.oneMonth.daysOnMarket} days
                             </div>
-                            <p className="text-sm text-muted-foreground">Average time to sell</p>
+                            <p className="text-sm text-gray-400">Average time to sell</p>
                             
                             <div className="mt-4">
-                              <p className="font-medium">3-Month Projection:</p>
-                              <p className="text-lg">
+                              <p className="font-medium text-white">3-Month Projection:</p>
+                              <p className="text-lg text-[#FF7A00]">
                                 {predictions.projections.threeMonths.daysOnMarket} days
                               </p>
                             </div>
@@ -437,11 +437,11 @@ export default function MarketAnalysisPage() {
                       </div>
 
                       <div>
-                        <h3 className="text-xl font-semibold mb-3">Key Insights</h3>
+                        <h3 className="text-xl font-semibold mb-3 text-white">Key Insights</h3>
                         <ul className="space-y-2">
                           {predictions.keyFindings?.map((finding: string, index: number) => (
-                            <li key={index} className="flex items-start">
-                              <span className="mr-2 text-primary flex-shrink-0">•</span>
+                            <li key={index} className="flex items-start text-gray-200">
+                              <span className="mr-2 text-[#FF7A00] flex-shrink-0">•</span>
                               <span>{finding}</span>
                             </li>
                           ))}
@@ -449,16 +449,16 @@ export default function MarketAnalysisPage() {
                       </div>
 
                       <div>
-                        <h3 className="text-xl font-semibold mb-3">Recommendations</h3>
+                        <h3 className="text-xl font-semibold mb-3 text-white">Recommendations</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <h4 className="font-medium mb-2 flex items-center">
-                              <Home className="h-4 w-4 mr-1" /> For Buyers
+                            <h4 className="font-medium mb-2 flex items-center text-white">
+                              <Home className="h-4 w-4 mr-1 text-blue-400" /> For Buyers
                             </h4>
                             <ul className="space-y-1 text-sm">
                               {predictions.recommendedActions?.buyers.map((rec: string, index: number) => (
-                                <li key={index} className="flex items-start">
-                                  <span className="mr-2 text-blue-500 flex-shrink-0">→</span>
+                                <li key={index} className="flex items-start text-gray-300">
+                                  <span className="mr-2 text-blue-400 flex-shrink-0">→</span>
                                   <span>{rec}</span>
                                 </li>
                               ))}
@@ -466,13 +466,13 @@ export default function MarketAnalysisPage() {
                           </div>
                           
                           <div>
-                            <h4 className="font-medium mb-2 flex items-center">
-                              <Building className="h-4 w-4 mr-1" /> For Sellers
+                            <h4 className="font-medium mb-2 flex items-center text-white">
+                              <Building className="h-4 w-4 mr-1 text-green-400" /> For Sellers
                             </h4>
                             <ul className="space-y-1 text-sm">
                               {predictions.recommendedActions?.sellers.map((rec: string, index: number) => (
-                                <li key={index} className="flex items-start">
-                                  <span className="mr-2 text-green-500 flex-shrink-0">→</span>
+                                <li key={index} className="flex items-start text-gray-300">
+                                  <span className="mr-2 text-green-400 flex-shrink-0">→</span>
                                   <span>{rec}</span>
                                 </li>
                               ))}
@@ -480,13 +480,13 @@ export default function MarketAnalysisPage() {
                           </div>
                           
                           <div>
-                            <h4 className="font-medium mb-2 flex items-center">
-                              <Award className="h-4 w-4 mr-1" /> For Investors
+                            <h4 className="font-medium mb-2 flex items-center text-white">
+                              <Award className="h-4 w-4 mr-1 text-[#FF7A00]" /> For Investors
                             </h4>
                             <ul className="space-y-1 text-sm">
                               {predictions.recommendedActions?.investors.map((rec: string, index: number) => (
-                                <li key={index} className="flex items-start">
-                                  <span className="mr-2 text-amber-500 flex-shrink-0">→</span>
+                                <li key={index} className="flex items-start text-gray-300">
+                                  <span className="mr-2 text-[#FF7A00] flex-shrink-0">→</span>
                                   <span>{rec}</span>
                                 </li>
                               ))}
