@@ -107,6 +107,30 @@ export const propertyHistory = pgTable("property_history", {
   description: text("description"),
 });
 
+// AI Market Predictions table
+export const marketPredictions = pgTable("market_predictions", {
+  id: serial("id").primaryKey(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code"),
+  predictions: jsonb("predictions").notNull(), // Stores AI-generated predictions and analysis
+  dataPoints: integer("data_points"), // Number of data points used in analysis
+  startDate: timestamp("start_date"), // Beginning of analyzed period
+  endDate: timestamp("end_date"), // End of analyzed period
+  predictionDate: timestamp("prediction_date").defaultNow().notNull(), // When prediction was generated
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  generatedBy: text("generated_by").default("openai").notNull(), // AI model used
+});
+
+// Property Recommendations table
+export const propertyRecommendations = pgTable("property_recommendations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  recommendations: jsonb("recommendations").notNull(), // Stores AI-generated recommendations
+  preferences: jsonb("preferences"), // User preferences used for recommendations
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -146,6 +170,17 @@ export const insertPropertyHistorySchema = createInsertSchema(propertyHistory).o
   id: true,
 });
 
+export const insertMarketPredictionsSchema = createInsertSchema(marketPredictions).omit({
+  id: true,
+  createdAt: true,
+  predictionDate: true,
+});
+
+export const insertPropertyRecommendationsSchema = createInsertSchema(propertyRecommendations).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -167,3 +202,9 @@ export type Report = typeof reports.$inferSelect;
 
 export type InsertPropertyHistory = z.infer<typeof insertPropertyHistorySchema>;
 export type PropertyHistory = typeof propertyHistory.$inferSelect;
+
+export type InsertMarketPrediction = z.infer<typeof insertMarketPredictionsSchema>;
+export type MarketPrediction = typeof marketPredictions.$inferSelect;
+
+export type InsertPropertyRecommendation = z.infer<typeof insertPropertyRecommendationsSchema>;
+export type PropertyRecommendation = typeof propertyRecommendations.$inferSelect;
