@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Home, Search, BarChart2, FileText, Bookmark, FileDigit, Key, Settings } from "lucide-react";
+import { Home, Search, BarChart2, FileText, Bookmark, FileDigit, Key, Settings, Map, Calculator } from "lucide-react";
 
 const Sidebar = () => {
   const [location] = useLocation();
@@ -7,7 +7,9 @@ const Sidebar = () => {
   const navigationItems = [
     { icon: <Home className="h-5 w-5" />, label: "Dashboard", path: "/" },
     { icon: <Search className="h-5 w-5" />, label: "Property Search", path: "/search" },
-    { icon: <BarChart2 className="h-5 w-5" />, label: "Market Analysis", path: "/market" },
+    { icon: <Map className="h-5 w-5" />, label: "Map Visualization", path: "/map-visualization" },
+    { icon: <BarChart2 className="h-5 w-5" />, label: "Market Analysis", path: "/market-analysis" },
+    { icon: <Calculator className="h-5 w-5" />, label: "Calculators", path: "/financial-calculators" },
     { icon: <FileText className="h-5 w-5" />, label: "Reports", path: "/reports" },
     { icon: <Bookmark className="h-5 w-5" />, label: "Saved Properties", path: "/saved" },
     { icon: <FileDigit className="h-5 w-5" />, label: "Documentation", path: "/documents" },

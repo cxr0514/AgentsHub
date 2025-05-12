@@ -26,6 +26,8 @@ import propertyRoutes from "./routes/properties";
 import mlsRoutes from "./routes/mls";
 import attomRoutes from "./routes/attom";
 import attomTestRoutes from "./routes/attom-test";
+import marketHeatmapRoutes from "./routes/market-heatmap";
+import mfaRoutes from "./routes/mfa";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -49,6 +51,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   if (process.env.NODE_ENV !== 'production') {
     apiRouter.use("/attom-test", attomTestRoutes);
   }
+  
+  // Register market heatmap routes
+  apiRouter.use("/market-data", marketHeatmapRoutes);
+  
+  // Register MFA authentication routes
+  apiRouter.use("/mfa", mfaRoutes);
   
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {
