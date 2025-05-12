@@ -322,9 +322,9 @@ export default function ReportsPage() {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-8">
-            <TabsTrigger value="my-reports">My Reports</TabsTrigger>
-            <TabsTrigger value="templates">Report Templates</TabsTrigger>
+          <TabsList className="mb-8 bg-[#071224] border border-[#0f1d31]">
+            <TabsTrigger value="my-reports" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white data-[state=inactive]:text-slate-400">My Reports</TabsTrigger>
+            <TabsTrigger value="templates" className="data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white data-[state=inactive]:text-slate-400">Report Templates</TabsTrigger>
           </TabsList>
           
           <TabsContent value="my-reports">
@@ -529,46 +529,48 @@ export default function ReportsPage() {
         
         {/* Create Report Dialog */}
         <Dialog open={isCreatingReport} onOpenChange={setIsCreatingReport}>
-          <DialogContent className="sm:max-w-[800px]">
+          <DialogContent className="sm:max-w-[800px] bg-[#050e1d] border-[#0f1d31] text-white">
             <DialogHeader>
-              <DialogTitle>Create New Report</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-white">Create New Report</DialogTitle>
+              <DialogDescription className="text-slate-400">
                 Create a custom report by selecting properties and analysis type.
               </DialogDescription>
             </DialogHeader>
             
             <div className="grid gap-6 py-4">
               <div className="space-y-2">
-                <Label htmlFor="reportTitle">Report Title</Label>
+                <Label htmlFor="reportTitle" className="text-white">Report Title</Label>
                 <Input 
                   id="reportTitle" 
                   placeholder="Enter report title" 
                   value={newReportTitle}
                   onChange={(e) => setNewReportTitle(e.target.value)}
+                  className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00]"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="reportDescription">Description (Optional)</Label>
+                <Label htmlFor="reportDescription" className="text-white">Description (Optional)</Label>
                 <Input 
                   id="reportDescription" 
                   placeholder="Enter report description" 
                   value={newReportDescription}
                   onChange={(e) => setNewReportDescription(e.target.value)}
+                  className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00]"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="reportType">Report Type</Label>
+                <Label htmlFor="reportType" className="text-white">Report Type</Label>
                 <Select value={selectedReportType} onValueChange={setSelectedReportType}>
-                  <SelectTrigger id="reportType">
+                  <SelectTrigger id="reportType" className="bg-[#071224] border-[#0f1d31] text-white focus:ring-[#FF7A00] focus:border-[#FF7A00]">
                     <SelectValue placeholder="Select report type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
                     {REPORT_TYPES.map(type => (
-                      <SelectItem key={type.id} value={type.id}>
+                      <SelectItem key={type.id} value={type.id} className="focus:bg-[#0f1d31] focus:text-white">
                         <div className="flex items-center">
-                          <type.icon className="h-4 w-4 mr-2" />
+                          <type.icon className="h-4 w-4 mr-2 text-[#FF7A00]" />
                           {type.name}
                         </div>
                       </SelectItem>
@@ -580,8 +582,8 @@ export default function ReportsPage() {
               <Separator />
               
               <div className="space-y-2">
-                <Label>Select Properties</Label>
-                <div className="border rounded-md h-[300px] overflow-y-auto">
+                <Label className="text-white">Select Properties</Label>
+                <div className="border border-[#0f1d31] rounded-md h-[300px] overflow-y-auto bg-[#050e1d]">
                   {isPropertiesLoading ? (
                     <div className="p-4 space-y-4">
                       {Array.from({ length: 5 }).map((_, index) => (
@@ -593,13 +595,13 @@ export default function ReportsPage() {
                     </div>
                   ) : properties && properties.length > 0 ? (
                     <Table>
-                      <TableHeader>
+                      <TableHeader className="bg-[#071224]">
                         <TableRow>
-                          <TableHead className="w-[50px]">Select</TableHead>
-                          <TableHead>Address</TableHead>
-                          <TableHead>City</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Beds/Baths</TableHead>
+                          <TableHead className="w-[50px] text-slate-400">Select</TableHead>
+                          <TableHead className="text-slate-400">Address</TableHead>
+                          <TableHead className="text-slate-400">City</TableHead>
+                          <TableHead className="text-slate-400">Price</TableHead>
+                          <TableHead className="text-slate-400">Beds/Baths</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -648,7 +650,11 @@ export default function ReportsPage() {
             </div>
             
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsCreatingReport(false)}>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsCreatingReport(false)}
+                className="bg-transparent hover:bg-[#0f1d31] text-white border-[#0f1d31]"
+              >
                 Cancel
               </Button>
               <Button 
