@@ -1,6 +1,7 @@
 import { db } from "../db";
 import { marketData } from "../../shared/schema";
 import { eq, and } from "drizzle-orm";
+import { Property, InsertProperty } from "../../shared/schema";
 
 // ATTOM API configuration - updated based on latest documentation and testing
 const ATTOM_API_KEY = process.env.ATTOM_API_KEY;
@@ -30,6 +31,99 @@ const ENDPOINTS = {
   AREA_DETAIL: "/propertyapi/v1.0.0/area/full",
   AREA_SEARCH: "/propertyapi/v1.0.0/area/basic",
 };
+
+/**
+ * Convert ATTOM property data to our application's property format
+ * @param attomProperty Property data from ATTOM API
+ * @returns Converted property data
+ */
+export function convertAttomPropertyToAppProperty(attomProperty: any): Property {
+  // Extract address components
+  const address = attomProperty.address || {};
+  const location = {
+    address: address.line1 || '',
+    city: address.locality || '',
+    state: address.countrySubd || '',
+    zipCode: address.postal1 || ''
+  };
+  
+  // Extract sale information
+  const sale = attomProperty.sale || {};
+  const price = sale.amount ? sale.amount.toString() : '0';
+  
+  // Extract building information
+  const building = attomProperty.building || {};
+  const bedrooms = parseInt(building.rooms?.bathstotal || '0', 10);
+  const bathrooms = building.rooms?.bathstotal || '0';
+  const squareFeet = building.size?.universalsize || '0';
+  const yearBuilt = building.yearbuilt || new Date().getFullYear() - 10;
+
+  // Extract lot information
+  const lot = attomProperty.lot || {};
+  const lotSize = lot.lotsize1 || '0';
+  
+  // Get property type - map ATTOM types to our types
+  let propertyType = 'Single Family';
+  if (attomProperty.summary && attomProperty.summary.proptype) {
+    const attomType = attomProperty.summary.proptype;
+    if (attomType.includes('CONDO')) propertyType = 'Condo';
+    else if (attomType.includes('TOWN')) propertyType = 'Townhouse';
+    else if (attomType.includes('MFR') || attomType.includes('MULTI')) propertyType = 'Multi-Family';
+    else if (attomType.includes('LAND')) propertyType = 'Land';
+  }
+  
+  // Extract images if available
+  let images: string[] = [];
+  if (attomProperty.utilities && attomProperty.utilities.photos) {
+    images = attomProperty.utilities.photos
+      .filter((photo: any) => photo.url)
+      .map((photo: any) => photo.url);
+  }
+  
+  // Extract features if available
+  let features: string[] = [];
+  if (building.rooms && building.rooms.roomtype) {
+    features = building.rooms.roomtype;
+  }
+  
+  // Calculate price per sqft
+  const squareFeetNum = parseFloat(squareFeet);
+  const priceNum = parseFloat(price);
+  const pricePerSqft = squareFeetNum > 0 && priceNum > 0 
+    ? (priceNum / squareFeetNum).toFixed(2)
+    : '0';
+  
+  // Generate a description
+  const description = `${propertyType} located in ${location.city}, ${location.state}. Built in ${yearBuilt}.`;
+  
+  // Return the converted property
+  return {
+    id: 0, // Will be assigned by database
+    externalId: attomProperty.identifier?.attomId || null,
+    address: location.address,
+    city: location.city,
+    state: location.state,
+    zipCode: location.zipCode,
+    neighborhood: address.neighborhood || null,
+    price,
+    bedrooms: bedrooms || 0,
+    bathrooms,
+    squareFeet,
+    lotSize,
+    yearBuilt,
+    propertyType,
+    status: sale.saleTransDate ? 'Sold' : 'Active',
+    daysOnMarket: 0, // Not directly available from ATTOM
+    images: JSON.stringify(images),
+    pricePerSqft,
+    description,
+    features: JSON.stringify(features),
+    latitude: attomProperty.location?.latitude?.toString() || null,
+    longitude: attomProperty.location?.longitude?.toString() || null,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+}
 
 // Headers for ATTOM API requests - updated based on latest documentation
 const getHeaders = () => {
