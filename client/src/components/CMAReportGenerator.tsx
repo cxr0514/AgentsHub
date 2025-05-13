@@ -765,10 +765,10 @@ export function CMAReportGenerator() {
                 </div>
                 
                 <div>
-                  <h3 className="text-md font-medium mb-4">Branding</h3>
+                  <h3 className="text-md font-medium mb-4 text-white">Branding</h3>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="brandingColor">Accent Color</Label>
+                      <Label htmlFor="brandingColor" className="text-slate-400">Accent Color</Label>
                       <div className="flex gap-2 items-center mt-1">
                         <input 
                           type="color" 
@@ -778,7 +778,7 @@ export function CMAReportGenerator() {
                             ...reportOptions,
                             brandingColor: e.target.value
                           })}
-                          className="w-10 h-10 border rounded-md"
+                          className="w-10 h-10 border border-slate-600 rounded-md cursor-pointer"
                         />
                         <Input 
                           value={reportOptions.brandingColor}
@@ -786,20 +786,20 @@ export function CMAReportGenerator() {
                             ...reportOptions,
                             brandingColor: e.target.value
                           })}
-                          className="w-28"
+                          className="w-28 bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <Label htmlFor="companyLogo">Company Logo</Label>
+                      <Label htmlFor="companyLogo" className="text-slate-400">Company Logo</Label>
                       <div className="mt-1">
                         <div className="flex items-center gap-4">
-                          <div className="h-16 w-16 border rounded-md flex items-center justify-center overflow-hidden bg-slate-50">
+                          <div className="h-16 w-16 border border-slate-600 rounded-md flex items-center justify-center overflow-hidden bg-[#071224]">
                             {logoPreview ? (
                               <img src={logoPreview} alt="Company logo" className="h-full w-full object-contain" />
                             ) : (
-                              <Upload className="h-6 w-6 text-slate-400" />
+                              <Upload className="h-6 w-6 text-slate-500" />
                             )}
                           </div>
                           <div className="flex-1">
@@ -808,9 +808,9 @@ export function CMAReportGenerator() {
                               type="file"
                               accept="image/*"
                               onChange={handleLogoUpload}
-                              className="w-full"
+                              className="w-full bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                             />
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-slate-500 mt-1">
                               Recommended size: 300x100px, max 2MB
                             </p>
                           </div>
@@ -819,11 +819,11 @@ export function CMAReportGenerator() {
                     </div>
                     
                     <div className="mt-4">
-                      <Label htmlFor="notes">Additional Notes</Label>
+                      <Label htmlFor="notes" className="text-slate-400">Additional Notes</Label>
                       <Textarea 
                         id="notes" 
                         placeholder="Add any additional notes or instructions for the report..." 
-                        className="h-28"
+                        className="h-28 bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                         value={reportOptions.notes}
                         onChange={(e) => setReportOptions({
                           ...reportOptions,
