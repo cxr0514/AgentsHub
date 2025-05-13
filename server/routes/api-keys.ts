@@ -181,16 +181,23 @@ export function deleteApiKey(req: Request, res: Response) {
     console.log(`Attempting to delete API key with ID: ${keyId}`);
     console.log(`Available keys:`, apiKeys.map(k => ({ id: k.id, service: k.service })));
     
-    // Filter out the API key to delete
-    const updatedApiKeys = apiKeys.filter((key) => key.id !== keyId);
+    // For compatibility with older API key formats, try to match by service name
+    // when explicit ID match fails
+    const matchingKeyIndex = apiKeys.findIndex(
+      key => key.id === keyId || 
+             key.service.toLowerCase() === keyId.toLowerCase() ||
+             `${key.service.toLowerCase()}1` === keyId.toLowerCase()
+    );
     
-    // Check if any API key was removed
-    if (updatedApiKeys.length === apiKeys.length) {
+    if (matchingKeyIndex === -1) {
       return res.status(404).json({ message: "API key not found" });
     }
     
+    // Remove the key at the found index
+    apiKeys.splice(matchingKeyIndex, 1);
+    
     // Save updated API keys
-    saveApiKeys(updatedApiKeys);
+    saveApiKeys(apiKeys);
     
     // Load API keys into environment
     loadApiKeysIntoEnv();

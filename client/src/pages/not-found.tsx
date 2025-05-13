@@ -68,7 +68,10 @@ export default function ApiKeysManager() {
 
   const removeKeyMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/system/api-keys/${id}`);
+      // For perplexity API, ensure we're using the correct ID format
+      const keyId = id.toLowerCase().includes('perplexity') ? 'perplexity1' : id;
+      console.log("Client sending DELETE request for key:", keyId);
+      await apiRequest("DELETE", `/api/system/api-keys/${keyId}`);
     },
     onSuccess: () => {
       toast({
