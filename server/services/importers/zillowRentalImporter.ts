@@ -54,54 +54,77 @@ export async function importZillowRentals(filePath: string): Promise<{ imported:
     
     // Read and parse the JSON file
     const fullPath = path.resolve(filePath);
-    const fileContent = fs.readFileSync(fullPath, 'utf8');
-    const data = JSON.parse(fileContent) as ZillowRentalListing[];
+    log(`Resolved path: ${fullPath}`, 'import');
     
-    log(`Found ${data.length} rental listings to import`, 'import');
-    
-    let imported = 0;
-    let errors = 0;
-    
-    // Process each listing
-    for (const listing of data) {
-      try {
-        // Transform Zillow data to our schema
-        const rentalProperty: InsertRentalProperty = {
-          externalId: listing.providerListingId || listing.id,
-          address: listing.address,
-          addressStreet: listing.addressStreet,
-          addressCity: listing.addressCity,
-          addressState: listing.addressState,
-          addressZipcode: listing.addressZipcode,
-          buildingName: listing.buildingName,
-          statusType: listing.statusType,
-          statusText: listing.statusText,
-          propertyType: "apartment", // Default for most Zillow rentals
-          isBuilding: listing.isBuilding,
-          latitude: listing.latLong_latitude,
-          longitude: listing.latLong_longitude,
-          mainImageUrl: listing.imgSrc,
-          detailUrl: listing.detailUrl,
-          availabilityCount: listing.availabilityCount,
-          images: listing.carouselPhotos,
-          units: listing.units,
-          source: "zillow",
-          rawData: listing
-        };
-        
-        // Insert into database
-        await db.insert(rentalProperties).values(rentalProperty);
-        imported++;
-        
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        log(`Error importing rental property: ${errorMessage}`, 'import');
-        errors++;
-      }
+    if (!fs.existsSync(fullPath)) {
+      throw new Error(`File not found: ${fullPath}`);
     }
     
-    log(`Successfully imported ${imported} rental properties with ${errors} errors`, 'import');
-    return { imported, errors };
+    log(`File exists, reading content...`, 'import');
+    const fileContent = fs.readFileSync(fullPath, 'utf8');
+    log(`File content length: ${fileContent.length} bytes`, 'import');
+    
+    try {
+      const data = JSON.parse(fileContent) as ZillowRentalListing[];
+      log(`Successfully parsed JSON data with ${data.length} rental listings to import`, 'import');
+      
+      let imported = 0;
+      let errors = 0;
+      
+      // Process each listing
+      for (const listing of data) {
+        try {
+          // Log the current listing we're processing
+          log(`Processing listing: ${listing.address}`, 'import');
+          
+          // Transform Zillow data to our schema
+          const rentalProperty: InsertRentalProperty = {
+            externalId: listing.providerListingId || listing.id,
+            address: listing.address,
+            addressStreet: listing.addressStreet,
+            addressCity: listing.addressCity,
+            addressState: listing.addressState,
+            addressZipcode: listing.addressZipcode,
+            buildingName: listing.buildingName,
+            statusType: listing.statusType || 'FOR_RENT',
+            statusText: listing.statusText,
+            propertyType: "apartment", // Default for most Zillow rentals
+            isBuilding: listing.isBuilding,
+            latitude: listing.latLong_latitude,
+            longitude: listing.latLong_longitude,
+            mainImageUrl: listing.imgSrc,
+            detailUrl: listing.detailUrl,
+            availabilityCount: listing.availabilityCount,
+            description: '', // Add empty description field
+            amenities: [], // Add empty amenities array
+            images: listing.carouselPhotos,
+            units: listing.units,
+            source: "zillow",
+            rawData: listing
+          };
+          
+          // Log the prepared rental property data
+          log(`Prepared rental property data for: ${rentalProperty.address}`, 'import');
+          
+          // Insert into database
+          await db.insert(rentalProperties).values(rentalProperty);
+          log(`Successfully inserted rental property: ${rentalProperty.address}`, 'import');
+          imported++;
+          
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          log(`Error importing rental property: ${errorMessage}`, 'import');
+          errors++;
+        }
+      }
+      
+      log(`Successfully imported ${imported} rental properties with ${errors} errors`, 'import');
+      return { imported, errors };
+      
+    } catch (parseError) {
+      log(`Failed to parse JSON data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`, 'import');
+      throw parseError;
+    }
     
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
