@@ -8,7 +8,8 @@ import {
   pgTable, 
   doublePrecision, 
   json, 
-  primaryKey 
+  primaryKey,
+  text as pgText
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -359,3 +360,66 @@ export const insertTeamMemberSchema = createInsertSchema(teamMembers);
 export type TeamProperty = typeof teamProperties.$inferSelect;
 export type InsertTeamProperty = typeof teamProperties.$inferInsert;
 export const insertTeamPropertySchema = createInsertSchema(teamProperties);
+
+// Rental Properties
+export const rentalProperties = pgTable("rental_properties", {
+  id: serial("id").primaryKey(),
+  externalId: text("external_id"),
+  address: text("address").notNull(),
+  addressStreet: text("address_street"),
+  addressCity: text("address_city").notNull(),
+  addressState: text("address_state").notNull(),
+  addressZipcode: integer("address_zipcode"),
+  buildingName: text("building_name"),
+  statusType: text("status_type").notNull(),
+  statusText: text("status_text"),
+  propertyType: text("property_type").default("apartment"),
+  isBuilding: boolean("is_building").default(false),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
+  mainImageUrl: text("main_image_url"),
+  detailUrl: text("detail_url"),
+  availabilityCount: integer("availability_count"),
+  description: text("description"),
+  amenities: json("amenities").$type<string[]>(),
+  images: json("images").$type<{url: string}[]>(),
+  units: json("units").$type<{price: string, beds: string, baths?: string, roomForRent: boolean}[]>(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  source: text("source").default("zillow"),
+  rawData: json("raw_data"),
+});
+
+// Rental Properties Relations
+export const rentalPropertiesRelations = relations(rentalProperties, ({ many }) => ({
+  savedRentalProperties: many(savedRentalProperties),
+}));
+
+// Saved Rental Properties
+export const savedRentalProperties = pgTable("saved_rental_properties", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+  rentalPropertyId: integer("rental_property_id").notNull().references(() => rentalProperties.id, { onDelete: 'cascade' }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Saved Rental Properties Relations
+export const savedRentalPropertiesRelations = relations(savedRentalProperties, ({ one }) => ({
+  user: one(users, {
+    fields: [savedRentalProperties.userId],
+    references: [users.id],
+  }),
+  rentalProperty: one(rentalProperties, {
+    fields: [savedRentalProperties.rentalPropertyId],
+    references: [rentalProperties.id],
+  }),
+}));
+
+export type RentalProperty = typeof rentalProperties.$inferSelect;
+export type InsertRentalProperty = typeof rentalProperties.$inferInsert;
+export const insertRentalPropertySchema = createInsertSchema(rentalProperties);
+
+export type SavedRentalProperty = typeof savedRentalProperties.$inferSelect;
+export type InsertSavedRentalProperty = typeof savedRentalProperties.$inferInsert;
+export const insertSavedRentalPropertySchema = createInsertSchema(savedRentalProperties);
