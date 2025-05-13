@@ -877,7 +877,7 @@ export function CMAReportGenerator() {
                 </p>
               </div>
               
-              <div className="h-[600px] border rounded-md bg-slate-50 flex items-center justify-center mt-6">
+              <div className="h-[600px] border border-[#0f1d31] rounded-md bg-[#071224] flex items-center justify-center mt-6">
                 {reportPreviewUrl ? (
                   <iframe 
                     src={reportPreviewUrl} 
