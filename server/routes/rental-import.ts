@@ -126,6 +126,16 @@ router.post('/properties/import-file', requireAdmin, async (req, res) => {
 
 // Route to import the sample data from the attached_assets folder
 router.post('/properties/import-sample', requireAdmin, async (req, res) => {
+  // Set a timeout for the response (60 seconds)
+  req.setTimeout(60000);
+  res.setTimeout(60000);
+  
+  // Notify client that we're starting the import
+  res.writeHead(200, {
+    'Content-Type': 'application/json',
+    'Transfer-Encoding': 'chunked'
+  });
+  
   try {
     // Get current working directory
     const cwd = process.cwd();
@@ -136,38 +146,57 @@ router.post('/properties/import-sample', requireAdmin, async (req, res) => {
     log(`Checking assets directory: ${assetsDir}`, 'import');
     
     if (!fs.existsSync(assetsDir)) {
-      return res.status(404).json({ error: `Assets directory not found: ${assetsDir}` });
+      return res.end(JSON.stringify({ 
+        error: `Assets directory not found: ${assetsDir}` 
+      }));
     }
     
     const files = fs.readdirSync(assetsDir);
     log(`Files in assets directory: ${files.join(', ')}`, 'import');
     
-    // Use our simpler test file
-    const sampleFile = path.join(cwd, 'attached_assets/simple-rentals-sample.json');
+    // First try the Outscraper file
+    let sampleFile = path.join(cwd, 'attached_assets/Outscraper-20250513184410s1c.json');
     
-    // Verify the file exists
+    // If it doesn't exist, use our simpler test file
     if (!fs.existsSync(sampleFile)) {
-      log(`Sample file not found at ${sampleFile}`, 'import');
-      return res.status(404).json({ error: `Simple test file not found: ${sampleFile}` });
+      log(`Original sample file not found, falling back to simple test file`, 'import');
+      sampleFile = path.join(cwd, 'attached_assets/simple-rentals-sample.json');
+      
+      // Verify the fallback file exists
+      if (!fs.existsSync(sampleFile)) {
+        log(`Simple test file not found at ${sampleFile}`, 'import');
+        return res.end(JSON.stringify({ 
+          error: `No sample data files found in ${assetsDir}` 
+        }));
+      }
     }
     
     log(`Importing sample data from ${sampleFile}`, 'import');
     
-    // Import the data
-    const result = await importZillowRentals(sampleFile);
-    
-    res.json({
-      message: `Successfully imported ${result.imported} rental properties with ${result.errors} errors`,
-      imported: result.imported,
-      errors: result.errors
-    });
+    // Import the data and handle any errors
+    try {
+      const result = await importZillowRentals(sampleFile);
+      
+      return res.end(JSON.stringify({
+        message: `Successfully imported ${result.imported} rental properties with ${result.errors} errors`,
+        imported: result.imported,
+        errors: result.errors
+      }));
+      
+    } catch (importError) {
+      log(`Error during import: ${importError instanceof Error ? importError.message : 'Unknown error'}`, 'import');
+      return res.end(JSON.stringify({ 
+        error: 'Failed to import sample rental properties',
+        message: importError instanceof Error ? importError.message : 'Unknown error'
+      }));
+    }
     
   } catch (error) {
     log(`Error importing sample rental properties: ${error instanceof Error ? error.message : 'Unknown error'}`, 'import');
-    res.status(500).json({ 
+    return res.end(JSON.stringify({ 
       error: 'Failed to import sample rental properties',
       message: error instanceof Error ? error.message : 'Unknown error'
-    });
+    }));
   }
 });
 

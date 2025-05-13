@@ -61,55 +61,85 @@ export async function importZillowRentals(filePath: string): Promise<{ imported:
     }
     
     log(`File exists, reading content...`, 'import');
-    const fileContent = fs.readFileSync(fullPath, 'utf8');
-    log(`File content length: ${fileContent.length} bytes`, 'import');
-    
+    let fileContent;
     try {
-      const data = JSON.parse(fileContent) as ZillowRentalListing[];
+      fileContent = fs.readFileSync(fullPath, 'utf8');
+      log(`File content length: ${fileContent.length} bytes`, 'import');
+    } catch (readError) {
+      log(`Error reading file: ${readError instanceof Error ? readError.message : 'Unknown error'}`, 'import');
+      throw readError;
+    }
+    
+    // Parse JSON with timeout safety
+    log(`Parsing JSON...`, 'import');
+    let data;
+    try {
+      data = JSON.parse(fileContent) as ZillowRentalListing[];
       log(`Successfully parsed JSON data with ${data.length} rental listings to import`, 'import');
+    } catch (parseError) {
+      log(`Failed to parse JSON data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`, 'import');
+      throw parseError;
+    }
+    
+    // Process in smaller batches to avoid timeouts
+    const batchSize = 5;
+    let imported = 0;
+    let errors = 0;
+    
+    for (let i = 0; i < data.length; i += batchSize) {
+      const batch = data.slice(i, i + batchSize);
+      log(`Processing batch ${i / batchSize + 1} with ${batch.length} listings`, 'import');
       
-      let imported = 0;
-      let errors = 0;
-      
-      // Process each listing
-      for (const listing of data) {
+      // Process each listing in the batch
+      for (const listing of batch) {
         try {
           // Log the current listing we're processing
           log(`Processing listing: ${listing.address}`, 'import');
           
-          // Transform Zillow data to our schema
+          // Create a safe version of the data
+          const safeRawData = { ...listing };
+          if (typeof safeRawData.rawData === 'object' && safeRawData.rawData !== null) {
+            delete safeRawData.rawData; // Prevent potential circular references
+          }
+          
+          // Transform Zillow data to our schema with safety checks
           const rentalProperty: InsertRentalProperty = {
-            externalId: listing.providerListingId || listing.id,
-            address: listing.address,
-            addressStreet: listing.addressStreet,
-            addressCity: listing.addressCity,
-            addressState: listing.addressState,
-            addressZipcode: listing.addressZipcode,
-            buildingName: listing.buildingName,
+            externalId: listing.providerListingId || listing.id || 'unknown',
+            address: listing.address || 'No address',
+            addressStreet: listing.addressStreet || '',
+            addressCity: listing.addressCity || 'Unknown',
+            addressState: listing.addressState || 'Unknown',
+            addressZipcode: listing.addressZipcode || 0,
+            buildingName: listing.buildingName || '',
             statusType: listing.statusType || 'FOR_RENT',
-            statusText: listing.statusText,
+            statusText: listing.statusText || '',
             propertyType: "apartment", // Default for most Zillow rentals
-            isBuilding: listing.isBuilding,
+            isBuilding: !!listing.isBuilding,
             latitude: listing.latLong_latitude,
             longitude: listing.latLong_longitude,
-            mainImageUrl: listing.imgSrc,
-            detailUrl: listing.detailUrl,
-            availabilityCount: listing.availabilityCount,
+            mainImageUrl: listing.imgSrc || '',
+            detailUrl: listing.detailUrl || '',
+            availabilityCount: listing.availabilityCount || 0,
             description: '', // Add empty description field
             amenities: [], // Add empty amenities array
-            images: listing.carouselPhotos,
-            units: listing.units,
+            images: Array.isArray(listing.carouselPhotos) ? listing.carouselPhotos : [],
+            units: Array.isArray(listing.units) ? listing.units : [],
             source: "zillow",
-            rawData: listing
+            rawData: safeRawData
           };
           
           // Log the prepared rental property data
           log(`Prepared rental property data for: ${rentalProperty.address}`, 'import');
           
-          // Insert into database
-          await db.insert(rentalProperties).values(rentalProperty);
-          log(`Successfully inserted rental property: ${rentalProperty.address}`, 'import');
-          imported++;
+          // Insert into database with timeout handling
+          try {
+            const result = await db.insert(rentalProperties).values(rentalProperty);
+            log(`Successfully inserted rental property: ${rentalProperty.address}`, 'import');
+            imported++;
+          } catch (dbError) {
+            log(`Database error: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`, 'import');
+            throw dbError;
+          }
           
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -117,14 +147,10 @@ export async function importZillowRentals(filePath: string): Promise<{ imported:
           errors++;
         }
       }
-      
-      log(`Successfully imported ${imported} rental properties with ${errors} errors`, 'import');
-      return { imported, errors };
-      
-    } catch (parseError) {
-      log(`Failed to parse JSON data: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`, 'import');
-      throw parseError;
     }
+    
+    log(`Successfully imported ${imported} rental properties with ${errors} errors`, 'import');
+    return { imported, errors };
     
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
