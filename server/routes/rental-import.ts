@@ -126,9 +126,9 @@ router.post('/properties/import-file', requireAdmin, async (req, res) => {
 
 // Route to import the sample data from the attached_assets folder
 router.post('/properties/import-sample', requireAdmin, async (req, res) => {
-  // Set a timeout for the response (60 seconds)
-  req.setTimeout(60000);
-  res.setTimeout(60000);
+  // Set a timeout for the response (120 seconds)
+  req.setTimeout(120000);
+  res.setTimeout(120000);
   
   // Notify client that we're starting the import
   res.writeHead(200, {
@@ -141,44 +141,47 @@ router.post('/properties/import-sample', requireAdmin, async (req, res) => {
     const cwd = process.cwd();
     log(`Current working directory: ${cwd}`, 'import');
     
-    // List files in attached_assets
-    const assetsDir = path.join(cwd, 'attached_assets');
-    log(`Checking assets directory: ${assetsDir}`, 'import');
+    // Define the file path for the Outscraper data
+    const outscraper = path.join(cwd, 'attached_assets/Outscraper-20250513184410s1c.json');
     
-    if (!fs.existsSync(assetsDir)) {
+    // Verify the file exists
+    if (!fs.existsSync(outscraper)) {
+      log(`Outscraper file not found at ${outscraper}`, 'import');
       return res.end(JSON.stringify({ 
-        error: `Assets directory not found: ${assetsDir}` 
+        error: `Outscraper file not found. Please check the file path.` 
       }));
     }
     
-    const files = fs.readdirSync(assetsDir);
-    log(`Files in assets directory: ${files.join(', ')}`, 'import');
+    log(`Importing Outscraper data from ${outscraper}`, 'import');
+    log(`This may take some time as the file is large (${fs.statSync(outscraper).size} bytes)`, 'import');
     
-    // First try the Outscraper file
-    let sampleFile = path.join(cwd, 'attached_assets/Outscraper-20250513184410s1c.json');
-    
-    // If it doesn't exist, use our simpler test file
-    if (!fs.existsSync(sampleFile)) {
-      log(`Original sample file not found, falling back to simple test file`, 'import');
-      sampleFile = path.join(cwd, 'attached_assets/simple-rentals-sample.json');
-      
-      // Verify the fallback file exists
-      if (!fs.existsSync(sampleFile)) {
-        log(`Simple test file not found at ${sampleFile}`, 'import');
-        return res.end(JSON.stringify({ 
-          error: `No sample data files found in ${assetsDir}` 
-        }));
-      }
-    }
-    
-    log(`Importing sample data from ${sampleFile}`, 'import');
-    
-    // Import the data and handle any errors
+    // For web import, we'll limit to 10 properties to avoid timeouts
     try {
-      const result = await importZillowRentals(sampleFile);
+      // Read and parse the file
+      const fileContent = fs.readFileSync(outscraper, 'utf8');
+      const data = JSON.parse(fileContent);
+      
+      log(`Parsed ${data.length} properties from file`, 'import');
+      log(`Limiting web import to first 10 properties to prevent timeouts`, 'import');
+      
+      // Create a subset with just 10 properties
+      const subset = data.slice(0, 10);
+      
+      // Write to a temporary file
+      const tempFile = path.join(cwd, 'attached_assets/outscraper-subset.json');
+      fs.writeFileSync(tempFile, JSON.stringify(subset));
+      
+      log(`Created temporary subset file with 10 properties`, 'import');
+      
+      // Import the subset
+      const result = await importZillowRentals(tempFile);
+      
+      // Clean up the temporary file
+      fs.unlinkSync(tempFile);
       
       return res.end(JSON.stringify({
-        message: `Successfully imported ${result.imported} rental properties with ${result.errors} errors`,
+        message: `Successfully imported ${result.imported} properties from your Outscraper data (limited to 10 for web import)`,
+        note: `For full import of all ${data.length} properties, please contact an administrator to run the CLI script`,
         imported: result.imported,
         errors: result.errors
       }));
@@ -186,15 +189,15 @@ router.post('/properties/import-sample', requireAdmin, async (req, res) => {
     } catch (importError) {
       log(`Error during import: ${importError instanceof Error ? importError.message : 'Unknown error'}`, 'import');
       return res.end(JSON.stringify({ 
-        error: 'Failed to import sample rental properties',
+        error: 'Failed to import outscraper rental properties',
         message: importError instanceof Error ? importError.message : 'Unknown error'
       }));
     }
     
   } catch (error) {
-    log(`Error importing sample rental properties: ${error instanceof Error ? error.message : 'Unknown error'}`, 'import');
+    log(`Error importing rental properties: ${error instanceof Error ? error.message : 'Unknown error'}`, 'import');
     return res.end(JSON.stringify({ 
-      error: 'Failed to import sample rental properties',
+      error: 'Failed to import rental properties',
       message: error instanceof Error ? error.message : 'Unknown error'
     }));
   }
