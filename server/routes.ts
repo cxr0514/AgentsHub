@@ -33,6 +33,7 @@ import mfaRoutes from "./routes/mfa";
 import propertyCompsRoutes from "./routes/property-comps";
 import cmaReportsRoutes from "./routes/cma-reports-fixed";
 import propertyImagesRoutes from "./routes/property-images";
+import rentalDataRoutes from "./routes/rental-data";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -105,6 +106,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register CMA report generation routes
   apiRouter.use("/reports", cmaReportsRoutes);
+  
+  // Register rental data routes
+  apiRouter.use("/rentals", rentalDataRoutes);
   
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {

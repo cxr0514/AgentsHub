@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { db } from '../../db';
 import { rentalProperties } from '@shared/schema';
+import { sql } from 'drizzle-orm';
 
 interface ZillowRentalListing {
   query: string;
@@ -93,7 +94,8 @@ export async function importZillowRentals(filePath: string): Promise<{ imported:
         imported++;
         
       } catch (error) {
-        log(`Error importing rental property: ${error.message}`, 'import');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        log(`Error importing rental property: ${errorMessage}`, 'import');
         errors++;
       }
     }
@@ -102,7 +104,8 @@ export async function importZillowRentals(filePath: string): Promise<{ imported:
     return { imported, errors };
     
   } catch (error) {
-    log(`Failed to import Zillow rentals: ${error.message}`, 'import');
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`Failed to import Zillow rentals: ${errorMessage}`, 'import');
     throw error;
   }
 }
