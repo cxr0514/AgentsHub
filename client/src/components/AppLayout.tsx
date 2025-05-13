@@ -138,7 +138,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <SheetContent side="left" className="w-[85vw] max-w-xs border-r border-[#0f1d31] bg-[#050e1d] p-0 overflow-y-auto">
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-[#0f1d31] flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Menu</h2>
+                    <div className="flex items-center gap-2">
+                      <div className="text-[#FF7A00] text-xl">⌂</div>
+                      <h2 className="text-xl font-semibold">
+                        <span>Real</span>
+                        <span className="text-[#FF7A00] mx-1">Estate</span>
+                        <span>Pro</span>
+                      </h2>
+                    </div>
                     <Button 
                       variant="ghost" 
                       size="icon" 
@@ -239,10 +246,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </Sheet>
 
             {/* Logo - Responsive */}
-            <div className="flex items-center gap-1 text-xl font-bold tracking-tighter cursor-pointer" onClick={() => window.location.href = "/"}>
+            <div className="flex items-center gap-2 text-xl font-bold tracking-tighter cursor-pointer" onClick={() => window.location.href = "/"}>
               <div className="text-[#FF7A00] text-2xl">⌂</div>
-              <div className="hidden xs:block">Prop<span className="text-[#FF7A00]">Invest</span>AI</div>
-              <div className="xs:hidden">PI<span className="text-[#FF7A00]">AI</span></div>
+              <div className="hidden xs:block">
+                <span>Real</span>
+                <span className="text-[#FF7A00] mx-1">Estate</span>
+                <span>Pro</span>
+              </div>
+              <div className="xs:hidden">RE<span className="text-[#FF7A00]">P</span></div>
             </div>
           </div>
 
