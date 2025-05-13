@@ -266,13 +266,13 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
   const analysisHistory = getAnalysisHistory();
 
   return (
-    <Card className="w-full">
+    <Card className="w-full border-[#0f1d31] bg-[#050e1d]">
       <CardHeader>
-        <CardTitle className="text-2xl text-[#071224] flex items-center gap-2">
+        <CardTitle className="text-2xl text-white flex items-center gap-2">
           <HomeIcon className="h-6 w-6 text-[#FF7A00]" />
           Property Investment Analyzer
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-300">
           Analyze any property as an investment with our AI-powered tool
         </CardDescription>
       </CardHeader>
@@ -394,7 +394,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                   <div className="pt-4 flex justify-end">
                     <Button 
                       type="submit"
-                      className="bg-[#071224] hover:bg-[#0f1d31] text-white"
+                      className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
                       disabled={analyzePropertyMutation.isPending}
                     >
                       {analyzePropertyMutation.isPending ? (
@@ -462,19 +462,21 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                   </div>
                 </div>
                 
-                <div className="bg-white rounded-lg border p-6">
-                  <h3 className="text-xl font-semibold mb-4">Investment Analysis</h3>
-                  {formatAnalysis(analyzePropertyMutation.data.analysis)}
+                <div className="bg-[#050e1d] rounded-lg border border-[#0f1d31] p-6">
+                  <h3 className="text-xl font-semibold mb-4 text-white">Investment Analysis</h3>
+                  <div className="text-slate-300">
+                    {formatAnalysis(analyzePropertyMutation.data.analysis)}
+                  </div>
                 </div>
               </div>
             ) : (
               <div className="text-center py-12">
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">No Analysis Available</h3>
-                <p className="text-muted-foreground mt-2 mb-4">
+                <h3 className="text-lg font-medium text-white">No Analysis Available</h3>
+                <p className="text-slate-300 mt-2 mb-4">
                   Fill out the property details and click "Analyze Property" to get started.
                 </p>
-                <Button onClick={() => setActiveTab('form')}>Enter Property Details</Button>
+                <Button onClick={() => setActiveTab('form')} className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">Enter Property Details</Button>
               </div>
             )}
           </TabsContent>
@@ -483,23 +485,23 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
             {analysisHistory.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium">No Analysis History</h3>
-                <p className="text-muted-foreground mt-2 mb-4">
+                <h3 className="text-lg font-medium text-white">No Analysis History</h3>
+                <p className="text-slate-300 mt-2 mb-4">
                   You haven't analyzed any properties yet. Analysis results will be saved here for future reference.
                 </p>
-                <Button onClick={() => setActiveTab('form')}>Analyze a Property</Button>
+                <Button onClick={() => setActiveTab('form')} className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">Analyze a Property</Button>
               </div>
             ) : (
               <div className="space-y-4">
-                <h3 className="text-lg font-medium mb-2">Recent Property Analyses</h3>
+                <h3 className="text-lg font-medium mb-2 text-white">Recent Property Analyses</h3>
                 
                 {analysisHistory.map((item: any, index: number) => (
-                  <Card key={index} className="overflow-hidden">
-                    <CardHeader className="p-4 bg-gray-50">
+                  <Card key={index} className="overflow-hidden border-[#0f1d31]">
+                    <CardHeader className="p-4 bg-[#071224]">
                       <div className="flex justify-between items-start">
                         <div>
-                          <CardTitle className="text-base">{item.address}</CardTitle>
-                          <CardDescription className="text-xs">
+                          <CardTitle className="text-base text-white">{item.address}</CardTitle>
+                          <CardDescription className="text-xs text-slate-300">
                             {new Date(item.timestamp).toLocaleDateString()} - ${item.price.toLocaleString()}
                           </CardDescription>
                         </div>
@@ -539,8 +541,8 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                         </Button>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-4">
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                    <CardContent className="p-4 bg-[#050e1d] border-t border-[#0f1d31]">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-300">
                         <div>{item.beds} beds | {item.baths} baths</div>
                         <div>{item.sqft} sqft</div>
                         <div>{propertyTypes.find(t => t.value === item.propertyType)?.label || item.propertyType}</div>
