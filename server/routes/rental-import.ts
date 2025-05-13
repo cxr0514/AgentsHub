@@ -45,7 +45,7 @@ const upload = multer({
 });
 
 // Route to check rental properties count
-router.get('/rental-properties/count', async (req, res) => {
+router.get('/properties/count', async (req, res) => {
   try {
     const count = await countRentalProperties();
     res.json({ count });
@@ -56,7 +56,7 @@ router.get('/rental-properties/count', async (req, res) => {
 });
 
 // Route to import Zillow rental data
-router.post('/rental-properties/import', requireAdmin, upload.single('rentalData'), async (req, res) => {
+router.post('/properties/import', requireAdmin, upload.single('rentalData'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -93,7 +93,7 @@ router.post('/rental-properties/import', requireAdmin, upload.single('rentalData
 });
 
 // Route to import from an existing file in the system
-router.post('/rental-properties/import-file', requireAdmin, async (req, res) => {
+router.post('/properties/import-file', requireAdmin, async (req, res) => {
   try {
     const { filePath } = req.body;
     
@@ -125,7 +125,7 @@ router.post('/rental-properties/import-file', requireAdmin, async (req, res) => 
 });
 
 // Route to import the sample data from the attached_assets folder
-router.post('/rental-properties/import-sample', requireAdmin, async (req, res) => {
+router.post('/properties/import-sample', requireAdmin, async (req, res) => {
   try {
     const sampleFile = path.join(process.cwd(), 'attached_assets/Outscraper-20250513184410s1c.json');
     
@@ -133,6 +133,8 @@ router.post('/rental-properties/import-sample', requireAdmin, async (req, res) =
     if (!fs.existsSync(sampleFile)) {
       return res.status(404).json({ error: `Sample file not found: ${sampleFile}` });
     }
+    
+    log(`Importing sample data from ${sampleFile}`, 'import');
     
     // Import the data
     const result = await importZillowRentals(sampleFile);

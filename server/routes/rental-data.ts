@@ -8,9 +8,11 @@ import { analyzeRentalProperty } from '../services/perplexityService';
 const router = Router();
 
 // Get all rental properties
-router.get('/api/rental-properties', async (req, res) => {
+router.get('/rental-properties', async (req, res) => {
   try {
+    log('Fetching all rental properties', 'rental-data');
     const properties = await db.select().from(rentalProperties);
+    log(`Found ${properties.length} rental properties`, 'rental-data');
     res.json(properties);
   } catch (error) {
     log(`Error fetching rental properties: ${error instanceof Error ? error.message : 'Unknown error'}`, 'rental-data');
@@ -19,7 +21,7 @@ router.get('/api/rental-properties', async (req, res) => {
 });
 
 // Get a single rental property
-router.get('/api/rental-properties/:id', async (req, res) => {
+router.get('/rental-properties/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     
@@ -41,7 +43,7 @@ router.get('/api/rental-properties/:id', async (req, res) => {
 });
 
 // Get a rental property with AI analysis
-router.get('/api/rental-properties/:id/analysis', async (req, res) => {
+router.get('/rental-properties/:id/analysis', async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     
