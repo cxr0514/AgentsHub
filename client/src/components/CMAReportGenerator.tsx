@@ -509,19 +509,19 @@ export function CMAReportGenerator() {
           {/* Step 3: Report Options */}
           <TabsContent value="report-options" className="mt-0">
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
-                <h3 className="text-lg font-medium mb-2">Step 3: Report Options & Customization</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-[#0f1d31] p-4 rounded-md border border-[#071224]">
+                <h3 className="text-lg font-medium mb-2 text-white">Step 3: Report Options & Customization</h3>
+                <p className="text-sm text-slate-400">
                   Customize your CMA report with branding, sections, and formatting options.
                 </p>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-md font-medium mb-4">Report Information</h3>
+                  <h3 className="text-md font-medium mb-4 text-white">Report Information</h3>
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="reportTitle">Report Title</Label>
+                      <Label htmlFor="reportTitle" className="text-slate-400">Report Title</Label>
                       <Input 
                         id="reportTitle" 
                         value={reportOptions.reportTitle}
@@ -529,11 +529,12 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           reportTitle: e.target.value
                         })}
+                        className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor="agentName">Agent Name</Label>
+                      <Label htmlFor="agentName" className="text-slate-400">Agent Name</Label>
                       <Input 
                         id="agentName" 
                         value={reportOptions.agentName}
@@ -541,12 +542,13 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           agentName: e.target.value
                         })}
+                        className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                       />
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="agentEmail">Agent Email</Label>
+                        <Label htmlFor="agentEmail" className="text-slate-400">Agent Email</Label>
                         <Input 
                           id="agentEmail" 
                           type="email"
@@ -555,10 +557,11 @@ export function CMAReportGenerator() {
                             ...reportOptions,
                             agentEmail: e.target.value
                           })}
+                          className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="agentPhone">Agent Phone</Label>
+                        <Label htmlFor="agentPhone" className="text-slate-400">Agent Phone</Label>
                         <Input 
                           id="agentPhone" 
                           value={reportOptions.agentPhone}
@@ -566,12 +569,13 @@ export function CMAReportGenerator() {
                             ...reportOptions,
                             agentPhone: e.target.value
                           })}
+                          className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <Label htmlFor="clientName">Client Name</Label>
+                      <Label htmlFor="clientName" className="text-slate-400">Client Name</Label>
                       <Input 
                         id="clientName" 
                         value={reportOptions.clientName}
@@ -579,6 +583,7 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           clientName: e.target.value
                         })}
+                        className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                       />
                     </div>
                     
