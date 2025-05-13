@@ -9,7 +9,8 @@ import {
   insertSavedPropertySchema,
   insertReportSchema
 } from "../shared/schema";
-import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService-enhanced";
+import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService";
+import attomService from "./services/attomService-enhanced";
 import { 
   getMarketPredictions, 
   getPropertyRecommendations, 
@@ -53,6 +54,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register ATTOM test routes for development (no authentication required)
   if (process.env.NODE_ENV !== 'production') {
     apiRouter.use("/attom-test", attomTestRoutes);
+    
+    // Add enhanced ATTOM testing endpoint
+    apiRouter.get("/attom-test/enhanced/property", async (req, res) => {
+      try {
+        const { address, city, state, zipCode } = req.query;
+        
+        if (!address || !city || !state) {
+          return res.status(400).json({ 
+            message: "Address, city, and state are required" 
+          });
+        }
+        
+        console.log(`Testing enhanced ATTOM property fetch for ${address}, ${city}, ${state}${zipCode ? `, ${zipCode}` : ''}`);
+        
+        // Use our enhanced ATTOM service
+        const result = await attomService.fetchPropertyDetails(
+          address as string,
+          city as string, 
+          state as string, 
+          zipCode as string || ''
+        );
+        
+        res.json(result);
+      } catch (error: any) {
+        console.error("Error fetching enhanced property details:", error);
+        res.status(500).json({ 
+          error: error.message,
+          message: "There was an error fetching property details. Check if your ATTOM API key is valid."
+        });
+      }
+    });
   }
   
   // Register market heatmap routes
@@ -201,6 +233,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching market data:", error);
       res.status(500).json({ message: "Failed to fetch market data" });
+    }
+  });
+
+  // Enhanced ATTOM API market data route - for testing improved ATTOM integration
+  apiRouter.get("/market-data/enhanced", async (req, res) => {
+    try {
+      const { city, state, zipCode } = req.query;
+      
+      if (!city || !state) {
+        return res.status(400).json({ message: "City and state are required" });
+      }
+      
+      console.log(`Testing enhanced ATTOM market data fetch for ${city}, ${state}${zipCode ? `, ${zipCode}` : ''}`);
+      
+      // Use our enhanced ATTOM service directly
+      const result = await attomService.fetchMarketStatistics(
+        city as string, 
+        state as string, 
+        zipCode as string | undefined
+      );
+      
+      res.json(result);
+    } catch (error: any) {
+      console.error("Error fetching enhanced market statistics:", error);
+      res.status(500).json({ 
+        error: error.message,
+        message: "There was an error fetching market data. Check if your ATTOM API key is valid."
+      });
     }
   });
 
