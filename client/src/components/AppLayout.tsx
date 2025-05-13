@@ -65,6 +65,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
     main: [
       { icon: Home, label: 'Dashboard', path: '/' },
       { icon: Building2, label: 'Properties', path: '/properties' },
+      { icon: Building2, label: 'Rental Properties', path: '/rental-properties' },
       { icon: Search, label: 'Search', path: '/search' },
     ],
     analysis: [
@@ -359,7 +360,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             {[
               { icon: Home, label: 'Home', path: '/' },
               { icon: Building2, label: 'Properties', path: '/properties' },
-              { icon: LineChart, label: 'Analysis', path: '/market-analysis' },
+              { icon: Building2, label: 'Rentals', path: '/rental-properties' },
               { icon: Menu, label: 'Menu', path: '#menu', onClick: () => setOpen(true) }
             ].map((item: MenuItem) => (
               <div

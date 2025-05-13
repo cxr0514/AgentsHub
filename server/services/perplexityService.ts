@@ -1,386 +1,462 @@
+import fetch from 'node-fetch';
 import { log } from '../vite';
+import fs from 'fs';
+import { RentalProperty } from '@shared/schema';
 
-interface PerplexityResponse {
+// API key file path - same as in api-keys.ts
+const API_KEYS_FILE = ".env.api-keys";
+
+// API key interface
+interface ApiKey {
   id: string;
-  model: string;
-  object: string;
-  created: number;
-  citations: string[];
-  choices: {
-    index: number;
-    finish_reason: string;
-    message: {
-      role: string;
-      content: string;
-    };
-    delta: {
-      role: string;
-      content: string;
-    };
-  }[];
-  usage: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
+  name: string;
+  key: string;
+  service: string;
+  createdAt: string;
 }
 
-interface MarketInsight {
-  insight: string;
-  analysisType: 'trend' | 'prediction' | 'risk' | 'opportunity';
-  confidence: number; // 0-1
-  locationContext: string;
-  timeframe: string;
-  supportingData?: string;
-  citations?: string[];
+// Get API keys directly from file without importing
+function getApiKeysFromFile(): ApiKey[] {
+  try {
+    // Initialize API keys file if it doesn't exist
+    if (!fs.existsSync(API_KEYS_FILE)) {
+      fs.writeFileSync(API_KEYS_FILE, "# API Keys\n", "utf-8");
+    }
+    
+    const fileContent = fs.readFileSync(API_KEYS_FILE, "utf-8");
+    const lines = fileContent.split("\n");
+    
+    const apiKeys: ApiKey[] = [];
+    const commentPattern = /^#\s*API_KEY_([a-zA-Z0-9_-]+)=(.+?)\|(.+?)\|(.+?)\|(.+)$/;
+    
+    for (const line of lines) {
+      const match = line.match(commentPattern);
+      if (match) {
+        apiKeys.push({
+          id: match[1],
+          name: match[2],
+          service: match[3],
+          key: match[4],
+          createdAt: match[5],
+        });
+      }
+    }
+    
+    return apiKeys;
+  } catch (error) {
+    log(`Error loading API keys: ${error instanceof Error ? error.message : 'Unknown error'}`, 'perplexity');
+    return [];
+  }
+}
+
+// Utility function to get the Perplexity API key
+async function getPerplexityApiKey(): Promise<string> {
+  // Try to get from environment first
+  let perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+  
+  // If not in environment, try to get from file
+  if (!perplexityApiKey) {
+    const apiKeysList = getApiKeysFromFile();
+    perplexityApiKey = apiKeysList.find((key) => key.service.toLowerCase() === 'perplexity')?.key;
+  }
+  
+  if (!perplexityApiKey) {
+    throw new Error('Perplexity API key not found');
+  }
+  
+  return perplexityApiKey;
+}
+
+// Make a request to the Perplexity API
+async function callPerplexityApi(system: string, prompt: string, model = 'llama-3.1-sonar-small-128k-online'): Promise<string> {
+  const perplexityApiKey = await getPerplexityApiKey();
+  
+  const response = await fetch('https://api.perplexity.ai/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${perplexityApiKey}`
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: system
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      temperature: 0.2,
+      max_tokens: 2000,
+      stream: false
+    })
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    log(`Perplexity API error: ${response.status} - ${errorText}`, 'perplexity');
+    throw new Error(`Perplexity API error: ${response.status}`);
+  }
+
+  interface PerplexityResponse {
+    id: string;
+    model: string;
+    created: number;
+    choices: Array<{
+      index: number;
+      finish_reason: string;
+      message: {
+        role: string;
+        content: string;
+      };
+    }>;
+    usage: {
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    };
+    citations?: Array<string>;
+  }
+
+  const data = await response.json() as PerplexityResponse;
+  
+  if (!data.choices || data.choices.length === 0 || !data.choices[0].message.content) {
+    throw new Error('No content in Perplexity API response');
+  }
+
+  return data.choices[0].message.content;
 }
 
 /**
- * Call the Perplexity API to get market insights for a specific location
+ * Uses Perplexity API to generate an investment analysis for a rental property
  */
-export async function getMarketInsights(
-  location: string,
-  analysisType: 'trend' | 'prediction' | 'risk' | 'opportunity' = 'trend'
-): Promise<MarketInsight[]> {
-  if (!process.env.PERPLEXITY_API_KEY) {
-    throw new Error('PERPLEXITY_API_KEY is not set');
-  }
-
+export async function analyzeRentalProperty(property: RentalProperty): Promise<string> {
   try {
-    log(`Calling Perplexity API for market insights on ${location}`, 'perplexity');
-
-    const systemPrompt = `You are a real estate market analysis expert. Provide detailed, specific, and quantitative insights about the real estate market in ${location}. Focus on ${analysisType === 'trend' ? 'current trends' : analysisType === 'prediction' ? 'future predictions' : analysisType === 'risk' ? 'potential risks' : 'investment opportunities'}.`;
+    // Construct address and property details
+    const address = property.buildingName 
+      ? `${property.buildingName} (${property.address}, ${property.addressCity}, ${property.addressState} ${property.addressZipcode})`
+      : `${property.address}, ${property.addressCity}, ${property.addressState} ${property.addressZipcode}`;
     
-    const userPrompt = `Please analyze the current real estate market in ${location} and provide 3-5 key ${analysisType === 'trend' ? 'trends' : analysisType === 'prediction' ? 'predictions' : analysisType === 'risk' ? 'risks' : 'investment opportunities'} for investors. For each insight, include:
-1. A concise description
-2. Supporting data points or statistics when possible
-3. The timeframe relevant to this insight (e.g., "next 6 months", "2025-2026")
-4. A confidence score between 0 and 1
-
-Format your response as clean JSON only, with no text before or after. Use this exact format:
-[
-  {
-    "insight": "Detailed description of the insight",
-    "analysisType": "${analysisType}",
-    "confidence": 0.8,
-    "locationContext": "${location}",
-    "timeframe": "Relevant timeframe",
-    "supportingData": "Supporting statistics or data points"
-  },
-  ...
-]`;
-
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-sonar-small-128k-online",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userPrompt
-          }
-        ],
-        temperature: 0.2,
-        max_tokens: 1500,
-        top_p: 0.9,
-        search_domain_filter: ["perplexity.ai"],
-        search_recency_filter: "month",
-        frequency_penalty: 1,
-        stream: false
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      log(`Perplexity API error: ${response.status} - ${errorText}`, 'perplexity');
-      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`);
+    // Get the main unit price and details (or list all if multiple units)
+    let unitDetails = '';
+    if (property.units && property.units.length > 0) {
+      if (property.units.length === 1) {
+        const unit = property.units[0];
+        unitDetails = `Price: ${unit.price}, Bedrooms: ${unit.beds}${unit.baths ? `, Bathrooms: ${unit.baths}` : ''}`;
+      } else {
+        unitDetails = 'Multiple units available:\n';
+        property.units.forEach((unit, i) => {
+          unitDetails += `- Unit ${i+1}: Price: ${unit.price}, Bedrooms: ${unit.beds}${unit.baths ? `, Bathrooms: ${unit.baths}` : ''}\n`;
+        });
+      }
     }
 
-    const data = await response.json() as PerplexityResponse;
-    const content = data.choices[0]?.message?.content;
-    
-    if (!content) {
-      throw new Error('No content in Perplexity API response');
-    }
-
-    try {
-      const insights = JSON.parse(content) as MarketInsight[];
-      log(`Successfully retrieved ${insights.length} market insights for ${location}`, 'perplexity');
+    // Construct the prompt for rental analysis
+    const prompt = `
+      I need an investment analysis for the following rental property. Please provide a detailed evaluation with sections.
       
-      // Add citations from the API response
-      return insights.map(insight => ({
-        ...insight,
-        citations: data.citations
-      }));
-    } catch (parseError) {
-      log(`Error parsing Perplexity response: ${parseError.message}`, 'perplexity');
-      log(`Response content: ${content}`, 'perplexity');
-      throw new Error(`Failed to parse Perplexity response: ${parseError.message}`);
-    }
+      Property Details:
+      - Address: ${address}
+      - Property Type: ${property.propertyType}
+      - Status: ${property.statusType}
+      - ${unitDetails}
+      
+      For your analysis, please include:
+      1. Investment Potential: Evaluate this property as a rental investment
+      2. Rental Market: Analysis of the rental market in ${property.addressCity}, ${property.addressState}
+      3. Expected Returns: Estimated ROI, cash flow, and cap rate expectations
+      4. Pros and Cons: Key advantages and potential risks
+      5. Recommendations: Should an investor consider this property and why
+      
+      Format your response in a well-structured format with clear headings for each section. Use concise language focused on investment value.
+    `;
+
+    const systemPrompt = 'You are a real estate investment expert. Provide detailed, data-driven analysis focused on rental properties as investments. Include specific numbers and percentages where possible.';
+    return await callPerplexityApi(systemPrompt, prompt);
   } catch (error) {
-    log(`Error calling Perplexity API: ${error.message}`, 'perplexity');
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`Error analyzing rental property: ${errorMessage}`, 'perplexity');
+    
+    // Provide a more user-friendly error message
+    throw new Error(`Failed to analyze property: ${errorMessage}`);
   }
 }
 
 /**
- * Generate an AI-powered market report for a specific location
- */
-export async function generateMarketReport(
-  location: string,
-  propertyType: string = 'residential'
-): Promise<string> {
-  if (!process.env.PERPLEXITY_API_KEY) {
-    throw new Error('PERPLEXITY_API_KEY is not set');
-  }
-
-  try {
-    log(`Generating market report for ${location} (${propertyType})`, 'perplexity');
-
-    const systemPrompt = `You are a real estate market analyst creating a comprehensive market report. Provide detailed analysis about the ${propertyType} real estate market in ${location}.`;
-    
-    const userPrompt = `Generate a comprehensive market report for the ${propertyType} real estate market in ${location}. Include the following sections:
-
-1. Executive Summary
-2. Market Overview
-   - Current state of the market
-   - Key statistics (median price, days on market, inventory levels)
-3. Supply and Demand Analysis
-4. Price Trends
-   - Year-over-year changes
-   - Price forecasts
-5. Neighborhood Analysis
-   - Top performing areas
-   - Areas with growth potential
-6. Investment Outlook
-   - ROI potential
-   - Risk assessment
-7. Recommendations for Investors
-
-Make the report detailed, data-driven, and actionable for real estate investors.`;
-
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-sonar-small-128k-online",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userPrompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 4000,
-        top_p: 0.9,
-        search_domain_filter: ["perplexity.ai"],
-        search_recency_filter: "month",
-        frequency_penalty: 1,
-        stream: false
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      log(`Perplexity API error: ${response.status} - ${errorText}`, 'perplexity');
-      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json() as PerplexityResponse;
-    const content = data.choices[0]?.message?.content;
-    
-    if (!content) {
-      throw new Error('No content in Perplexity API response');
-    }
-
-    log(`Successfully generated market report for ${location}`, 'perplexity');
-    return content;
-  } catch (error) {
-    log(`Error generating market report: ${error.message}`, 'perplexity');
-    throw error;
-  }
-}
-
-/**
- * Get AI-powered property investment recommendations based on criteria
- */
-export async function getPropertyRecommendations(
-  location: string,
-  budget: number,
-  investmentStrategy: 'cashflow' | 'appreciation' | 'value-add' | 'flip' = 'cashflow',
-  propertyType: string = 'single-family'
-): Promise<string> {
-  if (!process.env.PERPLEXITY_API_KEY) {
-    throw new Error('PERPLEXITY_API_KEY is not set');
-  }
-
-  try {
-    log(`Getting property recommendations for ${location} (${investmentStrategy}, ${budget})`, 'perplexity');
-
-    const systemPrompt = `You are a real estate investment advisor. Provide specific and actionable recommendations for property investments in ${location} based on the client's budget and investment strategy.`;
-    
-    const userPrompt = `I'm looking to invest in ${propertyType} properties in ${location} with a budget of $${budget.toLocaleString()}. My primary investment strategy is "${investmentStrategy}".
-
-Please provide me with:
-
-1. A general market assessment for this location and strategy
-2. 3-5 specific property types or neighborhoods to consider
-3. Key criteria I should look for
-4. Potential returns I might expect
-5. Risks to be aware of
-6. Suggestions for maximizing my investment
-
-Make your recommendations specific, actionable, and based on current market data.`;
-
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-sonar-small-128k-online",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userPrompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 2500,
-        top_p: 0.9,
-        search_domain_filter: ["perplexity.ai"],
-        search_recency_filter: "month",
-        frequency_penalty: 1,
-        stream: false
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      log(`Perplexity API error: ${response.status} - ${errorText}`, 'perplexity');
-      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json() as PerplexityResponse;
-    const content = data.choices[0]?.message?.content;
-    
-    if (!content) {
-      throw new Error('No content in Perplexity API response');
-    }
-
-    log(`Successfully generated property recommendations for ${location}`, 'perplexity');
-    return content;
-  } catch (error) {
-    log(`Error generating property recommendations: ${error.message}`, 'perplexity');
-    throw error;
-  }
-}
-
-/**
- * Analyze a specific property and provide investment analysis
+ * Analyze a property as an investment using Perplexity API
+ * This version accepts individual property parameters
  */
 export async function analyzePropertyInvestment(
   address: string,
   price: number,
   propertyType: string,
-  sqft: number,
-  beds: number,
-  baths: number
+  squareFeet: number = 0,
+  bedrooms: number = 0,
+  bathrooms: number = 0
 ): Promise<string> {
-  if (!process.env.PERPLEXITY_API_KEY) {
-    throw new Error('PERPLEXITY_API_KEY is not set');
-  }
-
   try {
-    log(`Analyzing property investment for ${address}`, 'perplexity');
-
-    const systemPrompt = `You are a real estate investment analyst. Provide a detailed investment analysis for a specific property based on the provided details.`;
+    // Extract city and state from address
+    const matches = address.match(/([^,]+),\s*([^,]+),\s*([A-Z]{2})/);
+    const city = matches ? matches[2].trim() : '';
+    const state = matches ? matches[3].trim() : '';
     
-    const userPrompt = `Please analyze this property as a potential investment:
-
-Property Details:
-- Address: ${address}
-- Price: $${price.toLocaleString()}
-- Type: ${propertyType}
-- Size: ${sqft} sq ft
-- Bedrooms: ${beds}
-- Bathrooms: ${baths}
-
-Include in your analysis:
-1. Market value assessment (is this property fairly priced?)
-2. Potential for appreciation
-3. Rental income potential and cap rate estimate
-4. Suggested improvements to increase value
-5. Overall investment rating (1-10 scale)
-6. Recommendation (buy, pass, or negotiate)
-
-Make your analysis detailed and specific to this property and its location.`;
-
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: "llama-3.1-sonar-small-128k-online",
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt
-          },
-          {
-            role: "user",
-            content: userPrompt
-          }
-        ],
-        temperature: 0.3,
-        max_tokens: 2000,
-        top_p: 0.9,
-        search_domain_filter: ["perplexity.ai"],
-        search_recency_filter: "month",
-        frequency_penalty: 1,
-        stream: false
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      log(`Perplexity API error: ${response.status} - ${errorText}`, 'perplexity');
-      throw new Error(`Perplexity API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json() as PerplexityResponse;
-    const content = data.choices[0]?.message?.content;
+    // Format property details
+    const propertyDetails = [
+      `Address: ${address}`,
+      `Price: $${price.toLocaleString()}`,
+      `Property Type: ${propertyType}`,
+    ];
     
-    if (!content) {
-      throw new Error('No content in Perplexity API response');
-    }
-
-    log(`Successfully analyzed property investment for ${address}`, 'perplexity');
-    return content;
+    if (squareFeet > 0) propertyDetails.push(`Square Feet: ${squareFeet}`);
+    if (bedrooms > 0) propertyDetails.push(`Bedrooms: ${bedrooms}`);
+    if (bathrooms > 0) propertyDetails.push(`Bathrooms: ${bathrooms}`);
+    
+    // Construct the prompt for rental analysis
+    const prompt = `
+      I need an investment analysis for the following rental property. Please provide a detailed evaluation with sections.
+      
+      Property Details:
+      ${propertyDetails.map(detail => `- ${detail}`).join('\n')}
+      
+      For your analysis, please include:
+      1. Investment Potential: Evaluate this property as a rental investment
+      2. Rental Market: Analysis of the rental market in ${city}, ${state}
+      3. Expected Returns: Estimated ROI, cash flow, and cap rate expectations
+      4. Pros and Cons: Key advantages and potential risks
+      5. Recommendations: Should an investor consider this property and why
+      
+      Format your response in a well-structured format with clear headings for each section. Use concise language focused on investment value.
+    `;
+    
+    const systemPrompt = 'You are a real estate investment expert. Provide detailed, data-driven analysis focused on rental properties as investments. Include specific numbers and percentages where possible.';
+    return await callPerplexityApi(systemPrompt, prompt);
   } catch (error) {
-    log(`Error analyzing property investment: ${error.message}`, 'perplexity');
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`Error analyzing property investment: ${errorMessage}`, 'perplexity');
+    
+    // Provide a more user-friendly error message
+    throw new Error(`Failed to analyze property investment: ${errorMessage}`);
+  }
+}
+
+/**
+ * Get market insights for a specific location
+ */
+export async function getMarketInsights(
+  location: string,
+  analysisType: 'trend' | 'prediction' | 'risk' | 'opportunity' = 'trend'
+): Promise<any> {
+  try {
+    let promptFocus = "";
+    let systemPrompt = "";
+    
+    switch (analysisType) {
+      case 'trend':
+        promptFocus = "current market trends, price movements, and rental yield data";
+        systemPrompt = "You are a real estate market analyst specializing in current trends. Provide factual, data-driven insights about current market conditions.";
+        break;
+      case 'prediction':
+        promptFocus = "future market predictions, projected growth rates, and investment outlook for the next 1-3 years";
+        systemPrompt = "You are a real estate market forecaster. Provide forward-looking predictions backed by current data and economic indicators.";
+        break;
+      case 'risk':
+        promptFocus = "potential market risks, economic factors that could affect property values, and risk mitigation strategies";
+        systemPrompt = "You are a risk analysis expert in real estate. Identify potential risks and provide balanced assessments with mitigation strategies.";
+        break;
+      case 'opportunity':
+        promptFocus = "emerging investment opportunities, undervalued areas, and potential for high returns";
+        systemPrompt = "You are an investment opportunity specialist. Identify promising investment areas and explain their potential with supporting data.";
+        break;
+    }
+    
+    const prompt = `
+      Provide detailed real estate market insights for ${location}, focusing on ${promptFocus}.
+      
+      Include the following in your analysis:
+      1. Current market overview for ${location}
+      2. Key metrics and indicators
+      3. Notable trends or patterns
+      4. Recommendations for investors
+      
+      Format your response as JSON with the following structure:
+      {
+        "overview": "Brief summary",
+        "keyMetrics": [
+          {"name": "Metric Name", "value": "Metric Value", "trend": "up/down/stable"},
+          ...
+        ],
+        "analysis": "Detailed analysis paragraphs",
+        "recommendations": ["Recommendation 1", "Recommendation 2", ...]
+      }
+    `;
+    
+    const responseText = await callPerplexityApi(systemPrompt, prompt);
+    
+    // Extract the JSON from the response
+    const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || 
+                      responseText.match(/```\n([\s\S]*?)\n```/) || 
+                      responseText.match(/{[\s\S]*}/);
+                      
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[1] || jsonMatch[0]);
+      } catch (parseError) {
+        log(`Error parsing JSON from Perplexity response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`, 'perplexity');
+        // If JSON parsing fails, return the raw text
+        return { rawResponse: responseText };
+      }
+    } else {
+      // If no JSON found, return the raw text
+      return { rawResponse: responseText };
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`Error getting market insights: ${errorMessage}`, 'perplexity');
+    throw new Error(`Failed to get market insights: ${errorMessage}`);
+  }
+}
+
+/**
+ * Generate a comprehensive market report for a location
+ */
+export async function generateMarketReport(
+  location: string,
+  propertyType: string = 'residential'
+): Promise<string> {
+  try {
+    const prompt = `
+      Generate a comprehensive real estate market report for ${location}, focusing on ${propertyType} properties.
+      
+      Include the following sections in your report:
+      1. Executive Summary
+      2. Market Overview
+         - Current conditions
+         - Historical trends
+         - Comparison to regional/national market
+      3. Supply and Demand Analysis
+         - Inventory levels
+         - Days on market
+         - Absorption rates
+      4. Price Analysis
+         - Current pricing
+         - Price trends
+         - Price forecasts
+      5. Rental Market Analysis (if applicable)
+         - Rental rates
+         - Vacancy rates
+         - Rental yield
+      6. Investment Outlook
+         - ROI potential
+         - Risk assessment
+         - Opportunity areas
+      7. Recommendations
+      
+      Format your response in markdown with clear headings, subheadings, and bullet points where appropriate.
+      Include relevant data points, percentages, and specific figures to support your analysis.
+    `;
+    
+    const systemPrompt = "You are a professional real estate market analyst creating a comprehensive market report. Provide factual, data-driven analysis with specific metrics, trends, and actionable insights.";
+    
+    return await callPerplexityApi(systemPrompt, prompt);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`Error generating market report: ${errorMessage}`, 'perplexity');
+    throw new Error(`Failed to generate market report: ${errorMessage}`);
+  }
+}
+
+/**
+ * Get property recommendations based on location, budget, and strategy
+ */
+export async function getPropertyRecommendations(
+  location: string,
+  budget: number,
+  strategy: 'cashflow' | 'appreciation' | 'value-add' | 'flip' = 'cashflow',
+  propertyType: string = 'single-family'
+): Promise<any> {
+  try {
+    let strategyDescription = "";
+    
+    switch (strategy) {
+      case 'cashflow':
+        strategyDescription = "maximizing monthly rental income and cash flow";
+        break;
+      case 'appreciation':
+        strategyDescription = "long-term appreciation and equity growth";
+        break;
+      case 'value-add':
+        strategyDescription = "properties with renovation/improvement potential to increase value";
+        break;
+      case 'flip':
+        strategyDescription = "short-term purchase, renovation, and resale for profit";
+        break;
+    }
+    
+    const prompt = `
+      Recommend the best property investment opportunities in ${location} with a budget of $${budget.toLocaleString()}.
+      
+      Investment Strategy: ${strategyDescription}
+      Property Type Focus: ${propertyType}
+      
+      For your recommendations, include:
+      1. Best neighborhoods or sub-markets to target
+      2. Specific property characteristics to look for
+      3. Expected returns (cash flow, appreciation, etc.)
+      4. Potential risks and mitigations
+      5. Example property profiles
+      
+      Format your response as JSON with the following structure:
+      {
+        "recommendedAreas": [
+          {"name": "Area Name", "reasons": ["Reason 1", "Reason 2"], "expectedReturns": "X%"},
+          ...
+        ],
+        "propertyAttributes": ["Attribute 1", "Attribute 2", ...],
+        "exampleProperties": [
+          {
+            "type": "Property Type",
+            "bedrooms": X,
+            "bathrooms": Y,
+            "estimatedPrice": "$XXX,XXX",
+            "estimatedRent": "$X,XXX/month",
+            "cashOnCashReturn": "X%",
+            "appreciationPotential": "X%",
+            "notes": "Additional details"
+          },
+          ...
+        ],
+        "risks": ["Risk 1", "Risk 2", ...],
+        "additionalAdvice": "Further recommendations"
+      }
+    `;
+    
+    const systemPrompt = "You are a real estate investment advisor specializing in property recommendations. Provide data-backed recommendations tailored to the investor's location, budget, and strategy.";
+    
+    const responseText = await callPerplexityApi(systemPrompt, prompt);
+    
+    // Extract the JSON from the response
+    const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/) || 
+                      responseText.match(/```\n([\s\S]*?)\n```/) || 
+                      responseText.match(/{[\s\S]*}/);
+                      
+    if (jsonMatch) {
+      try {
+        return JSON.parse(jsonMatch[1] || jsonMatch[0]);
+      } catch (parseError) {
+        log(`Error parsing JSON from Perplexity response: ${parseError instanceof Error ? parseError.message : 'Unknown error'}`, 'perplexity');
+        // If JSON parsing fails, return the raw text
+        return { rawResponse: responseText };
+      }
+    } else {
+      // If no JSON found, return the raw text
+      return { rawResponse: responseText };
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    log(`Error getting property recommendations: ${errorMessage}`, 'perplexity');
+    throw new Error(`Failed to get property recommendations: ${errorMessage}`);
   }
 }

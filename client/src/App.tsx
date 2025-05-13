@@ -28,6 +28,8 @@ import SharedPropertiesPage from "@/pages/shared-properties";
 import SharedPropertyView from "@/pages/shared-property-view";
 import CollaborationTeamsPage from "@/pages/collaboration-teams";
 import ApiKeysManager from "@/pages/not-found";
+import RentalPropertiesPage from "@/pages/rental-properties";
+import RentalAnalysisPage from "@/pages/rental-analysis";
 
 function Router() {
   return (
@@ -50,6 +52,8 @@ function Router() {
       <ProtectedRoute path="/settings/api-keys" component={ApiKeyManagement} />
       <ProtectedRoute path="/shared-properties" component={SharedPropertiesPage} />
       <ProtectedRoute path="/collaboration-teams" component={CollaborationTeamsPage} />
+      <ProtectedRoute path="/rental-properties" component={RentalPropertiesPage} />
+      <ProtectedRoute path="/rental-analysis/:id" component={RentalAnalysisPage} />
       <Route path="/shared/:token" component={SharedPropertyView} />
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/api-keys" component={ApiKeysManager} />
