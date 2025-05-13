@@ -1244,7 +1244,10 @@ export function CompMatchingEngine() {
                 <p className="text-muted-foreground mt-2 mb-4">
                   Please adjust your search criteria and try again
                 </p>
-                <Button onClick={() => setActiveTab('criteria')}>
+                <Button 
+                  onClick={() => setActiveTab('criteria')}
+                  className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
+                >
                   Adjust Criteria
                 </Button>
               </div>
