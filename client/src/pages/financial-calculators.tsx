@@ -58,24 +58,24 @@ const FinancialCalculatorsPage = () => {
                       About Mortgage Calculations
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="pt-6 space-y-4">
-                    <p className="text-sm text-gray-700">
+                  <CardContent className="pt-6 space-y-4 bg-[#050e1d] text-slate-300">
+                    <p className="text-sm text-slate-300">
                       This calculator helps estimate your monthly mortgage payments based on your loan amount, down payment, interest rate, and loan term.
                     </p>
-                    <h3 className="font-semibold mt-4">Key Factors:</h3>
-                    <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                    <h3 className="font-semibold mt-4 text-white">Key Factors:</h3>
+                    <ul className="list-disc pl-5 space-y-1 text-sm text-slate-300">
                       <li>
-                        <span className="font-medium">Down payment:</span> Higher down payments reduce your loan amount and monthly payments.
+                        <span className="font-medium text-[#FF7A00]">Down payment:</span> Higher down payments reduce your loan amount and monthly payments.
                       </li>
                       <li>
-                        <span className="font-medium">Interest rate:</span> Even small changes can significantly impact your monthly payment.
+                        <span className="font-medium text-[#FF7A00]">Interest rate:</span> Even small changes can significantly impact your monthly payment.
                       </li>
                       <li>
-                        <span className="font-medium">Loan term:</span> Longer terms reduce monthly payments but increase total interest paid.
+                        <span className="font-medium text-[#FF7A00]">Loan term:</span> Longer terms reduce monthly payments but increase total interest paid.
                       </li>
                     </ul>
-                    <p className="text-sm text-gray-700 mt-4">
-                      <strong>Note:</strong> This calculator provides estimates only. Actual payments may vary based on taxes, insurance, and other factors.
+                    <p className="text-sm text-slate-300 mt-4">
+                      <strong className="text-[#FF7A00]">Note:</strong> This calculator provides estimates only. Actual payments may vary based on taxes, insurance, and other factors.
                     </p>
                   </CardContent>
                 </Card>
@@ -84,9 +84,9 @@ const FinancialCalculatorsPage = () => {
           </TabsContent>
 
           <TabsContent value="investment" className="space-y-6">
-            <Card className="w-full p-6">
+            <Card className="w-full p-6 bg-[#050e1d] border-[#0f1d31]">
               <div className="flex items-center justify-center h-64">
-                <p className="text-gray-500">Investment calculator coming soon</p>
+                <p className="text-slate-400">Investment calculator coming soon</p>
               </div>
             </Card>
           </TabsContent>

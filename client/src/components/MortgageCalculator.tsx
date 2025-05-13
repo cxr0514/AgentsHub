@@ -102,9 +102,9 @@ const MortgageCalculator = ({
           Estimate your monthly mortgage payments
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-6 space-y-4">
+      <CardContent className="pt-6 space-y-4 bg-[#050e1d] text-slate-300">
         <div className="space-y-2">
-          <Label htmlFor="property-price" className="flex items-center">
+          <Label htmlFor="property-price" className="flex items-center text-white">
             Property Price
           </Label>
           <div className="relative">
@@ -121,7 +121,7 @@ const MortgageCalculator = ({
 
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label htmlFor="down-payment" className="flex items-center">
+            <Label htmlFor="down-payment" className="flex items-center text-white">
               Down Payment ({formatPercentage(downPaymentPercentage)})
             </Label>
             <span className="text-sm text-muted-foreground">
@@ -154,7 +154,7 @@ const MortgageCalculator = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="interest-rate" className="flex items-center">
+            <Label htmlFor="interest-rate" className="flex items-center text-white">
               Interest Rate
             </Label>
             <div className="relative">
@@ -171,7 +171,7 @@ const MortgageCalculator = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="loan-term" className="flex items-center">
+            <Label htmlFor="loan-term" className="flex items-center text-white">
               Loan Term (Years)
             </Label>
             <div className="relative">
