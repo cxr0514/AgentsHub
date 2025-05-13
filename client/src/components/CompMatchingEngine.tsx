@@ -632,46 +632,46 @@ export function CompMatchingEngine() {
   };
   
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-2xl text-[#071224] flex items-center gap-2">
+    <Card className="w-full bg-[#050e1d] border-[#0f1d31]">
+      <CardHeader className="bg-[#071224] text-white">
+        <CardTitle className="text-2xl text-white flex items-center gap-2">
           <Home className="h-6 w-6 text-[#FF7A00]" />
           Comparable Property Matching Engine
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-300">
           Find, compare, and adjust comparable properties for accurate valuations
         </CardDescription>
       </CardHeader>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="px-6">
-          <TabsList className="grid grid-cols-4 w-full">
-            <TabsTrigger value="search" className="flex items-center gap-2">
+          <TabsList className="grid grid-cols-4 w-full bg-[#071224]">
+            <TabsTrigger value="search" className="flex items-center gap-2 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white">
               <Search className="h-4 w-4" />
               <span>Find Property</span>
             </TabsTrigger>
-            <TabsTrigger value="criteria" className="flex items-center gap-2" disabled={!isSubjectPropertySelected}>
+            <TabsTrigger value="criteria" className="flex items-center gap-2 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white" disabled={!isSubjectPropertySelected}>
               <Filter className="h-4 w-4" />
               <span>Comp Criteria</span>
             </TabsTrigger>
-            <TabsTrigger value="results" className="flex items-center gap-2" disabled={comps.length === 0}>
+            <TabsTrigger value="results" className="flex items-center gap-2 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white" disabled={comps.length === 0}>
               <SquareStack className="h-4 w-4" />
               <span>Comp Results</span>
             </TabsTrigger>
-            <TabsTrigger value="adjustments" className="flex items-center gap-2" disabled={selectedComps.length === 0}>
+            <TabsTrigger value="adjustments" className="flex items-center gap-2 data-[state=active]:bg-[#FF7A00] data-[state=active]:text-white" disabled={selectedComps.length === 0}>
               <Sliders className="h-4 w-4" />
               <span>Adjustments</span>
             </TabsTrigger>
           </TabsList>
         </div>
         
-        <CardContent className="pt-6">
+        <CardContent className="pt-6 bg-[#050e1d] text-slate-300">
           {/* Find Property Tab */}
           <TabsContent value="search" className="mt-0">
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="searchAddress">Property Address</Label>
+                  <Label htmlFor="searchAddress" className="text-white">Property Address</Label>
                   <Input 
                     id="searchAddress" 
                     placeholder="123 Main St" 
@@ -680,7 +680,7 @@ export function CompMatchingEngine() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="searchCity">City</Label>
+                  <Label htmlFor="searchCity" className="text-white">City</Label>
                   <Input 
                     id="searchCity" 
                     placeholder="Atlanta" 
@@ -689,7 +689,7 @@ export function CompMatchingEngine() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="searchState">State</Label>
+                  <Label htmlFor="searchState" className="text-white">State</Label>
                   <Input 
                     id="searchState" 
                     placeholder="GA" 
