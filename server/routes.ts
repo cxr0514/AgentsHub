@@ -32,6 +32,7 @@ import marketAnalysisRoutes from "./routes/market-analysis";
 import mfaRoutes from "./routes/mfa";
 import propertyCompsRoutes from "./routes/property-comps";
 import cmaReportsRoutes from "./routes/cma-reports-fixed";
+import propertyImagesRoutes from "./routes/property-images";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -44,6 +45,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register our custom property routes with image upload
   apiRouter.use("/properties", propertyRoutes);
+  
+  // Register property image generation routes
+  apiRouter.use("/property-images", propertyImagesRoutes);
   
   // Register MLS routes for synchronization and status
   apiRouter.use("/mls", mlsRoutes);

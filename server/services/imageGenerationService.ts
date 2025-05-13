@@ -19,10 +19,10 @@ if (!fs.existsSync(uploadsDir)) {
 export async function generatePropertyImage(property: Property): Promise<string | null> {
   try {
     // Get property details to build the prompt
-    const { bedrooms, bathrooms, squareFeet, propertyType, style, features, yearBuilt } = property;
-
+    const { bedrooms, bathrooms, squareFeet, propertyType, yearBuilt, features } = property;
+    
     // Create a detailed prompt for the image generation
-    let prompt = `A professional high-quality real estate photograph of a ${propertyType}`;
+    let prompt = `A professional high-quality real estate photograph of a ${propertyType || 'home'}`;
     
     // Add bedrooms and bathrooms
     prompt += ` with ${bedrooms} bedroom${bedrooms !== 1 ? 's' : ''} and ${bathrooms} bathroom${bathrooms !== "1" ? 's' : ''}`;
@@ -35,11 +35,6 @@ export async function generatePropertyImage(property: Property): Promise<string 
     // Add year built if available
     if (yearBuilt) {
       prompt += ` built in ${yearBuilt}`;
-    }
-    
-    // Add style if available
-    if (style) {
-      prompt += `, ${style} style`;
     }
     
     // Add features if available
@@ -61,6 +56,10 @@ export async function generatePropertyImage(property: Property): Promise<string 
       size: "1024x1024",
       quality: "standard",
     });
+
+    if (!response.data || response.data.length === 0) {
+      throw new Error("No image data returned from OpenAI");
+    }
 
     const imageUrl = response.data[0].url;
     

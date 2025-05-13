@@ -1,103 +1,143 @@
-import { Router } from "express";
+import express from "express";
 import { storage } from "../storage";
-import { 
-  generatePropertyImage, 
-  updatePropertyWithGeneratedImage 
-} from "../services/imageGenerationService";
+import { Property } from "@shared/schema";
+import { generatePropertyImage, generatePropertyImages } from "../services/imageGenerationService";
 
-const router = Router();
+const router = express.Router();
 
 // Generate an image for a specific property
-router.post('/:id/generate', async (req, res) => {
+router.post("/:id/generate", async (req, res) => {
   try {
     const propertyId = parseInt(req.params.id);
     
     if (isNaN(propertyId)) {
-      return res.status(400).json({ message: 'Invalid property ID' });
+      return res.status(400).json({ success: false, message: "Invalid property ID" });
     }
     
-    // Check if property exists
     const property = await storage.getProperty(propertyId);
+    
     if (!property) {
-      return res.status(404).json({ message: 'Property not found' });
+      return res.status(404).json({ success: false, message: "Property not found" });
     }
     
-    // Update the property with a generated image
-    const updatedProperty = await updatePropertyWithGeneratedImage(property, storage);
+    // Generate image using DALL-E
+    const imageUrl = await generatePropertyImage(property);
     
-    if (!updatedProperty) {
-      return res.status(500).json({ message: 'Failed to generate property image' });
+    if (!imageUrl) {
+      return res.status(500).json({ success: false, message: "Failed to generate image" });
     }
+    
+    // Save the property with the new image
+    if (property.images) {
+      // If property already has images, add the new one
+      const images = Array.isArray(property.images) 
+        ? [...property.images, imageUrl] 
+        : typeof property.images === 'object' 
+          ? [...Object.values(property.images), imageUrl] 
+          : [imageUrl];
+          
+      property.images = images;
+    } else {
+      // If no images, create a new array
+      property.images = [imageUrl];
+    }
+    
+    // Update main image URL if none exists
+    if (!property.mainImageUrl) {
+      property.mainImageUrl = imageUrl;
+    }
+    
+    // Save the updated property
+    await storage.updateProperty(propertyId, property);
     
     res.json({ 
       success: true, 
-      property: updatedProperty,
-      message: 'Property image generated successfully'
+      message: "Image generated successfully", 
+      imageUrl 
     });
   } catch (error) {
-    console.error('Error generating property image:', error);
+    console.error("Error generating property image:", error);
     res.status(500).json({ 
-      message: 'Failed to generate property image', 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      success: false, 
+      message: error instanceof Error ? error.message : "An unknown error occurred" 
     });
   }
 });
 
-// Generate images for all properties without images
-router.post('/generate-all', async (req, res) => {
+// Generate images for all properties that don't have images
+router.post("/generate-all", async (req, res) => {
   try {
-    // Get all properties that don't have images
-    const properties = await storage.getAllProperties();
-    const propertiesWithoutImages = properties.filter(p => {
-      // Check if the property has no images or empty images array
-      return !p.images || 
-        (typeof p.images === 'string' && (p.images === '[]' || p.images === '')) ||
-        (Array.isArray(p.images) && p.images.length === 0);
+    // Get all properties without images
+    const allProperties = await storage.getAllProperties();
+    
+    const propertiesWithoutImages = allProperties.filter(property => {
+      if (!property.images) return true;
+      
+      if (Array.isArray(property.images) && property.images.length === 0) return true;
+      
+      if (typeof property.images === 'object' && Object.keys(property.images).length === 0) return true;
+      
+      return false;
     });
     
     if (propertiesWithoutImages.length === 0) {
       return res.json({ 
-        message: 'No properties found without images',
-        count: 0
+        success: true, 
+        message: "All properties already have images" 
       });
     }
     
-    // Start the image generation process
-    res.json({ 
-      message: `Started generating images for ${propertiesWithoutImages.length} properties. This may take some time.`,
-      count: propertiesWithoutImages.length
-    });
+    // Limit to first 5 properties to avoid rate limiting issues
+    const propertiesToProcess = propertiesWithoutImages.slice(0, 5);
     
-    // Process properties asynchronously (don't wait for response)
-    (async () => {
-      let successCount = 0;
-      let errorCount = 0;
-      
-      for (const property of propertiesWithoutImages) {
-        try {
-          const updatedProperty = await updatePropertyWithGeneratedImage(property, storage);
-          if (updatedProperty) {
-            successCount++;
-          } else {
-            errorCount++;
+    // Start the image generation process in the background
+    setTimeout(async () => {
+      try {
+        const generatedImages = await generatePropertyImages(propertiesToProcess);
+        
+        // Update properties with generated images
+        for (const [propertyId, imageUrl] of Object.entries(generatedImages)) {
+          const property = await storage.getProperty(parseInt(propertyId));
+          
+          if (property) {
+            // Add new image to property
+            if (property.images) {
+              const images = Array.isArray(property.images) 
+                ? [...property.images, imageUrl] 
+                : typeof property.images === 'object' 
+                  ? [...Object.values(property.images), imageUrl] 
+                  : [imageUrl];
+                  
+              property.images = images;
+            } else {
+              property.images = [imageUrl];
+            }
+            
+            // Update main image URL if none exists
+            if (!property.mainImageUrl) {
+              property.mainImageUrl = imageUrl;
+            }
+            
+            // Save the updated property
+            await storage.updateProperty(parseInt(propertyId), property);
           }
-        } catch (error) {
-          console.error(`Error generating image for property ${property.id}:`, error);
-          errorCount++;
         }
         
-        // Add a small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`Generated images for ${Object.keys(generatedImages).length} properties`);
+      } catch (error) {
+        console.error("Error in background image generation:", error);
       }
-      
-      console.log(`Image generation complete: ${successCount} successes, ${errorCount} errors`);
-    })();
+    }, 100);
     
+    res.json({ 
+      success: true, 
+      message: `Started generating images for ${propertiesToProcess.length} properties. This process will continue in the background.` 
+    });
   } catch (error) {
-    console.error('Error generating property images:', error);
+    console.error("Error generating property images:", error);
     res.status(500).json({ 
-      message: 'Failed to generate property images', 
-      error: error instanceof Error ? error.message : 'Unknown error' 
+      success: false, 
+      message: error instanceof Error ? error.message : "An unknown error occurred" 
     });
   }
 });
