@@ -706,7 +706,7 @@ export function CompMatchingEngine() {
                 <Button
                   variant="outline"
                   onClick={generateTemporaryProperty}
-                  className="gap-2"
+                  className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300 gap-2"
                 >
                   <Building className="h-4 w-4" />
                   Demo Mode
@@ -714,7 +714,7 @@ export function CompMatchingEngine() {
                 
                 <Button 
                   onClick={handleSearch}
-                  className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                  className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white gap-2"
                   disabled={searchPropertiesMutation.isPending}
                 >
                   {searchPropertiesMutation.isPending ? (
@@ -760,7 +760,7 @@ export function CompMatchingEngine() {
                               <Button 
                                 size="sm"
                                 onClick={() => handleSelectSubjectProperty(property)}
-                                className="gap-1"
+                                className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white gap-1"
                               >
                                 <CheckCircle className="h-4 w-4" />
                                 Select
@@ -1082,7 +1082,10 @@ export function CompMatchingEngine() {
                 <p className="text-muted-foreground mt-2 mb-4">
                   Please find and select a subject property first
                 </p>
-                <Button onClick={() => setActiveTab('search')}>
+                <Button 
+                  onClick={() => setActiveTab('search')} 
+                  className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
+                >
                   Find a Property
                 </Button>
               </div>
