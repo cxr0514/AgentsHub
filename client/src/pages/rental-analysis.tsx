@@ -56,6 +56,7 @@ interface RentalProperty {
   images?: Array<{url: string}>;
   createdAt: string;
   detailUrl?: string;
+  source?: string;
 }
 
 // Type for the analysis response from the API
