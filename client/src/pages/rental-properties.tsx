@@ -260,8 +260,9 @@ export default function RentalPropertiesPage() {
                         const placeholder = document.createElement('div');
                         placeholder.innerHTML = `<div class="flex items-center justify-center w-full h-40 bg-[#071224] rounded-t-md">
                           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                            <path d="M19 3v14m0 0v4m0-4h-4"></path>
-                            <path d="M5 21V7m0 0V3m0 4h4"></path>
+                            <rect x="4" y="3" width="16" height="18" rx="2"></rect>
+                            <path d="M4 11h16"></path>
+                            <path d="M12 3v18"></path>
                           </svg>
                           <span class="ml-2 text-gray-400">No image available</span>
                         </div>`;
