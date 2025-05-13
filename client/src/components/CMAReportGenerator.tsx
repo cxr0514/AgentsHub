@@ -238,33 +238,48 @@ export function CMAReportGenerator() {
   };
   
   return (
-    <Card className="w-full">
+    <Card className="w-full bg-[#050e1d] border-[#0f1d31] text-white">
       <CardHeader>
-        <CardTitle className="text-2xl text-[#071224] flex items-center gap-2">
+        <CardTitle className="text-2xl text-white flex items-center gap-2">
           <FileText className="h-6 w-6 text-[#FF7A00]" />
           CMA Report Generator
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-400">
           Create professional Comparative Market Analysis reports with customizable templates and branding
         </CardDescription>
       </CardHeader>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="px-6">
-          <TabsList className="grid grid-cols-4 w-full">
-            <TabsTrigger value="property-selection" className="flex items-center gap-2">
+          <TabsList className="grid grid-cols-4 w-full bg-[#071224]">
+            <TabsTrigger 
+              value="property-selection" 
+              className="flex items-center gap-2 text-slate-400 data-[state=active]:bg-[#0f1d31] data-[state=active]:text-white"
+            >
               <Building className="h-4 w-4" />
               <span>Subject Property</span>
             </TabsTrigger>
-            <TabsTrigger value="comp-selection" className="flex items-center gap-2" disabled={!subjectProperty}>
+            <TabsTrigger 
+              value="comp-selection" 
+              className="flex items-center gap-2 text-slate-400 data-[state=active]:bg-[#0f1d31] data-[state=active]:text-white" 
+              disabled={!subjectProperty}
+            >
               <MapPin className="h-4 w-4" />
               <span>Comp Selection</span>
             </TabsTrigger>
-            <TabsTrigger value="report-options" className="flex items-center gap-2" disabled={selectedComps.length === 0}>
+            <TabsTrigger 
+              value="report-options" 
+              className="flex items-center gap-2 text-slate-400 data-[state=active]:bg-[#0f1d31] data-[state=active]:text-white" 
+              disabled={selectedComps.length === 0}
+            >
               <Palette className="h-4 w-4" />
               <span>Report Options</span>
             </TabsTrigger>
-            <TabsTrigger value="preview" className="flex items-center gap-2" disabled={!reportPreviewUrl}>
+            <TabsTrigger 
+              value="preview" 
+              className="flex items-center gap-2 text-slate-400 data-[state=active]:bg-[#0f1d31] data-[state=active]:text-white" 
+              disabled={!reportPreviewUrl}
+            >
               <FileText className="h-4 w-4" />
               <span>Preview & Download</span>
             </TabsTrigger>
@@ -275,39 +290,41 @@ export function CMAReportGenerator() {
           {/* Step 1: Subject Property Selection */}
           <TabsContent value="property-selection" className="mt-0">
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
-                <h3 className="text-lg font-medium mb-2">Step 1: Select Subject Property</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-[#0f1d31] p-4 rounded-md border border-[#071224]">
+                <h3 className="text-lg font-medium mb-2 text-white">Step 1: Select Subject Property</h3>
+                <p className="text-sm text-slate-400">
                   Choose the property you want to analyze in the CMA report. This property will be compared against similar properties in the area.
                 </p>
               </div>
               
               {/* For demonstration purposes, let's provide a demo property */}
-              <div className="border rounded-md p-4 mt-6">
-                <h3 className="text-md font-medium mb-2">Sample Property for Demo</h3>
+              <div className="border border-[#0f1d31] bg-[#071224] rounded-md p-4 mt-6">
+                <h3 className="text-md font-medium mb-2 text-white">Sample Property for Demo</h3>
                 <div className="flex flex-col md:flex-row gap-4 items-start">
-                  <div className="w-full md:w-1/3 bg-slate-100 h-48 rounded-md flex items-center justify-center">
-                    <ImageIcon className="h-12 w-12 text-slate-400" />
+                  <div className="w-full md:w-1/3 bg-[#050e1d] h-48 rounded-md flex items-center justify-center border border-[#0f1d31]">
+                    <ImageIcon className="h-12 w-12 text-slate-600" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold">123 Main Street, Atlanta, GA 30303</h4>
+                    <h4 className="font-semibold text-white">123 Main Street, Atlanta, GA 30303</h4>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-slate-400">
                         <DollarSign className="h-4 w-4 mr-1 text-[#FF7A00]" />
                         <span>$450,000</span>
                       </div>
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-slate-400">
                         <span className="font-medium mr-1">3</span> bedrooms
                       </div>
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-slate-400">
                         <span className="font-medium mr-1">2</span> bathrooms
                       </div>
-                      <div className="flex items-center text-sm">
+                      <div className="flex items-center text-sm text-slate-400">
                         <span className="font-medium mr-1">2,200</span> sq ft
                       </div>
                     </div>
                     <div className="mt-4">
                       <Button 
+                        variant="default"
+                        className="bg-[#FF7A00] hover:bg-[#e66e00] text-white"
                         onClick={() => handlePropertySelected({
                           id: 1,
                           address: '123 Main Street',
@@ -336,18 +353,18 @@ export function CMAReportGenerator() {
               </div>
               
               <div className="mt-6">
-                <h3 className="text-md font-medium mb-2">Or Search For A Property</h3>
+                <h3 className="text-md font-medium mb-2 text-white">Or Search For A Property</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="search-address">Address</Label>
-                    <Input id="search-address" placeholder="123 Main St" />
+                    <Label htmlFor="search-address" className="text-slate-400">Address</Label>
+                    <Input id="search-address" placeholder="123 Main St" className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10" />
                   </div>
                   <div>
-                    <Label htmlFor="search-city">City</Label>
-                    <Input id="search-city" placeholder="Atlanta" />
+                    <Label htmlFor="search-city" className="text-slate-400">City</Label>
+                    <Input id="search-city" placeholder="Atlanta" className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10" />
                   </div>
                   <div>
-                    <Button className="mt-8 w-full">Search</Button>
+                    <Button className="mt-8 w-full bg-[#FF7A00] hover:bg-[#e66e00] text-white">Search</Button>
                   </div>
                 </div>
               </div>
@@ -357,18 +374,18 @@ export function CMAReportGenerator() {
           {/* Step 2: Comp Selection */}
           <TabsContent value="comp-selection" className="mt-0">
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-md border border-blue-200">
-                <h3 className="text-lg font-medium mb-2">Step 2: Select Comparable Properties</h3>
-                <p className="text-sm text-muted-foreground">
+              <div className="bg-[#0f1d31] p-4 rounded-md border border-[#071224]">
+                <h3 className="text-lg font-medium mb-2 text-white">Step 2: Select Comparable Properties</h3>
+                <p className="text-sm text-slate-400">
                   Choose properties that are similar to your subject property. These will be used for price comparisons and adjustments in the CMA report.
                 </p>
               </div>
               
               {subjectProperty && (
-                <div className="mt-4 p-4 border rounded-md bg-slate-50">
-                  <h3 className="font-medium">Subject Property</h3>
-                  <p>{subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}</p>
-                  <div className="flex flex-wrap gap-4 mt-2 text-sm">
+                <div className="mt-4 p-4 border border-[#0f1d31] rounded-md bg-[#071224]">
+                  <h3 className="font-medium text-white">Subject Property</h3>
+                  <p className="text-slate-300">{subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}</p>
+                  <div className="flex flex-wrap gap-4 mt-2 text-sm text-slate-400">
                     <div>${subjectProperty.price.toLocaleString()}</div>
                     <div>{subjectProperty.bedrooms} beds</div>
                     <div>{subjectProperty.bathrooms} baths</div>
@@ -379,7 +396,7 @@ export function CMAReportGenerator() {
               
               {/* For demonstration, let's create a sample list of comps */}
               <div className="mt-6">
-                <h3 className="text-md font-medium mb-4">Select Comparable Properties</h3>
+                <h3 className="text-md font-medium mb-4 text-white">Select Comparable Properties</h3>
                 
                 <div className="space-y-4">
                   {[
@@ -432,10 +449,10 @@ export function CMAReportGenerator() {
                       pricePerSqft: 213
                     }
                   ].map((prop, index) => (
-                    <div key={index} className="border rounded-md p-4 flex justify-between items-start">
+                    <div key={index} className="border border-[#0f1d31] bg-[#071224] rounded-md p-4 flex justify-between items-start">
                       <div>
-                        <h4 className="font-medium">{prop.address}, {prop.city}, {prop.state} {prop.zipCode}</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 mt-2 text-sm">
+                        <h4 className="font-medium text-white">{prop.address}, {prop.city}, {prop.state} {prop.zipCode}</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 mt-2 text-sm text-slate-400">
                           <div>${prop.price.toLocaleString()}</div>
                           <div>{prop.bedrooms} beds</div>
                           <div>{prop.bathrooms} baths</div>
@@ -454,10 +471,14 @@ export function CMAReportGenerator() {
                               setSelectedComps([...selectedComps, prop]);
                             }
                           }}
-                          className={selectedComps.some(c => c.id === prop.id) ? 'bg-blue-50' : ''}
+                          className={
+                            selectedComps.some(c => c.id === prop.id) 
+                              ? 'bg-[#0f1d31] border-[#FF7A00] text-white'
+                              : 'bg-[#050e1d] border-[#0f1d31] text-slate-400 hover:bg-[#0f1d31] hover:text-white'
+                          }
                         >
                           {selectedComps.some(c => c.id === prop.id) ? (
-                            <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                            <CheckCircle2 className="h-4 w-4 text-[#FF7A00]" />
                           ) : 'Select'}
                         </Button>
                       </div>
@@ -466,12 +487,17 @@ export function CMAReportGenerator() {
                 </div>
                 
                 <div className="mt-6 flex justify-between">
-                  <Button variant="outline" onClick={() => setActiveTab('property-selection')}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setActiveTab('property-selection')}
+                    className="bg-[#050e1d] border-[#0f1d31] text-slate-400 hover:bg-[#0f1d31] hover:text-white"
+                  >
                     Back
                   </Button>
                   <Button 
                     onClick={() => setActiveTab('report-options')}
                     disabled={selectedComps.length === 0}
+                    className={selectedComps.length > 0 ? "bg-[#FF7A00] hover:bg-[#e66e00] text-white" : ""}
                   >
                     {selectedComps.length > 0 ? `Continue with ${selectedComps.length} Comps` : 'Select Comps to Continue'}
                   </Button>
