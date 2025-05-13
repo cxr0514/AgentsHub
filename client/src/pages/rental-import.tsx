@@ -36,7 +36,7 @@ export default function RentalImportPage() {
       const formData = new FormData();
       formData.append('rentalData', file);
       
-      const response = await fetch('/api/rentals/rental-properties/import', {
+      const response = await fetch('/api/rentals/properties/import', {
         method: 'POST',
         body: formData,
         credentials: 'include',
@@ -57,8 +57,8 @@ export default function RentalImportPage() {
       });
       setSelectedFile(null);
       // Invalidate rental properties query
-      queryClient.invalidateQueries({ queryKey: ['/api/rental-properties'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/rentals/rental-properties/count'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rentals/rental-properties'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rentals/properties/count'] });
     },
     onError: (error: Error) => {
       toast({
@@ -75,7 +75,7 @@ export default function RentalImportPage() {
   // Import sample data mutation
   const importSampleMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest('POST', '/api/rentals/rental-properties/import-sample');
+      const response = await apiRequest('POST', '/api/rentals/properties/import-sample');
       return await response.json();
     },
     onSuccess: (data) => {
@@ -85,8 +85,8 @@ export default function RentalImportPage() {
         variant: 'default',
       });
       // Invalidate rental properties query
-      queryClient.invalidateQueries({ queryKey: ['/api/rental-properties'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/rentals/rental-properties/count'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rentals/rental-properties'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/rentals/properties/count'] });
     },
     onError: (error: Error) => {
       toast({
