@@ -108,7 +108,7 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onIm
               className={cn(
                 "rounded-full",
                 compact ? "h-6 w-6" : "h-8 w-8",
-                isSaved ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300'
+                isSaved ? 'bg-[#FF7A00] text-white' : 'bg-[#071224] text-slate-300 border border-[#0f1d31]'
               )}
               onClick={handleSaveClick}
             >
@@ -193,24 +193,24 @@ const StatusBadge = ({ status, compact = false }: StatusBadgeProps) => {
   
   switch (statusText.toLowerCase()) {
     case 'active':
-      bgColor = "bg-green-100";
-      textColor = "text-green-800";
-      hoverColor = "hover:bg-green-200";
+      bgColor = "bg-green-900/40";
+      textColor = "text-green-400";
+      hoverColor = "hover:bg-green-800/50";
       break;
     case 'pending':
-      bgColor = "bg-amber-100";
-      textColor = "text-amber-800";
-      hoverColor = "hover:bg-amber-200";
+      bgColor = "bg-amber-900/40";
+      textColor = "text-amber-400";
+      hoverColor = "hover:bg-amber-800/50";
       break;
     case 'sold':
-      bgColor = "bg-slate-100";
-      textColor = "text-slate-800";
-      hoverColor = "hover:bg-slate-200";
+      bgColor = "bg-slate-900/40";
+      textColor = "text-slate-400";
+      hoverColor = "hover:bg-slate-800/50";
       break;
     default:
-      bgColor = "bg-blue-100";
-      textColor = "text-blue-800";
-      hoverColor = "hover:bg-blue-200";
+      bgColor = "bg-blue-900/40";
+      textColor = "text-blue-400";
+      hoverColor = "hover:bg-blue-800/50";
   }
   
   return (
