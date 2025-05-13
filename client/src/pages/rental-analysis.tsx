@@ -86,7 +86,7 @@ export default function RentalAnalysisPage() {
     isError: isAnalysisError,
     error: analysisError
   } = useQuery<AnalysisResponse>({
-    queryKey: [`/api/rental-properties/${propertyId}/analysis`],
+    queryKey: [`/api/rentals/rental-properties/${propertyId}/analysis`],
     enabled: !isNaN(propertyId),
     staleTime: 10 * 60 * 1000, // 10 minutes
   });

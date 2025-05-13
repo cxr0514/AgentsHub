@@ -62,7 +62,7 @@ export default function RentalPropertiesPage() {
 
   // Fetch rental properties
   const { data: properties, isLoading, error } = useQuery<RentalProperty[]>({
-    queryKey: ['/api/rental-properties'],
+    queryKey: ['/api/rentals/rental-properties'],
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 

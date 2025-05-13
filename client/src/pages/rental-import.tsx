@@ -25,7 +25,7 @@ export default function RentalImportPage() {
   
   // Get current rental property count
   const { data: countData, isLoading: countLoading } = useQuery<{count: number}>({
-    queryKey: ['/api/rentals/rental-properties/count'],
+    queryKey: ['/api/rentals/properties/count'],
     staleTime: 60 * 1000, // 1 minute
   });
   
