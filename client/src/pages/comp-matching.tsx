@@ -20,12 +20,12 @@ export default function CompMatchingPage() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/">Home</Link>
+                <Link href="/" className="text-slate-300 hover:text-[#FF7A00]">Home</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Comp Matching Engine</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#FF7A00]">Comp Matching Engine</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -34,13 +34,13 @@ export default function CompMatchingPage() {
       <header className="mb-8">
         <div className="flex items-center gap-2 mb-2">
           <Link href="/">
-            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8 text-[#FF7A00] hover:bg-[#0f1d31]/20">
               <ChevronLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-[#071224]">Comp Matching Engine</h1>
+          <h1 className="text-3xl font-bold text-white">Comp Matching Engine</h1>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-slate-300">
           Find, analyze, and adjust comparable properties to determine accurate property valuations.
         </p>
       </header>
@@ -75,7 +75,7 @@ export default function CompMatchingPage() {
         </div>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-0 mb-8">
+      <div className="bg-[#050e1d] rounded-lg shadow-md border border-[#0f1d31] p-0 mb-8">
         <CompMatchingEngine />
       </div>
       
@@ -84,13 +84,13 @@ export default function CompMatchingPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <BarChart2 className="h-5 w-5 text-[#FF7A00]" />
-            <h3 className="text-lg font-semibold">Need more analysis tools?</h3>
+            <h3 className="text-lg font-semibold text-white">Need more analysis tools?</h3>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300">
               <Link href="/financial-calculators">Financial Calculators</Link>
             </Button>
-            <Button asChild className="bg-[#071224] hover:bg-[#0f1d31] text-white">
+            <Button asChild className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
               <Link href="/property-analyzer">Property Analyzer</Link>
             </Button>
           </div>
