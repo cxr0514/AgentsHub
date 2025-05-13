@@ -300,7 +300,10 @@ export default function ApiKeysManager() {
                     <Button 
                       variant="destructive" 
                       size="icon"
-                      onClick={() => removeKeyMutation.mutate(apiKey.id)}
+                      onClick={() => {
+                        console.log('Deleting API key:', apiKey.id);
+                        removeKeyMutation.mutate(apiKey.id);
+                      }}
                       disabled={removeKeyMutation.isPending}
                       className="bg-red-900/30 hover:bg-red-900 text-red-300"
                     >

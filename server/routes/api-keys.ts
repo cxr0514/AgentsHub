@@ -172,10 +172,14 @@ export function getApiKeysList(req: Request, res: Response) {
 // Delete API key endpoint
 export function deleteApiKey(req: Request, res: Response) {
   try {
-    const keyId = req.params.keyId;
+    const keyId = req.params.id; // Changed from keyId to id to match route parameter name
     
     // Get existing API keys
     const apiKeys = getApiKeys();
+    
+    // Log for debugging
+    console.log(`Attempting to delete API key with ID: ${keyId}`);
+    console.log(`Available keys:`, apiKeys.map(k => ({ id: k.id, service: k.service })));
     
     // Filter out the API key to delete
     const updatedApiKeys = apiKeys.filter((key) => key.id !== keyId);
