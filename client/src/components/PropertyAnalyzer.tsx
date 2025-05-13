@@ -301,14 +301,14 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4 md:col-span-2">
                   <div>
-                    <Label htmlFor="address">Property Address</Label>
+                    <Label htmlFor="address" className="text-white">Property Address</Label>
                     <Input
                       id="address"
                       name="address"
                       placeholder="123 Main St, Atlanta, GA 30303"
                       value={formData.address}
                       onChange={handleChange}
-                      className={errors.address ? 'border-red-500' : ''}
+                      className={`bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-400 ${errors.address ? 'border-red-500' : ''}`}
                     />
                     {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                   </div>
@@ -316,7 +316,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="price">Price ($)</Label>
+                    <Label htmlFor="price" className="text-white">Price ($)</Label>
                     <Input
                       id="price"
                       name="price"
@@ -324,19 +324,19 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                       placeholder="500000"
                       value={formData.price}
                       onChange={handleChange}
-                      className={errors.price ? 'border-red-500' : ''}
+                      className={`bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-400 ${errors.price ? 'border-red-500' : ''}`}
                     />
                     {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
                   </div>
                   
                   <div>
-                    <Label htmlFor="propertyType">Property Type</Label>
+                    <Label htmlFor="propertyType" className="text-white">Property Type</Label>
                     <select
                       id="propertyType"
                       name="propertyType"
                       value={formData.propertyType}
                       onChange={handleChange}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="flex h-10 w-full rounded-md border border-[#0f1d31] bg-[#071224] px-3 py-2 text-sm text-white ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {propertyTypes.map((type) => (
                         <option key={type.value} value={type.value}>
@@ -347,7 +347,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                   </div>
                   
                   <div>
-                    <Label htmlFor="sqft">Square Footage</Label>
+                    <Label htmlFor="sqft" className="text-white">Square Footage</Label>
                     <Input
                       id="sqft"
                       name="sqft"
@@ -355,7 +355,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                       placeholder="2000"
                       value={formData.sqft}
                       onChange={handleChange}
-                      className={errors.sqft ? 'border-red-500' : ''}
+                      className={`bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-400 ${errors.sqft ? 'border-red-500' : ''}`}
                     />
                     {errors.sqft && <p className="text-red-500 text-sm mt-1">{errors.sqft}</p>}
                   </div>
@@ -363,7 +363,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="beds">Bedrooms</Label>
+                    <Label htmlFor="beds" className="text-white">Bedrooms</Label>
                     <Input
                       id="beds"
                       name="beds"
@@ -371,13 +371,13 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                       placeholder="3"
                       value={formData.beds}
                       onChange={handleChange}
-                      className={errors.beds ? 'border-red-500' : ''}
+                      className={`bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-400 ${errors.beds ? 'border-red-500' : ''}`}
                     />
                     {errors.beds && <p className="text-red-500 text-sm mt-1">{errors.beds}</p>}
                   </div>
                   
                   <div>
-                    <Label htmlFor="baths">Bathrooms</Label>
+                    <Label htmlFor="baths" className="text-white">Bathrooms</Label>
                     <Input
                       id="baths"
                       name="baths"
@@ -385,7 +385,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                       placeholder="2"
                       value={formData.baths}
                       onChange={handleChange}
-                      className={errors.baths ? 'border-red-500' : ''}
+                      className={`bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-400 ${errors.baths ? 'border-red-500' : ''}`}
                       step="0.5"
                     />
                     {errors.baths && <p className="text-red-500 text-sm mt-1">{errors.baths}</p>}
@@ -418,7 +418,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
               <Separator className="my-4" />
               <div className="flex items-center">
                 <InfoIcon className="h-5 w-5 text-muted-foreground mr-2" />
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-300">
                   This tool uses AI to analyze property investments. Enter accurate details above for the best results.
                 </p>
               </div>
@@ -444,11 +444,11 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
               </Alert>
             ) : analyzePropertyMutation.data ? (
               <div className="space-y-6">
-                <div className="bg-[#071224]/5 p-4 rounded-lg">
+                <div className="bg-[#071224] p-4 rounded-lg border border-[#0f1d31]">
                   <div className="flex flex-wrap gap-4 items-start">
                     <div className="flex-1 min-w-[200px]">
-                      <h3 className="font-semibold text-lg">{formData.address}</h3>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-muted-foreground">
+                      <h3 className="font-semibold text-lg text-white">{formData.address}</h3>
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm text-slate-300">
                         <div className="flex items-center gap-1">
                           <DollarSign className="h-4 w-4 text-[#FF7A00]" />
                           <span>${formData.price?.toLocaleString()}</span>
@@ -556,8 +556,8 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
         </CardContent>
       </Tabs>
       
-      <CardFooter className="border-t px-6 py-4">
-        <div className="flex items-center w-full text-xs text-muted-foreground">
+      <CardFooter className="border-t border-[#0f1d31] px-6 py-4">
+        <div className="flex items-center w-full text-xs text-slate-300">
           <FileText className="h-4 w-4 mr-2 text-[#FF7A00]" />
           <span>
             Analysis is generated using AI based on property details and market data.
