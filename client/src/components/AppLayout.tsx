@@ -84,9 +84,11 @@ export default function AppLayout({ children }: AppLayoutProps) {
     ]
   };
   
-  // Add API Keys to more menu for admin users
+  // Add API Keys to more menu and as a standalone menu item for admin users
   if (user?.role === 'admin') {
     menuCategories.more.push({ icon: Key, label: 'API Keys', path: '/api-keys' });
+    // Add to tools category for more visibility
+    menuCategories.tools.push({ icon: Key, label: 'API Keys', path: '/api-keys' });
   }
   
   // Primary menu items for desktop navigation (only the most important ones)
