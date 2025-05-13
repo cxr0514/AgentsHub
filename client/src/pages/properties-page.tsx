@@ -605,6 +605,20 @@ export default function PropertiesPage() {
         {!isLoading && properties && properties.length > 0 && viewType === "list" && (
           <div className="space-y-4">
             {paginatedProperties.map((property: Property) => (
+              <PropertyCard 
+                key={property.id} 
+                property={property} 
+                onImageGenerated={refreshPropertyData}
+                compact={true}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Legacy list view implementation - can be removed after testing */}
+        {false && !isLoading && properties && properties.length > 0 && viewType === "list" && (
+          <div className="space-y-4 hidden">
+            {paginatedProperties.map((property: Property) => (
               <Card key={property.id} className="overflow-hidden bg-[#050e1d] border-[#0f1d31] text-white">
                 <div className="flex flex-col sm:flex-row">
                   <div className="relative w-full sm:w-48 h-48 bg-[#071224]">
