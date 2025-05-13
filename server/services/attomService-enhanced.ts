@@ -435,13 +435,18 @@ export async function fetchMarketStatistics(city: string, state: string, zipCode
     
     // Fallback to database if available
     try {
-      const existingData = await db.select().from(marketData).where(
-        and(
-          eq(marketData.city, city),
-          eq(marketData.state, state),
-          zipCode ? eq(marketData.zipCode, zipCode || '') : undefined
-        )
-      ).orderBy(marketData.createdAt, 'desc').limit(1);
+      // Create where clause without the zipCode condition to avoid type issues
+    const whereConditions = [
+      eq(marketData.city, city),
+      eq(marketData.state, state)
+    ];
+    
+    // Add zipCode condition if provided
+    const existingData = await db.select()
+      .from(marketData)
+      .where(and(...whereConditions))
+      .orderBy(marketData.createdAt, 'desc')
+      .limit(1);
       
       if (existingData && existingData.length > 0) {
         console.log("Using existing market data from database");
@@ -518,7 +523,7 @@ function processAttomMarketData(data: any, city: string, state: string, zipCode?
     const marketDataRecord = {
       city,
       state,
-      zipCode: zipCode || null,
+      zipCode: zipCode || "", // Use empty string instead of null to satisfy NOT NULL constraint
       month,
       year,
       medianPrice,
