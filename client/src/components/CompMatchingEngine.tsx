@@ -417,7 +417,8 @@ export function CompMatchingEngine() {
     
     // Calculate total adjustment amount
     const totalAdjustment = Object.values(newAdjustments).reduce((sum, adjustmentValue) => {
-      return sum + (typeof adjustmentValue === 'number' ? adjustmentValue : 0);
+      const numValue = typeof adjustmentValue === 'number' ? adjustmentValue : 0;
+      return sum + numValue;
     }, 0);
     
     // Calculate adjusted price
@@ -1181,9 +1182,9 @@ export function CompMatchingEngine() {
                             </Button>
                           </TableCell>
                           <TableCell>
-                            {property.address.length > 25 
+                            {property.address && property.address.length > 25 
                               ? `${property.address.substring(0, 25)}...` 
-                              : property.address}
+                              : property.address || ''}
                           </TableCell>
                           <TableCell>{formatCurrency(property.price)}</TableCell>
                           <TableCell>
@@ -1680,7 +1681,7 @@ export function CompMatchingEngine() {
                   <Button
                     variant="outline"
                     onClick={() => setActiveTab('results')}
-                    className="gap-2"
+                    className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300 gap-2"
                   >
                     <ArrowRight className="h-4 w-4 rotate-180" />
                     Back to Results
@@ -1704,7 +1705,7 @@ export function CompMatchingEngine() {
                     
                     <Button 
                       onClick={handleSaveAdjustments}
-                      className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                      className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white gap-2"
                       disabled={saveAdjustmentsMutation.isPending}
                     >
                       {saveAdjustmentsMutation.isPending ? (
