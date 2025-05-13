@@ -4,8 +4,11 @@ import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import { Property } from "@shared/schema";
 
-// Create OpenAI client
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Create OpenAI client - ensure correct API key is used
+// Do not use Perplexity API key for OpenAI services
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY 
+});
 
 // Ensure uploads directory exists
 const uploadsDir = path.join(process.cwd(), "uploads");

@@ -60,9 +60,9 @@ const GeneratePropertyImageButton = ({
       size="sm"
       onClick={handleGenerateImage}
       disabled={isGenerating}
-      className="flex items-center gap-1"
+      className="flex items-center gap-1 bg-[#071224] border-[#0f1d31] text-slate-300 hover:bg-[#0f1d31] hover:text-white"
     >
-      <Image className="h-4 w-4 mr-1" />
+      <Image className="h-4 w-4 mr-1 text-[#FF7A00]" />
       {isGenerating ? "Generating..." : "Generate Image"}
     </Button>
   );

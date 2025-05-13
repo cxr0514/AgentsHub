@@ -77,13 +77,14 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onIm
             </>
           ) : (
             <div className={cn(
-              "bg-[#071224] flex flex-col items-center justify-center",
+              "bg-[#071224] flex flex-col items-center justify-center border-2 border-dashed border-[#FF7A00]/50",
               compact ? "h-full w-full" : "h-36 xs:h-40 sm:h-48 w-full"
             )}>
-              <Home className="h-8 w-8 sm:h-12 sm:w-12 text-[#0f1d31] mb-2" />
+              <Home className="h-8 w-8 sm:h-12 sm:w-12 text-[#FF7A00] mb-2" />
+              {!compact && <p className="text-xs text-slate-400">No image available</p>}
               {!compact && (
                 <div 
-                  className="absolute bottom-3 left-0 right-0 flex justify-center"
+                  className="absolute bottom-2 left-0 right-0 flex justify-center mt-2"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
