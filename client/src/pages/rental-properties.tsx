@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Building2, Search, Filter, MapPin, Loader2, Info } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Loader2, Info, UploadCloud } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -51,10 +52,13 @@ const NoImageSvg = () => (
 
 export default function RentalPropertiesPage() {
   const [location, setLocation] = useLocation();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
   const [priceFilter, setPriceFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  
+  const isAdmin = user?.role === 'admin';
 
   // Fetch rental properties
   const { data: properties, isLoading, error } = useQuery<RentalProperty[]>({
