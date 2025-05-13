@@ -418,10 +418,13 @@ export function CompMatchingEngine() {
     }
     
     // Calculate total adjustment amount
-    const totalAdjustment = Object.values(newAdjustments).reduce((sum, adjustmentValue) => {
-      const numValue = typeof adjustmentValue === 'number' ? adjustmentValue : 0;
-      return sum + numValue;
-    }, 0);
+    let totalAdjustment = 0;
+    // Only consider number values for the calculation
+    Object.values(newAdjustments).forEach(adjustmentValue => {
+      if (typeof adjustmentValue === 'number') {
+        totalAdjustment += adjustmentValue;
+      }
+    });
     
     // Calculate adjusted price
     const adjustedPrice = selectedComp.price + totalAdjustment;
