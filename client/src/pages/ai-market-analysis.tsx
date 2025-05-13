@@ -44,9 +44,9 @@ export default function AIMarketAnalysisPage() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold text-[#071224]">AI Market Analysis</h1>
+          <h1 className="text-3xl font-bold text-white">AI Market Analysis</h1>
         </div>
-        <p className="text-muted-foreground">
+        <p className="text-slate-400">
           Leverage the power of AI to analyze real estate markets, generate comprehensive reports, and receive personalized investment recommendations.
         </p>
       </header>
@@ -104,20 +104,20 @@ export default function AIMarketAnalysisPage() {
         </div>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
+      <div className="bg-[#050e1d] rounded-lg shadow-md border border-[#0f1d31] p-4 text-white">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid grid-cols-3 mb-6">
-            <TabsTrigger value="insights" className="flex items-center gap-2">
+          <TabsList className="grid grid-cols-3 mb-6 bg-[#071224]">
+            <TabsTrigger value="insights" className="flex items-center gap-2 text-white data-[state=active]:bg-[#0f1d31] data-[state=active]:text-[#FF7A00]">
               <Lightbulb className="h-4 w-4" />
               <span className="hidden sm:inline">Market Insights</span>
               <span className="sm:hidden">Insights</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2">
+            <TabsTrigger value="reports" className="flex items-center gap-2 text-white data-[state=active]:bg-[#0f1d31] data-[state=active]:text-[#FF7A00]">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Market Reports</span>
               <span className="sm:hidden">Reports</span>
             </TabsTrigger>
-            <TabsTrigger value="recommendations" className="flex items-center gap-2">
+            <TabsTrigger value="recommendations" className="flex items-center gap-2 text-white data-[state=active]:bg-[#0f1d31] data-[state=active]:text-[#FF7A00]">
               <TargetIcon className="h-4 w-4" />
               <span className="hidden sm:inline">Recommendations</span>
               <span className="sm:hidden">Recommend</span>
@@ -138,32 +138,32 @@ export default function AIMarketAnalysisPage() {
         </Tabs>
       </div>
       
-      <div className="mt-8 bg-gray-50 rounded-lg p-6 border border-gray-200">
+      <div className="mt-8 bg-[#050e1d] rounded-lg p-6 border border-[#0f1d31] text-white">
         <div className="flex items-start gap-4">
           <div className="bg-[#071224] rounded-full p-3">
             <Brain className="h-6 w-6 text-[#FF7A00]" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-1">Powered by Advanced AI</h3>
-            <p className="text-sm text-muted-foreground mb-4">
+            <h3 className="text-lg font-semibold mb-1 text-white">Powered by Advanced AI</h3>
+            <p className="text-sm text-slate-400 mb-4">
               Our market analysis tools leverage state-of-the-art AI to provide you with the most accurate and actionable real estate insights.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-              <div className="bg-white p-3 rounded border border-gray-200">
-                <h4 className="font-medium text-sm mb-1">Real-Time Data</h4>
-                <p className="text-xs text-muted-foreground">
+              <div className="bg-[#071224] p-3 rounded border border-[#0f1d31]">
+                <h4 className="font-medium text-sm mb-1 text-white">Real-Time Data</h4>
+                <p className="text-xs text-slate-400">
                   Analysis based on up-to-date market data from multiple trusted sources
                 </p>
               </div>
-              <div className="bg-white p-3 rounded border border-gray-200">
-                <h4 className="font-medium text-sm mb-1">Predictive Models</h4>
-                <p className="text-xs text-muted-foreground">
+              <div className="bg-[#071224] p-3 rounded border border-[#0f1d31]">
+                <h4 className="font-medium text-sm mb-1 text-white">Predictive Models</h4>
+                <p className="text-xs text-slate-400">
                   Advanced algorithms to forecast market trends and identify opportunities
                 </p>
               </div>
-              <div className="bg-white p-3 rounded border border-gray-200">
-                <h4 className="font-medium text-sm mb-1">Personalized Insights</h4>
-                <p className="text-xs text-muted-foreground">
+              <div className="bg-[#071224] p-3 rounded border border-[#0f1d31]">
+                <h4 className="font-medium text-sm mb-1 text-white">Personalized Insights</h4>
+                <p className="text-xs text-slate-400">
                   Tailored recommendations based on your specific investment criteria
                 </p>
               </div>
