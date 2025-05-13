@@ -677,6 +677,7 @@ export function CompMatchingEngine() {
                     placeholder="123 Main St" 
                     value={searchAddress}
                     onChange={(e) => setSearchAddress(e.target.value)}
+                    className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
                   />
                 </div>
                 <div>
@@ -686,6 +687,7 @@ export function CompMatchingEngine() {
                     placeholder="Atlanta" 
                     value={searchCity}
                     onChange={(e) => setSearchCity(e.target.value)}
+                    className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
                   />
                 </div>
                 <div>
@@ -695,15 +697,17 @@ export function CompMatchingEngine() {
                     placeholder="GA" 
                     value={searchState}
                     onChange={(e) => setSearchState(e.target.value)}
+                    className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="searchZip">ZIP Code</Label>
+                  <Label htmlFor="searchZip" className="text-white">ZIP Code</Label>
                   <Input 
                     id="searchZip" 
                     placeholder="30303" 
                     value={searchZip}
                     onChange={(e) => setSearchZip(e.target.value)}
+                    className="bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
                   />
                 </div>
               </div>
@@ -739,29 +743,29 @@ export function CompMatchingEngine() {
               
               {searchPropertiesMutation.isSuccess && searchPropertiesMutation.data?.length > 0 && (
                 <div className="mt-6">
-                  <h3 className="text-lg font-medium mb-4">Search Results</h3>
-                  <div className="border rounded-md">
+                  <h3 className="text-lg font-medium mb-4 text-white">Search Results</h3>
+                  <div className="border border-[#0f1d31] rounded-md bg-[#071224]">
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Address</TableHead>
-                          <TableHead>Price</TableHead>
-                          <TableHead>Beds/Baths</TableHead>
-                          <TableHead>Sq Ft</TableHead>
-                          <TableHead>Year</TableHead>
-                          <TableHead>Action</TableHead>
+                      <TableHeader className="bg-[#071224]">
+                        <TableRow className="border-b border-[#0f1d31]">
+                          <TableHead className="text-white">Address</TableHead>
+                          <TableHead className="text-white">Price</TableHead>
+                          <TableHead className="text-white">Beds/Baths</TableHead>
+                          <TableHead className="text-white">Sq Ft</TableHead>
+                          <TableHead className="text-white">Year</TableHead>
+                          <TableHead className="text-white">Action</TableHead>
                         </TableRow>
                       </TableHeader>
-                      <TableBody>
+                      <TableBody className="bg-[#071224]">
                         {searchPropertiesMutation.data.map((property: Property) => (
-                          <TableRow key={property.id}>
-                            <TableCell>
+                          <TableRow key={property.id} className="border-b border-[#0f1d31] hover:bg-[#0f1d31]/20">
+                            <TableCell className="text-white">
                               {property.address}, {property.city}, {property.state} {property.zipCode}
                             </TableCell>
-                            <TableCell>{formatCurrency(property.price)}</TableCell>
-                            <TableCell>{property.bedrooms}/{property.bathrooms}</TableCell>
-                            <TableCell>{property.squareFeet.toLocaleString()}</TableCell>
-                            <TableCell>{property.yearBuilt || 'N/A'}</TableCell>
+                            <TableCell className="text-white">{formatCurrency(property.price)}</TableCell>
+                            <TableCell className="text-white">{property.bedrooms}/{property.bathrooms}</TableCell>
+                            <TableCell className="text-white">{property.squareFeet.toLocaleString()}</TableCell>
+                            <TableCell className="text-white">{property.yearBuilt || 'N/A'}</TableCell>
                             <TableCell>
                               <Button 
                                 size="sm"
@@ -783,12 +787,12 @@ export function CompMatchingEngine() {
               {/* If subject property has been selected, show it */}
               {subjectProperty && (
                 <div className="mt-6">
-                  <Alert className="bg-[#0f1d31]/20 border-[#0f1d31]/30">
+                  <Alert className="bg-[#0f1d31]/20 border-[#0f1d31]/30 text-white">
                     <CheckCircle className="h-4 w-4 text-[#FF7A00]" />
-                    <AlertTitle>Subject Property Selected</AlertTitle>
-                    <AlertDescription>
+                    <AlertTitle className="text-white font-medium">Subject Property Selected</AlertTitle>
+                    <AlertDescription className="text-slate-300">
                       {subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}
-                      <div className="mt-2 text-sm text-muted-foreground">
+                      <div className="mt-2 text-sm text-slate-400">
                         {formatCurrency(subjectProperty.price)} • 
                         {subjectProperty.bedrooms} beds • 
                         {subjectProperty.bathrooms} baths • 
