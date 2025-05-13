@@ -47,7 +47,7 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onIm
   return (
     <Link href={`/properties/${property.id}`}>
       <Card className={cn(
-        "overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full border border-gray-200 bg-white",
+        "overflow-hidden hover:shadow-md transition-shadow cursor-pointer h-full border border-[#0f1d31] bg-[#050e1d] text-white",
         compact ? "flex flex-row" : "flex flex-col"
       )}>
         <div className={cn(
@@ -58,10 +58,10 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onIm
             <>
               {isLoading && (
                 <div className={cn(
-                  "absolute inset-0 flex items-center justify-center bg-gray-100",
+                  "absolute inset-0 flex items-center justify-center bg-[#071224]",
                   compact ? "h-full" : "h-36 xs:h-40 sm:h-48"
                 )}>
-                  <div className="animate-pulse rounded bg-gray-200 w-full h-full" />
+                  <div className="animate-pulse rounded bg-[#0f1d31] w-full h-full" />
                 </div>
               )}
               <img
@@ -77,10 +77,10 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onIm
             </>
           ) : (
             <div className={cn(
-              "bg-gray-100 flex flex-col items-center justify-center",
+              "bg-[#071224] flex flex-col items-center justify-center",
               compact ? "h-full w-full" : "h-36 xs:h-40 sm:h-48 w-full"
             )}>
-              <Home className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-2" />
+              <Home className="h-8 w-8 sm:h-12 sm:w-12 text-[#0f1d31] mb-2" />
               {!compact && (
                 <div 
                   className="absolute bottom-3 left-0 right-0 flex justify-center"
@@ -126,7 +126,7 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onIm
           compact ? "p-2 xs:p-3 flex-1 min-w-0" : "p-3 sm:p-4"
         )}>
           <div className="flex justify-between mb-1 items-start">
-            <div className="font-semibold text-base sm:text-lg text-gray-800 line-clamp-1">
+            <div className="font-semibold text-base sm:text-lg text-[#FF7A00] line-clamp-1">
               ${Number(property.price).toLocaleString()}
             </div>
             <div className="hidden sm:block">
@@ -134,36 +134,36 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onIm
             </div>
           </div>
 
-          <h3 className="font-medium text-gray-800 text-sm sm:text-base line-clamp-1">{property.address}</h3>
-          <p className="text-xs sm:text-sm text-gray-600 line-clamp-1">
+          <h3 className="font-medium text-white text-sm sm:text-base line-clamp-1">{property.address}</h3>
+          <p className="text-xs sm:text-sm text-slate-400 line-clamp-1">
             {property.neighborhood ? `${property.neighborhood}, ` : ''}
             {property.city}, {property.state}
           </p>
 
           <div className={cn(
-            "text-xs sm:text-sm text-gray-700 font-medium",
+            "text-xs sm:text-sm text-slate-300 font-medium",
             compact ? "flex gap-2 mt-1" : "flex justify-between mt-2 gap-1"
           )}>
             <div className="flex items-center gap-1">
-              {!compact && <Bed className="h-3 w-3 text-gray-500" />}
+              {!compact && <Bed className="h-3 w-3 text-[#FF7A00]" />}
               <span className={cn(
-                compact ? "" : "bg-gray-100 px-2 py-1 rounded"
+                compact ? "" : "bg-[#071224] px-2 py-1 rounded border border-[#0f1d31]"
               )}>
                 {property.bedrooms} {compact ? "bd" : "bed"}
               </span>
             </div>
             <div className="flex items-center gap-1">
-              {!compact && <Bath className="h-3 w-3 text-gray-500" />}
+              {!compact && <Bath className="h-3 w-3 text-[#FF7A00]" />}
               <span className={cn(
-                compact ? "" : "bg-gray-100 px-2 py-1 rounded"
+                compact ? "" : "bg-[#071224] px-2 py-1 rounded border border-[#0f1d31]"
               )}>
                 {property.bathrooms} {compact ? "ba" : "bath"}
               </span>
             </div>
             <div className="flex items-center gap-1 truncate">
-              {!compact && <Square className="h-3 w-3 text-gray-500" />}
+              {!compact && <Square className="h-3 w-3 text-[#FF7A00]" />}
               <span className={cn(
-                compact ? "truncate" : "bg-gray-100 px-2 py-1 rounded"
+                compact ? "truncate" : "bg-[#071224] px-2 py-1 rounded border border-[#0f1d31]"
               )}>
                 {compact 
                   ? `${Number(property.squareFeet).toLocaleString()}sf` 
