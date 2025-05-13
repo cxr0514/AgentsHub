@@ -34,6 +34,7 @@ import propertyCompsRoutes from "./routes/property-comps";
 import cmaReportsRoutes from "./routes/cma-reports-fixed";
 import propertyImagesRoutes from "./routes/property-images";
 import rentalDataRoutes from "./routes/rental-data";
+import rentalImportRoutes from "./routes/rental-import";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes
@@ -109,6 +110,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register rental data routes
   apiRouter.use("/rentals", rentalDataRoutes);
+  
+  // Register rental import routes
+  apiRouter.use("/rentals", rentalImportRoutes);
   
   // Legacy properties routes
   apiRouter.get("/properties", async (req, res) => {
