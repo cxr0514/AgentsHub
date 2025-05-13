@@ -20,7 +20,8 @@ import {
   Calculator,
   FileSpreadsheet,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LucideIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,14 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+
+// Define a proper interface for menu items
+interface MenuItem {
+  icon: LucideIcon;
+  label: string;
+  path: string;
+  onClick?: () => void;
+}
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -52,7 +61,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
 
   // Simplified menu items by category for better organization
-  const menuCategories = {
+  const menuCategories: Record<string, MenuItem[]> = {
     main: [
       { icon: Home, label: 'Dashboard', path: '/' },
       { icon: Building2, label: 'Properties', path: '/properties' },
@@ -81,14 +90,14 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
   
   // Primary menu items for desktop navigation (only the most important ones)
-  const primaryMenuItems = [
+  const primaryMenuItems: MenuItem[] = [
     ...menuCategories.main,
     ...menuCategories.analysis,
     ...menuCategories.tools,
   ];
   
   // All menu items for dropdown and mobile navigation
-  const allMenuItems = [
+  const allMenuItems: MenuItem[] = [
     ...primaryMenuItems,
     ...menuCategories.more
   ];
@@ -239,7 +248,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
           {/* Desktop Navigation - Streamlined with fewer primary items */}
           <nav className="hidden lg:flex items-center space-x-1 overflow-x-auto no-scrollbar">
-            {primaryMenuItems.map((item) => (
+            {primaryMenuItems.map((item: { path: string, icon: any, label: string }) => (
               <div
                 key={item.path}
                 className={cn(
@@ -345,7 +354,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
               { icon: Building2, label: 'Properties', path: '/properties' },
               { icon: LineChart, label: 'Analysis', path: '/market-analysis' },
               { icon: Menu, label: 'Menu', path: '#menu', onClick: () => setOpen(true) }
-            ].map((item) => (
+            ].map((item: MenuItem) => (
               <div
                 key={item.path}
                 className={cn(
