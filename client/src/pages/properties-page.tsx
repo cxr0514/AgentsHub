@@ -11,6 +11,7 @@ import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddPropertyDialog from "@/components/AddPropertyDialog";
 import GeneratePropertyImagesButton from "@/components/GeneratePropertyImagesButton";
+import PropertyCard from "@/components/PropertyCard";
 import { 
   Select,
   SelectContent,
@@ -61,6 +62,8 @@ interface Property {
   neighborhood: string | null;
   latitude: string | null;
   longitude: string | null;
+  images?: string[] | null;
+  mainImageUrl?: string | null;
 }
 
 // Filter state interface
@@ -223,7 +226,7 @@ export default function PropertiesPage() {
               <div className="mr-2">
                 <GeneratePropertyImagesButton 
                   onComplete={refreshPropertyData}
-                  count={properties.filter(p => !p.images || (Array.isArray(p.images) && p.images.length === 0)).length}
+                  count={properties.filter((p: Property) => !p.images || (Array.isArray(p.images) && p.images.length === 0)).length}
                 />
               </div>
             ) : null}

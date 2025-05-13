@@ -41,6 +41,7 @@ export const properties = pgTable("properties", {
   status: text("status").notNull().default("active"),
   daysOnMarket: integer("days_on_market"),
   images: json("images").$type<string[]>(),
+  mainImageUrl: text("main_image_url"),
   pricePerSqft: text("price_per_sqft"),
   description: text("description"),
   features: json("features").$type<string[]>(),
