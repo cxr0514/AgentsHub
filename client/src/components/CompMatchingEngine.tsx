@@ -777,8 +777,8 @@ export function CompMatchingEngine() {
               {/* If subject property has been selected, show it */}
               {subjectProperty && (
                 <div className="mt-6">
-                  <Alert className="bg-blue-50 border-blue-200">
-                    <CheckCircle className="h-4 w-4 text-blue-600" />
+                  <Alert className="bg-[#0f1d31]/20 border-[#0f1d31]/30">
+                    <CheckCircle className="h-4 w-4 text-[#FF7A00]" />
                     <AlertTitle>Subject Property Selected</AlertTitle>
                     <AlertDescription>
                       {subjectProperty.address}, {subjectProperty.city}, {subjectProperty.state} {subjectProperty.zipCode}
@@ -800,9 +800,9 @@ export function CompMatchingEngine() {
           <TabsContent value="criteria" className="mt-0">
             {subjectProperty ? (
               <div className="space-y-6">
-                <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-6">
+                <div className="bg-[#0f1d31]/20 p-4 rounded-md border border-blue-200 mb-6">
                   <div className="flex items-start gap-4">
-                    <Home className="h-5 w-5 text-blue-600 mt-1" />
+                    <Home className="h-5 w-5 text-[#FF7A00] mt-1" />
                     <div>
                       <h3 className="font-medium">Subject Property</h3>
                       <p className="text-sm text-muted-foreground">
@@ -1105,9 +1105,9 @@ export function CompMatchingEngine() {
                 
                 {/* Subject property summary */}
                 {subjectProperty && (
-                  <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                  <div className="bg-[#0f1d31]/20 p-4 rounded-md border border-[#0f1d31]/30 mb-4">
                     <div className="flex items-start gap-4">
-                      <Home className="h-5 w-5 text-blue-600 mt-1" />
+                      <Home className="h-5 w-5 text-[#FF7A00] mt-1" />
                       <div>
                         <h3 className="font-medium">Subject Property</h3>
                         <p className="text-sm text-muted-foreground">
@@ -1267,9 +1267,9 @@ export function CompMatchingEngine() {
                 
                 {/* Subject property summary */}
                 {subjectProperty && (
-                  <div className="bg-blue-50 p-4 rounded-md border border-blue-200 mb-4">
+                  <div className="bg-[#0f1d31]/20 p-4 rounded-md border border-[#0f1d31]/30 mb-4">
                     <div className="flex items-start gap-4">
-                      <Home className="h-5 w-5 text-blue-600 mt-1" />
+                      <Home className="h-5 w-5 text-[#FF7A00] mt-1" />
                       <div>
                         <h3 className="font-medium">Subject Property</h3>
                         <p className="text-sm text-muted-foreground">
@@ -1309,7 +1309,7 @@ export function CompMatchingEngine() {
                     <thead>
                       <tr className="bg-muted/50">
                         <th className="p-2 text-left font-medium text-muted-foreground w-[200px]">Feature</th>
-                        <th className="p-2 text-center font-medium text-blue-600 w-[150px]">
+                        <th className="p-2 text-center font-medium text-[#FF7A00] w-[150px]">
                           {subjectProperty ? 'Subject' : 'Subject'}
                         </th>
                         {selectedComps.map((comp) => (
@@ -1323,7 +1323,7 @@ export function CompMatchingEngine() {
                       {/* Address row */}
                       <tr className="border-b">
                         <td className="p-2 text-muted-foreground">Address</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           {subjectProperty?.address.length > 20 
                             ? `${subjectProperty?.address.substring(0, 20)}...` 
                             : subjectProperty?.address}
@@ -1354,7 +1354,7 @@ export function CompMatchingEngine() {
                             </TooltipProvider>
                           </div>
                         </td>
-                        <td className="p-2 text-center font-medium bg-blue-50">
+                        <td className="p-2 text-center font-medium bg-[#0f1d31]/20">
                           {formatCurrency(subjectProperty?.price || 0)}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1367,7 +1367,7 @@ export function CompMatchingEngine() {
                       {/* Beds row + adjustment */}
                       <tr className="border-b">
                         <td className="p-2 text-muted-foreground">Bedrooms</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           {subjectProperty?.bedrooms}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1397,7 +1397,7 @@ export function CompMatchingEngine() {
                       {/* Baths row + adjustment */}
                       <tr className="border-b">
                         <td className="p-2 text-muted-foreground">Bathrooms</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           {subjectProperty?.bathrooms}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1427,7 +1427,7 @@ export function CompMatchingEngine() {
                       {/* Sqft row + adjustment */}
                       <tr className="border-b">
                         <td className="p-2 text-muted-foreground">Square Feet</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           {subjectProperty?.squareFeet.toLocaleString()}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1457,7 +1457,7 @@ export function CompMatchingEngine() {
                       {/* Year built row + adjustment */}
                       <tr className="border-b">
                         <td className="p-2 text-muted-foreground">Year Built</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           {subjectProperty?.yearBuilt || 'N/A'}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1488,7 +1488,7 @@ export function CompMatchingEngine() {
                       {/* Garage row + adjustment */}
                       <tr className="border-b">
                         <td className="p-2 text-muted-foreground">Garage Spaces</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           {subjectProperty?.garageSpaces || 'N/A'}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1533,7 +1533,7 @@ export function CompMatchingEngine() {
                             </TooltipProvider>
                           </div>
                         </td>
-                        <td className="p-2 text-center bg-blue-50">Base</td>
+                        <td className="p-2 text-center bg-[#0f1d31]/20">Base</td>
                         {selectedComps.map((comp) => (
                           <td key={comp.id} className="p-2 text-center">
                             <Input
@@ -1568,7 +1568,7 @@ export function CompMatchingEngine() {
                             </TooltipProvider>
                           </div>
                         </td>
-                        <td className="p-2 text-center bg-blue-50">Base</td>
+                        <td className="p-2 text-center bg-[#0f1d31]/20">Base</td>
                         {selectedComps.map((comp) => (
                           <td key={comp.id} className="p-2 text-center">
                             <Input
@@ -1603,7 +1603,7 @@ export function CompMatchingEngine() {
                             </TooltipProvider>
                           </div>
                         </td>
-                        <td className="p-2 text-center bg-blue-50">Base</td>
+                        <td className="p-2 text-center bg-[#0f1d31]/20">Base</td>
                         {selectedComps.map((comp) => (
                           <td key={comp.id} className="p-2 text-center">
                             <Input
@@ -1624,7 +1624,7 @@ export function CompMatchingEngine() {
                       {/* Total adjustments row */}
                       <tr className="border-b bg-muted/20">
                         <td className="p-2 font-medium">Total Adjustments</td>
-                        <td className="p-2 text-center font-medium bg-blue-50">-</td>
+                        <td className="p-2 text-center font-medium bg-[#0f1d31]/20">-</td>
                         {selectedComps.map((comp) => {
                           const adjustmentDiff = calculateAdjustmentDifference(comp.id);
                           return (
@@ -1647,7 +1647,7 @@ export function CompMatchingEngine() {
                       {/* Adjusted price row */}
                       <tr className="border-b font-bold">
                         <td className="p-2">Adjusted Price</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           {formatCurrency(subjectProperty?.price || 0)}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1660,7 +1660,7 @@ export function CompMatchingEngine() {
                       {/* Price per sqft row */}
                       <tr className="border-b">
                         <td className="p-2 text-muted-foreground">Price per Sq.Ft</td>
-                        <td className="p-2 text-center bg-blue-50">
+                        <td className="p-2 text-center bg-[#0f1d31]/20">
                           ${calculatePricePerSqFt(subjectProperty?.price || 0, subjectProperty?.squareFeet || 1)}
                         </td>
                         {selectedComps.map((comp) => (
@@ -1774,7 +1774,7 @@ export function CompMatchingEngine() {
       
       <CardFooter className="border-t px-6 py-4 flex justify-between">
         <div className="flex items-center text-xs text-muted-foreground">
-          <Info className="h-4 w-4 mr-2 text-blue-600" />
+          <Info className="h-4 w-4 mr-2 text-[#FF7A00]" />
           <span>
             Adjustments are made to comparable properties to account for differences from the subject property.
           </span>
