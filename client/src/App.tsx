@@ -27,7 +27,7 @@ import CMAReportPage from "@/pages/cma-report";
 import SharedPropertiesPage from "@/pages/shared-properties";
 import SharedPropertyView from "@/pages/shared-property-view";
 import CollaborationTeamsPage from "@/pages/collaboration-teams";
-import NotFound from "@/pages/not-found";
+import ApiKeysManager from "@/pages/not-found";
 
 function Router() {
   return (
@@ -52,7 +52,8 @@ function Router() {
       <ProtectedRoute path="/collaboration-teams" component={CollaborationTeamsPage} />
       <Route path="/shared/:token" component={SharedPropertyView} />
       <Route path="/auth" component={AuthPage} />
-      <Route component={NotFound} />
+      <ProtectedRoute path="/api-keys" component={ApiKeysManager} />
+      <Route component={() => <ApiKeysManager />} />
     </Switch>
   );
 }
