@@ -34,16 +34,16 @@ export default function ApiKeysManager() {
     error,
     refetch
   } = useQuery<ApiKey[]>({
-    queryKey: ["/api-keys"],
+    queryKey: ["/api/system/api-keys"],
     queryFn: async () => {
-      const res = await apiRequest("GET", "/api-keys");
+      const res = await apiRequest("GET", "/api/system/api-keys");
       return res.json();
     }
   });
 
   const addKeyMutation = useMutation({
     mutationFn: async (newApiKey: { name: string; key: string; service: string }) => {
-      const res = await apiRequest("POST", "/api-keys", newApiKey);
+      const res = await apiRequest("POST", "/api/system/api-keys", newApiKey);
       return res.json();
     },
     onSuccess: () => {
@@ -55,7 +55,7 @@ export default function ApiKeysManager() {
       setNewApiKeyName("");
       setNewApiKeyValue("");
       setIsAddKeyDialogOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["/api-keys"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/system/api-keys"] });
     },
     onError: (error: Error) => {
       toast({
@@ -68,7 +68,7 @@ export default function ApiKeysManager() {
 
   const removeKeyMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api-keys/${id}`);
+      await apiRequest("DELETE", `/api/system/api-keys/${id}`);
     },
     onSuccess: () => {
       toast({
@@ -76,7 +76,7 @@ export default function ApiKeysManager() {
         description: "The API key has been successfully removed.",
         variant: "default",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api-keys"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/system/api-keys"] });
     },
     onError: (error: Error) => {
       toast({
