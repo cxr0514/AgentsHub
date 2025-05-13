@@ -102,23 +102,23 @@ export function MarketInsights({ initialLocation = 'Atlanta, GA' }: MarketInsigh
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full bg-[#050e1d] border-[#0f1d31] text-white">
       <CardHeader>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <CardTitle className="text-2xl text-[#071224]">AI Market Insights</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-2xl text-white">AI Market Insights</CardTitle>
+            <CardDescription className="text-slate-400">
               AI-powered analysis of real estate market trends and opportunities
             </CardDescription>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 min-w-[280px]">
             <Select value={location} onValueChange={handleLocationChange}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger className="w-full bg-[#071224] border-[#0f1d31] text-white">
                 <SelectValue placeholder="Select location" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#071224] border-[#0f1d31] text-white">
                 {popularLocations.map((loc) => (
-                  <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                  <SelectItem key={loc} value={loc} className="focus:bg-[#0f1d31] focus:text-white">{loc}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -128,23 +128,23 @@ export function MarketInsights({ initialLocation = 'Atlanta, GA' }: MarketInsigh
       
       <Tabs value={insightType} onValueChange={(v) => setInsightType(v as any)} className="w-full">
         <div className="px-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full">
-            <TabsTrigger value="trend" className="flex items-center gap-2">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full bg-[#071224]">
+            <TabsTrigger value="trend" className="flex items-center gap-2 text-white data-[state=active]:bg-[#0f1d31] data-[state=active]:text-[#FF7A00]">
               <TrendingUp className="h-4 w-4" />
               <span className="hidden sm:inline">Current Trends</span>
               <span className="sm:hidden">Trends</span>
             </TabsTrigger>
-            <TabsTrigger value="prediction" className="flex items-center gap-2">
+            <TabsTrigger value="prediction" className="flex items-center gap-2 text-white data-[state=active]:bg-[#0f1d31] data-[state=active]:text-[#FF7A00]">
               <Sparkles className="h-4 w-4" />
               <span className="hidden sm:inline">Future Predictions</span>
               <span className="sm:hidden">Predictions</span>
             </TabsTrigger>
-            <TabsTrigger value="risk" className="flex items-center gap-2">
+            <TabsTrigger value="risk" className="flex items-center gap-2 text-white data-[state=active]:bg-[#0f1d31] data-[state=active]:text-[#FF7A00]">
               <AlertTriangle className="h-4 w-4" />
               <span className="hidden sm:inline">Risk Factors</span>
               <span className="sm:hidden">Risks</span>
             </TabsTrigger>
-            <TabsTrigger value="opportunity" className="flex items-center gap-2">
+            <TabsTrigger value="opportunity" className="flex items-center gap-2 text-white data-[state=active]:bg-[#0f1d31] data-[state=active]:text-[#FF7A00]">
               <BadgePercent className="h-4 w-4" />
               <span className="hidden sm:inline">Opportunities</span>
               <span className="sm:hidden">Opportunities</span>
@@ -157,16 +157,16 @@ export function MarketInsights({ initialLocation = 'Atlanta, GA' }: MarketInsigh
             // Loading skeleton state
             <div className="space-y-4">
               {[1, 2, 3].map((item) => (
-                <div key={item} className="border rounded-lg p-4">
+                <div key={item} className="border border-[#0f1d31] rounded-lg p-4 bg-[#071224]">
                   <div className="flex items-start gap-4">
-                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <Skeleton className="h-10 w-10 rounded-full bg-[#0f1d31]" />
                     <div className="space-y-2 flex-1">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-3/4 bg-[#0f1d31]" />
+                      <Skeleton className="h-4 w-full bg-[#0f1d31]" />
+                      <Skeleton className="h-4 w-full bg-[#0f1d31]" />
                       <div className="flex gap-2 mt-2">
-                        <Skeleton className="h-6 w-16" />
-                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-6 w-16 bg-[#0f1d31]" />
+                        <Skeleton className="h-6 w-24 bg-[#0f1d31]" />
                       </div>
                     </div>
                   </div>
@@ -175,29 +175,29 @@ export function MarketInsights({ initialLocation = 'Atlanta, GA' }: MarketInsigh
             </div>
           ) : isError ? (
             // Error state
-            <div className="text-center py-8">
+            <div className="text-center py-8 text-white">
               <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-4" />
               <h3 className="text-lg font-medium">Failed to load market insights</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-slate-400 mb-4">
                 There was an error fetching data from our AI analysis service.
               </p>
-              <Button onClick={() => refetch()}>Try Again</Button>
+              <Button onClick={() => refetch()} className="bg-[#FF7A00] hover:bg-orange-600 text-white">Try Again</Button>
             </div>
           ) : !insights || insights.length === 0 ? (
             // Empty state
-            <div className="text-center py-8">
-              <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <div className="text-center py-8 text-white">
+              <TrendingUp className="h-12 w-12 text-slate-500 mx-auto mb-4" />
               <h3 className="text-lg font-medium">No market insights available</h3>
-              <p className="text-muted-foreground mb-4">
+              <p className="text-slate-400 mb-4">
                 We don't have any insights for this location and type yet.
               </p>
-              <Button onClick={() => refetch()}>Refresh Analysis</Button>
+              <Button onClick={() => refetch()} className="bg-[#FF7A00] hover:bg-orange-600 text-white">Refresh Analysis</Button>
             </div>
           ) : (
             // Insights list
             <div className="space-y-4">
               {insights.map((insight, index) => (
-                <Card key={index} className="overflow-hidden border-l-4" 
+                <Card key={index} className="overflow-hidden border-l-4 bg-[#071224] border-[#0f1d31] text-white" 
                   style={{ borderLeftColor: 
                     insight.analysisType === 'trend' ? '#3b82f6' : 
                     insight.analysisType === 'prediction' ? '#8b5cf6' : 
@@ -210,23 +210,25 @@ export function MarketInsights({ initialLocation = 'Atlanta, GA' }: MarketInsigh
                         {getInsightIcon(insight.analysisType)}
                       </div>
                       <div className="flex-1">
-                        <div className="font-medium text-base mb-1">{insight.insight}</div>
+                        <div className="font-medium text-base mb-1 text-white">{insight.insight}</div>
                         
                         {insight.supportingData && (
-                          <p className="text-sm text-muted-foreground mb-2">{insight.supportingData}</p>
+                          <p className="text-sm text-slate-400 mb-2">{insight.supportingData}</p>
                         )}
                         
                         <div className="flex flex-wrap gap-2 mt-3">
-                          <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-300">
+                          <Badge variant="outline" className="bg-[#0f1d31] text-slate-300 border-[#0f1d31]">
                             {insight.timeframe}
                           </Badge>
                           <Badge variant="outline" 
-                            className={getConfidenceColor(insight.confidence)}>
+                            className={insight.confidence >= 0.8 ? 'bg-green-900/40 text-green-400 border-green-800/50' : 
+                                     insight.confidence >= 0.6 ? 'bg-yellow-900/40 text-yellow-400 border-yellow-800/50' : 
+                                     'bg-red-900/40 text-red-400 border-red-800/50'}>
                             Confidence: {getConfidenceLabel(insight.confidence)}
                           </Badge>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm" onClick={() => handleShareInsight(insight)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleShareInsight(insight)} className="text-slate-300 hover:text-white">
                         <Share2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -237,10 +239,10 @@ export function MarketInsights({ initialLocation = 'Atlanta, GA' }: MarketInsigh
           )}
         </CardContent>
         
-        <CardFooter className="border-t px-6 py-4">
-          <div className="flex justify-between items-center w-full text-xs text-muted-foreground">
+        <CardFooter className="border-t border-[#0f1d31] px-6 py-4">
+          <div className="flex justify-between items-center w-full text-xs text-slate-400">
             <div>Updated: {new Date().toLocaleDateString()}</div>
-            <Button variant="link" size="sm" className="gap-1 text-xs">
+            <Button variant="link" size="sm" className="gap-1 text-xs text-[#FF7A00] hover:text-orange-500">
               View full market report
               <ArrowRight className="h-3 w-3" />
             </Button>
