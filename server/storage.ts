@@ -1172,18 +1172,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSavedSearch(search: InsertSavedSearch): Promise<SavedSearch> {
+    // Ensure the search has name and filters properties
+    if (!search.name || !search.filters) {
+      throw new Error("Search name and filters are required");
+    }
+    
     const [createdSearch] = await db
       .insert(savedSearches)
       .values({
-        ...search,
-        location: search.location || null,
-        propertyType: search.propertyType || null,
-        minPrice: search.minPrice || null,
-        maxPrice: search.maxPrice || null,
-        minBeds: search.minBeds || null,
-        minBaths: search.minBaths || null,
-        minSqft: search.minSqft || null,
-        maxSqft: search.maxSqft || null
+        userId: search.userId,
+        name: search.name,
+        filters: search.filters
       })
       .returning();
     return createdSearch;
