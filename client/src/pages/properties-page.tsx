@@ -1,15 +1,16 @@
 import { useAuth } from "@/hooks/use-auth";
-import { ArrowLeft, Building2, Search, MapPin, Home, Bed, Bath, Ruler, DollarSign, Calendar, Clock, ListFilter, Plus } from "lucide-react";
+import { ArrowLeft, Building2, Search, MapPin, Home, Bed, Bath, Ruler, DollarSign, Calendar, Clock, ListFilter, Plus, Image } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddPropertyDialog from "@/components/AddPropertyDialog";
+import GeneratePropertyImagesButton from "@/components/GeneratePropertyImagesButton";
 import { 
   Select,
   SelectContent,
@@ -77,6 +78,12 @@ export default function PropertiesPage() {
   const { user } = useAuth();
   const [location, setLocation] = useState("");
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
+  const queryClient = useQueryClient();
+  
+  // For image generation
+  const refreshPropertyData = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/properties'] });
+  };
 
   // Filter state
   const [filters, setFilters] = useState<FilterState>({
@@ -212,6 +219,15 @@ export default function PropertiesPage() {
           </div>
           
           <div className="flex gap-2">
+            {isLoading === false && properties ? (
+              <div className="mr-2">
+                <GeneratePropertyImagesButton 
+                  onComplete={refreshPropertyData}
+                  count={properties.filter(p => !p.images || (Array.isArray(p.images) && p.images.length === 0)).length}
+                />
+              </div>
+            ) : null}
+            
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" className="flex items-center gap-1 border-[#0f1d31] bg-[#050e1d] text-white">
@@ -498,6 +514,19 @@ export default function PropertiesPage() {
         {/* Grid view */}
         {!isLoading && properties && properties.length > 0 && viewType === "grid" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {paginatedProperties.map((property: Property) => (
+              <PropertyCard 
+                key={property.id} 
+                property={property} 
+                onImageGenerated={refreshPropertyData}
+              />
+            ))}
+          </div>
+        )}
+        
+        {/* Legacy card implementation - can be removed after testing */}
+        {false && !isLoading && properties && properties.length > 0 && viewType === "grid" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 hidden">
             {paginatedProperties.map((property: Property) => (
               <Card key={property.id} className="overflow-hidden bg-[#050e1d] border-[#0f1d31] text-white">
                 <div className="relative h-48 bg-[#071224]">

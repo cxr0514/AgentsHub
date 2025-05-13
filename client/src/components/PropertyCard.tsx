@@ -1,20 +1,22 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bookmark, Home, Bed, Bath, Square, Info } from "lucide-react";
+import { Bookmark, Home, Bed, Bath, Square, Image } from "lucide-react";
 import { Property } from "@shared/schema";
 import { Link } from "wouter";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import GeneratePropertyImageButton from "./GeneratePropertyImageButton";
 
 interface PropertyCardProps {
   property: Property;
   onSave?: (propertyId: number) => void;
   isSaved?: boolean;
   compact?: boolean;
+  onImageGenerated?: () => void;
 }
 
-const PropertyCard = ({ property, onSave, isSaved = false, compact = false }: PropertyCardProps) => {
+const PropertyCard = ({ property, onSave, isSaved = false, compact = false, onImageGenerated }: PropertyCardProps) => {
   const [isLoading, setIsLoading] = useState(true);
   
   let images;
@@ -75,10 +77,28 @@ const PropertyCard = ({ property, onSave, isSaved = false, compact = false }: Pr
             </>
           ) : (
             <div className={cn(
-              "bg-gray-100 flex items-center justify-center",
+              "bg-gray-100 flex flex-col items-center justify-center",
               compact ? "h-full w-full" : "h-36 xs:h-40 sm:h-48 w-full"
             )}>
-              <Home className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400" />
+              <Home className="h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-2" />
+              {!compact && (
+                <div 
+                  className="absolute bottom-3 left-0 right-0 flex justify-center"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
+                  <GeneratePropertyImageButton 
+                    propertyId={property.id} 
+                    onComplete={() => {
+                      if (onImageGenerated) {
+                        onImageGenerated();
+                      }
+                    }} 
+                  />
+                </div>
+              )}
             </div>
           )}
           <div className="absolute top-2 right-2">
