@@ -588,7 +588,7 @@ export function CMAReportGenerator() {
                     </div>
                     
                     <div>
-                      <Label htmlFor="clientEmail">Client Email</Label>
+                      <Label htmlFor="clientEmail" className="text-slate-400">Client Email</Label>
                       <Input 
                         id="clientEmail" 
                         type="email"
@@ -597,16 +597,17 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           clientEmail: e.target.value
                         })}
+                        className="bg-[#071224] border-[#0f1d31] text-white focus:border-[#FF7A00] focus:ring-[#FF7A00]/10"
                       />
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-md font-medium mb-4">Report Sections</h3>
+                  <h3 className="text-md font-medium mb-4 text-white">Report Sections</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includeCoverPage">Include Cover Page</Label>
+                      <Label htmlFor="includeCoverPage" className="text-slate-400">Include Cover Page</Label>
                       <Switch 
                         id="includeCoverPage" 
                         checked={reportOptions.includeCoverPage}
@@ -614,11 +615,12 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includeCoverPage: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includeMarketAnalysis">Include Market Analysis</Label>
+                      <Label htmlFor="includeMarketAnalysis" className="text-slate-400">Include Market Analysis</Label>
                       <Switch 
                         id="includeMarketAnalysis" 
                         checked={reportOptions.includeMarketAnalysis}
@@ -626,11 +628,12 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includeMarketAnalysis: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includePropertyDetails">Include Property Details</Label>
+                      <Label htmlFor="includePropertyDetails" className="text-slate-400">Include Property Details</Label>
                       <Switch 
                         id="includePropertyDetails" 
                         checked={reportOptions.includePropertyDetails}
@@ -638,11 +641,12 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includePropertyDetails: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includePhotos">Include Property Photos</Label>
+                      <Label htmlFor="includePhotos" className="text-slate-400">Include Property Photos</Label>
                       <Switch 
                         id="includePhotos" 
                         checked={reportOptions.includePhotos}
@@ -650,11 +654,12 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includePhotos: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includeComps">Include Comparable Properties</Label>
+                      <Label htmlFor="includeComps" className="text-slate-400">Include Comparable Properties</Label>
                       <Switch 
                         id="includeComps" 
                         checked={reportOptions.includeComps}
@@ -662,11 +667,12 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includeComps: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includeAdjustments">Include Adjustments Table</Label>
+                      <Label htmlFor="includeAdjustments" className="text-slate-400">Include Adjustments Table</Label>
                       <Switch 
                         id="includeAdjustments" 
                         checked={reportOptions.includeAdjustments}
@@ -674,6 +680,7 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includeAdjustments: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                     
