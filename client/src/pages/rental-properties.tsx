@@ -136,6 +136,18 @@ export default function RentalPropertiesPage() {
                 className="pl-8 bg-background"
               />
             </div>
+            
+            {isAdmin && (
+              <Button
+                variant="outline"
+                onClick={() => setLocation('/rental-properties/import')}
+                className="bg-[#0f1d31] hover:bg-[#192841]"
+              >
+                <UploadCloud className="h-4 w-4 mr-2" />
+                Import
+              </Button>
+            )}
+            
             <Button 
               variant="outline" 
               size="icon"
