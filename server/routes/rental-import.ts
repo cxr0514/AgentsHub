@@ -142,25 +142,13 @@ router.post('/properties/import-sample', requireAdmin, async (req, res) => {
     const files = fs.readdirSync(assetsDir);
     log(`Files in assets directory: ${files.join(', ')}`, 'import');
     
-    const sampleFile = path.join(cwd, 'attached_assets/Outscraper-20250513184410s1c.json');
+    // Use our simpler test file
+    const sampleFile = path.join(cwd, 'attached_assets/simple-rentals-sample.json');
     
     // Verify the file exists
     if (!fs.existsSync(sampleFile)) {
       log(`Sample file not found at ${sampleFile}`, 'import');
-      // Try to find the file with a case-insensitive search
-      const matchingFile = files.find(f => f.toLowerCase() === 'outscraper-20250513184410s1c.json'.toLowerCase());
-      if (matchingFile) {
-        const correctedPath = path.join(assetsDir, matchingFile);
-        log(`Found file with similar name: ${correctedPath}`, 'import');
-        // Import the data from the corrected path
-        const result = await importZillowRentals(correctedPath);
-        return res.json({
-          message: `Successfully imported ${result.imported} rental properties with ${result.errors} errors`,
-          imported: result.imported,
-          errors: result.errors
-        });
-      }
-      return res.status(404).json({ error: `Sample file not found: ${sampleFile}` });
+      return res.status(404).json({ error: `Simple test file not found: ${sampleFile}` });
     }
     
     log(`Importing sample data from ${sampleFile}`, 'import');

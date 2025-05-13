@@ -1,0 +1,70 @@
+[
+  {
+    "providerListingId": "simple-test-1",
+    "address": "123 Test Street, Atlanta, GA",
+    "addressStreet": "123 Test Street",
+    "addressCity": "Atlanta",
+    "addressState": "GA",
+    "addressZipcode": 30303,
+    "buildingName": "Test Building 1",
+    "statusType": "FOR_RENT",
+    "statusText": "Available",
+    "propertyType": "apartment",
+    "isBuilding": true,
+    "latLong_latitude": 33.7490,
+    "latLong_longitude": -84.3880,
+    "imgSrc": "https://example.com/image1.jpg",
+    "detailUrl": "https://example.com/property/1",
+    "availabilityCount": 5,
+    "carouselPhotos": [
+      {"url": "https://example.com/image1.jpg"},
+      {"url": "https://example.com/image2.jpg"}
+    ],
+    "units": [
+      {
+        "price": "$1,200",
+        "beds": "1",
+        "roomForRent": false
+      },
+      {
+        "price": "$1,800",
+        "beds": "2",
+        "roomForRent": false
+      }
+    ]
+  },
+  {
+    "providerListingId": "simple-test-2",
+    "address": "456 Demo Ave, Atlanta, GA",
+    "addressStreet": "456 Demo Ave",
+    "addressCity": "Atlanta",
+    "addressState": "GA",
+    "addressZipcode": 30308,
+    "buildingName": "Test Building 2",
+    "statusType": "FOR_RENT",
+    "statusText": "Available",
+    "propertyType": "apartment",
+    "isBuilding": true,
+    "latLong_latitude": 33.7690,
+    "latLong_longitude": -84.3880,
+    "imgSrc": "https://example.com/image3.jpg",
+    "detailUrl": "https://example.com/property/2",
+    "availabilityCount": 3,
+    "carouselPhotos": [
+      {"url": "https://example.com/image3.jpg"},
+      {"url": "https://example.com/image4.jpg"}
+    ],
+    "units": [
+      {
+        "price": "$1,500",
+        "beds": "1",
+        "roomForRent": false
+      },
+      {
+        "price": "$2,200",
+        "beds": "2",
+        "roomForRent": false
+      }
+    ]
+  }
+]
