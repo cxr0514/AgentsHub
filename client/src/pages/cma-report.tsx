@@ -96,9 +96,11 @@ export default function CMAReportPage() {
         </Card>
       </div>
       
-      <div className="bg-[#050e1d] rounded-lg shadow-md border border-[#0f1d31] p-0 mb-8 text-white">
-        <CMAReportGenerator />
-      </div>
+      <Card className="bg-[#050e1d] rounded-lg shadow-md border border-[#0f1d31] p-0 mb-8 text-white">
+        <CardContent className="p-0">
+          <CMAReportGenerator />
+        </CardContent>
+      </Card>
       
       <Card className="mt-8 bg-[#050e1d] rounded-lg shadow-md border border-[#0f1d31] text-white">
         <CardHeader>
