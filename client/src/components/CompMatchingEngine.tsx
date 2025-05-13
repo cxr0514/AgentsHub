@@ -1050,7 +1050,7 @@ export function CompMatchingEngine() {
                   <Button
                     variant="outline"
                     onClick={() => setActiveTab('search')}
-                    className="gap-2"
+                    className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300 gap-2"
                   >
                     <ArrowRight className="h-4 w-4 rotate-180" />
                     Back
@@ -1058,7 +1058,7 @@ export function CompMatchingEngine() {
                   
                   <Button 
                     onClick={handleFindComps}
-                    className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                    className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white gap-2"
                     disabled={findCompsMutation.isPending}
                   >
                     {findCompsMutation.isPending ? (
@@ -1162,13 +1162,15 @@ export function CompMatchingEngine() {
                       {comps.map((property) => (
                         <TableRow 
                           key={property.id} 
-                          className={selectedComps.some(comp => comp.id === property.id) ? 'bg-blue-50' : ''}
+                          className={selectedComps.some(comp => comp.id === property.id) ? 'bg-[#0f1d31]/20' : ''}
                         >
                           <TableCell>
                             <Button 
                               size="sm" 
                               variant={selectedComps.some(comp => comp.id === property.id) ? "default" : "outline"}
-                              className="w-8 h-8 p-0"
+                              className={selectedComps.some(comp => comp.id === property.id) 
+                                ? "w-8 h-8 p-0 bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white border-[#FF7A00]" 
+                                : "w-8 h-8 p-0 border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300"}
                               onClick={() => handleSelectComp(property)}
                             >
                               {selectedComps.some(comp => comp.id === property.id) ? (
@@ -1209,7 +1211,7 @@ export function CompMatchingEngine() {
                     <Button
                       variant="outline"
                       onClick={() => setActiveTab('criteria')}
-                      className="gap-2"
+                      className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300 gap-2"
                     >
                       <ArrowRight className="h-4 w-4 rotate-180" />
                       Back to Criteria
@@ -1218,7 +1220,7 @@ export function CompMatchingEngine() {
                     <Button
                       variant="outline"
                       onClick={handleFindComps}
-                      className="gap-2"
+                      className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300 gap-2"
                     >
                       <Search className="h-4 w-4" />
                       Refresh Results
@@ -1227,7 +1229,7 @@ export function CompMatchingEngine() {
                   
                   <Button 
                     onClick={() => setActiveTab('adjustments')}
-                    className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                    className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white gap-2"
                     disabled={selectedComps.length === 0}
                   >
                     <Sliders className="h-4 w-4" />
