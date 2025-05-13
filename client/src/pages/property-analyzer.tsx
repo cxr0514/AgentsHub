@@ -75,7 +75,7 @@ export default function PropertyAnalyzerPage() {
         </div>
       </div>
       
-      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+      <div className="bg-[#050e1d] rounded-lg shadow-md border border-[#0f1d31] p-6">
         <PropertyAnalyzer />
       </div>
       
@@ -84,13 +84,13 @@ export default function PropertyAnalyzerPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5 text-[#FF7A00]" />
-            <h3 className="text-lg font-semibold">Need more detailed analysis?</h3>
+            <h3 className="text-lg font-semibold text-white">Need more detailed analysis?</h3>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300">
               <Link href="/financial-calculators">Financial Calculators</Link>
             </Button>
-            <Button asChild className="bg-[#071224] hover:bg-[#0f1d31] text-white">
+            <Button asChild className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white">
               <Link href="/ai-market-analysis">AI Market Analysis</Link>
             </Button>
           </div>
