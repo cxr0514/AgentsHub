@@ -51,43 +51,46 @@ export default function AppLayout({ children }: AppLayoutProps) {
     return <>{children}</>;
   }
 
-  // Group menu items by category for better mobile navigation
+  // Simplified menu items by category for better organization
   const menuCategories = {
     main: [
       { icon: Home, label: 'Dashboard', path: '/' },
       { icon: Building2, label: 'Properties', path: '/properties' },
       { icon: Search, label: 'Search', path: '/search' },
-      { icon: Search, label: 'ATTOM Search', path: '/attom-search' },
     ],
     analysis: [
       { icon: LineChart, label: 'Market Analysis', path: '/market-analysis' },
-      { icon: Map, label: 'Map Visualization', path: '/map-visualization' },
-      { icon: Brain, label: 'AI Market Analysis', path: '/ai-market-analysis' },
-      { icon: FileSpreadsheet, label: 'Property Analyzer', path: '/property-analyzer' },
+      { icon: Brain, label: 'AI Insights', path: '/ai-market-analysis' },
     ],
     tools: [
-      { icon: Home, label: 'Comp Matching', path: '/comp-matching' },
       { icon: FileText, label: 'CMA Reports', path: '/cma-report' },
-      { icon: BarChart2, label: 'Compare Properties', path: '/property-comparison' },
-      { icon: Calculator, label: 'Calculators', path: '/financial-calculators' },
+      { icon: BarChart2, label: 'Comp Matching', path: '/comp-matching' },
     ],
-    settings: [
+    more: [
+      { icon: Map, label: 'Map View', path: '/map-visualization' },
+      { icon: Calculator, label: 'Calculators', path: '/financial-calculators' },
+      { icon: FileSpreadsheet, label: 'Property Analyzer', path: '/property-analyzer' },
       { icon: FileText, label: 'Reports', path: '/reports' },
       { icon: Settings, label: 'Settings', path: '/settings' },
     ]
   };
   
-  // Add API Keys to settings for admin users
+  // Add API Keys to more menu for admin users
   if (user?.role === 'admin') {
-    menuCategories.settings.push({ icon: Key, label: 'API Keys', path: '/api-keys' });
+    menuCategories.more.push({ icon: Key, label: 'API Keys', path: '/api-keys' });
   }
   
-  // Combined menu items for desktop navigation
-  const menuItems = [
+  // Primary menu items for desktop navigation (only the most important ones)
+  const primaryMenuItems = [
     ...menuCategories.main,
     ...menuCategories.analysis,
     ...menuCategories.tools,
-    ...menuCategories.settings
+  ];
+  
+  // All menu items for dropdown and mobile navigation
+  const allMenuItems = [
+    ...primaryMenuItems,
+    ...menuCategories.more
   ];
 
   const handleLogout = async () => {
@@ -97,9 +100,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
   // Function to get current menu category items
   const getCurrentMenuItems = () => {
     if (menuCategory === "all") {
-      return menuItems;
+      return allMenuItems;
     }
-    return menuCategories[menuCategory as keyof typeof menuCategories] || menuItems;
+    return menuCategories[menuCategory as keyof typeof menuCategories] || allMenuItems;
   };
   
   // For logged-in users, apply the new consistent design to all pages
@@ -139,7 +142,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   
                   {/* Mobile Category Navigation */}
                   <div className="flex overflow-x-auto p-2 gap-2 border-b border-[#0f1d31] no-scrollbar">
-                    {Object.keys(menuCategories).map((category) => (
+                    {Object.entries({
+                      main: 'Main',
+                      analysis: 'Analysis',
+                      tools: 'Tools',
+                      more: 'More'
+                    }).map(([category, label]) => (
                       <Button
                         key={category}
                         variant={menuCategory === category ? "default" : "outline"}
@@ -152,7 +160,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         )}
                         onClick={() => setMenuCategory(category)}
                       >
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                        {label}
                       </Button>
                     ))}
                     <Button
@@ -173,7 +181,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                   {/* Mobile Navigation Items */}
                   <nav className="flex-1 py-4 overflow-y-auto">
                     <ul className="space-y-1 px-2">
-                      {getCurrentMenuItems().map((item) => (
+                      {getCurrentMenuItems().map((item: { path: string, icon: any, label: string }) => (
                         <li key={item.path}>
                           <div
                             className={cn(
@@ -229,9 +237,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
             </div>
           </div>
 
-          {/* Desktop Navigation - Optimized for space */}
+          {/* Desktop Navigation - Streamlined with fewer primary items */}
           <nav className="hidden lg:flex items-center space-x-1 overflow-x-auto no-scrollbar">
-            {menuItems.map((item) => (
+            {primaryMenuItems.map((item) => (
               <div
                 key={item.path}
                 className={cn(
@@ -246,11 +254,43 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <span className="hidden xl:inline">{item.label}</span>
               </div>
             ))}
+            
+            {/* More Menu Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className={cn(
+                  "flex items-center gap-2 px-2 py-2 rounded-md text-sm font-medium cursor-pointer whitespace-nowrap",
+                  menuCategories.more.some(item => item.path === location)
+                    ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
+                    : "text-white hover:bg-[#071224]"
+                )}>
+                  <ChevronRight className="h-4 w-4" />
+                  <span className="hidden xl:inline">More</span>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 bg-[#050e1d] border border-[#0f1d31] text-white">
+                <DropdownMenuLabel>More Options</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-[#0f1d31]" />
+                {menuCategories.more.map((item) => (
+                  <DropdownMenuItem 
+                    key={item.path}
+                    className={cn(
+                      "cursor-pointer bg-[#050e1d] text-white hover:bg-[#071224]",
+                      location === item.path ? "text-[#FF7A00]" : ""
+                    )}
+                    onClick={() => window.location.href = item.path}
+                  >
+                    <item.icon className="mr-2 h-4 w-4 text-[#FF7A00]" />
+                    <span>{item.label}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
 
           {/* Tablet Navigation - Simplified */}
           <nav className="hidden md:flex lg:hidden items-center space-x-1">
-            {menuCategories.main.slice(0, 3).map((item) => (
+            {menuCategories.main.map((item) => (
               <div
                 key={item.path}
                 className={cn(
@@ -302,19 +342,19 @@ export default function AppLayout({ children }: AppLayoutProps) {
           <div className="flex justify-around items-center h-16">
             {[
               { icon: Home, label: 'Home', path: '/' },
-              { icon: Search, label: 'Search', path: '/search' },
-              { icon: Brain, label: 'AI', path: '/ai-market-analysis' },
-              { icon: Settings, label: 'Account', path: '/settings' }
+              { icon: Building2, label: 'Properties', path: '/properties' },
+              { icon: LineChart, label: 'Analysis', path: '/market-analysis' },
+              { icon: Menu, label: 'Menu', path: '#menu', onClick: () => setOpen(true) }
             ].map((item) => (
               <div
                 key={item.path}
                 className={cn(
                   "flex flex-col items-center justify-center w-20 py-1",
-                  location === item.path 
+                  (location === item.path && item.path !== '#menu') 
                     ? "text-[#FF7A00]" 
                     : "text-white"
                 )}
-                onClick={() => window.location.href = item.path}
+                onClick={() => item.onClick ? item.onClick() : window.location.href = item.path}
               >
                 <item.icon className="h-5 w-5 mb-1" />
                 <span className="text-xs">{item.label}</span>
