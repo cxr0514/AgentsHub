@@ -92,17 +92,17 @@ const FinancialCalculatorsPage = () => {
           </TabsContent>
 
           <TabsContent value="affordability" className="space-y-6">
-            <Card className="w-full p-6">
+            <Card className="w-full p-6 bg-[#050e1d] border-[#0f1d31]">
               <div className="flex items-center justify-center h-64">
-                <p className="text-gray-500">Affordability calculator coming soon</p>
+                <p className="text-slate-400">Affordability calculator coming soon</p>
               </div>
             </Card>
           </TabsContent>
 
           <TabsContent value="rent-vs-buy" className="space-y-6">
-            <Card className="w-full p-6">
+            <Card className="w-full p-6 bg-[#050e1d] border-[#0f1d31]">
               <div className="flex items-center justify-center h-64">
-                <p className="text-gray-500">Rent vs. Buy calculator coming soon</p>
+                <p className="text-slate-400">Rent vs. Buy calculator coming soon</p>
               </div>
             </Card>
           </TabsContent>

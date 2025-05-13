@@ -114,7 +114,7 @@ const MortgageCalculator = ({
               type="number"
               value={loanAmount}
               onChange={(e) => handlePropertyPriceChange(e.target.value)}
-              className="pl-9"
+              className="pl-9 bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
             />
           </div>
         </div>
@@ -135,7 +135,7 @@ const MortgageCalculator = ({
               type="number"
               value={downPayment}
               onChange={(e) => handleDownPaymentChange(e.target.value)}
-              className="pl-9"
+              className="pl-9 bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
             />
           </div>
           <Slider
@@ -158,14 +158,14 @@ const MortgageCalculator = ({
               Interest Rate
             </Label>
             <div className="relative">
-              <Percent className="absolute top-2.5 left-3 h-4 w-4 text-gray-500" />
+              <Percent className="absolute top-2.5 left-3 h-4 w-4 text-[#FF7A00]" />
               <Input
                 id="interest-rate"
                 type="number"
                 step="0.1"
                 value={rate}
                 onChange={(e) => setRate(parseFloat(e.target.value))}
-                className="pl-9"
+                className="pl-9 bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
               />
             </div>
           </div>
@@ -175,13 +175,13 @@ const MortgageCalculator = ({
               Loan Term (Years)
             </Label>
             <div className="relative">
-              <Calendar className="absolute top-2.5 left-3 h-4 w-4 text-gray-500" />
+              <Calendar className="absolute top-2.5 left-3 h-4 w-4 text-[#FF7A00]" />
               <Input
                 id="loan-term"
                 type="number"
                 value={term}
                 onChange={(e) => setTerm(parseInt(e.target.value))}
-                className="pl-9"
+                className="pl-9 bg-[#071224] border-[#0f1d31] text-white placeholder:text-slate-500"
               />
             </div>
           </div>
