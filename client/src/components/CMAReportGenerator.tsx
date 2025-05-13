@@ -836,12 +836,16 @@ export function CMAReportGenerator() {
               </div>
               
               <div className="mt-6 flex justify-between">
-                <Button variant="outline" onClick={() => setActiveTab('comp-selection')}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setActiveTab('comp-selection')}
+                  className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300"
+                >
                   Back
                 </Button>
                 <Button 
                   onClick={handleGenerateReport}
-                  className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                  className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white gap-2"
                   disabled={generateReportMutation.isPending}
                 >
                   {generateReportMutation.isPending ? (
@@ -863,12 +867,12 @@ export function CMAReportGenerator() {
           {/* Step 4: Preview & Download */}
           <TabsContent value="preview" className="mt-0">
             <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-md border border-green-200">
-                <h3 className="text-lg font-medium mb-2 flex items-center gap-2">
+              <div className="bg-[#071224] p-4 rounded-md border border-green-800">
+                <h3 className="text-lg font-medium mb-2 flex items-center gap-2 text-white">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   Report Generated Successfully
                 </h3>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-slate-400">
                   Your CMA report has been created. You can preview it below or download it to your device.
                 </p>
               </div>
@@ -881,20 +885,24 @@ export function CMAReportGenerator() {
                     title="CMA Report Preview"
                   />
                 ) : (
-                  <div className="text-center">
+                  <div className="text-center py-16">
                     <FileText className="h-16 w-16 text-slate-400 mx-auto mb-4" />
-                    <p>Report preview not available</p>
+                    <p className="text-slate-300">Report preview not available</p>
                   </div>
                 )}
               </div>
               
               <div className="mt-6 flex justify-between">
-                <Button variant="outline" onClick={() => setActiveTab('report-options')}>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setActiveTab('report-options')}
+                  className="border-[#0f1d31] hover:bg-[#0f1d31] text-slate-300"
+                >
                   Back to Options
                 </Button>
                 <Button 
                   onClick={handleDownloadReport}
-                  className="bg-[#071224] hover:bg-[#0f1d31] text-white gap-2"
+                  className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white gap-2"
                   disabled={!reportPreviewUrl}
                 >
                   <FileDown className="h-4 w-4" />
