@@ -685,7 +685,7 @@ export function CMAReportGenerator() {
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includeMaps">Include Maps</Label>
+                      <Label htmlFor="includeMaps" className="text-slate-400">Include Maps</Label>
                       <Switch 
                         id="includeMaps" 
                         checked={reportOptions.includeMaps}
@@ -693,11 +693,12 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includeMaps: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <Label htmlFor="includeCharts">Include Charts</Label>
+                      <Label htmlFor="includeCharts" className="text-slate-400">Include Charts</Label>
                       <Switch 
                         id="includeCharts" 
                         checked={reportOptions.includeCharts}
@@ -705,6 +706,7 @@ export function CMAReportGenerator() {
                           ...reportOptions,
                           includeCharts: checked
                         })}
+                        className="data-[state=checked]:bg-[#FF7A00]"
                       />
                     </div>
                   </div>
@@ -715,7 +717,7 @@ export function CMAReportGenerator() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="text-md font-medium mb-4">Report Format</h3>
+                  <h3 className="text-md font-medium mb-4 text-white">Report Format</h3>
                   <div className="space-y-4">
                     <RadioGroup 
                       value={reportOptions.reportFormat}
@@ -723,19 +725,20 @@ export function CMAReportGenerator() {
                         ...reportOptions,
                         reportFormat: value as 'pdf' | 'excel'
                       })}
+                      className="text-slate-400"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pdf" id="pdf" />
-                        <Label htmlFor="pdf">PDF Document</Label>
+                        <RadioGroupItem value="pdf" id="pdf" className="border-slate-600 text-[#FF7A00]" />
+                        <Label htmlFor="pdf" className="text-slate-400">PDF Document</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="excel" id="excel" />
-                        <Label htmlFor="excel">Excel Spreadsheet</Label>
+                        <RadioGroupItem value="excel" id="excel" className="border-slate-600 text-[#FF7A00]" />
+                        <Label htmlFor="excel" className="text-slate-400">Excel Spreadsheet</Label>
                       </div>
                     </RadioGroup>
                   </div>
                   
-                  <h3 className="text-md font-medium mt-6 mb-4">Template Style</h3>
+                  <h3 className="text-md font-medium mt-6 mb-4 text-white">Template Style</h3>
                   <div className="space-y-4">
                     <RadioGroup 
                       value={reportOptions.reportTemplate}
@@ -743,18 +746,19 @@ export function CMAReportGenerator() {
                         ...reportOptions,
                         reportTemplate: value as 'professional' | 'minimal' | 'detailed'
                       })}
+                      className="text-slate-400"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="professional" id="professional" />
-                        <Label htmlFor="professional">Professional</Label>
+                        <RadioGroupItem value="professional" id="professional" className="border-slate-600 text-[#FF7A00]" />
+                        <Label htmlFor="professional" className="text-slate-400">Professional</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="minimal" id="minimal" />
-                        <Label htmlFor="minimal">Minimal</Label>
+                        <RadioGroupItem value="minimal" id="minimal" className="border-slate-600 text-[#FF7A00]" />
+                        <Label htmlFor="minimal" className="text-slate-400">Minimal</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="detailed" id="detailed" />
-                        <Label htmlFor="detailed">Detailed</Label>
+                        <RadioGroupItem value="detailed" id="detailed" className="border-slate-600 text-[#FF7A00]" />
+                        <Label htmlFor="detailed" className="text-slate-400">Detailed</Label>
                       </div>
                     </RadioGroup>
                   </div>
