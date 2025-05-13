@@ -9,7 +9,7 @@ import {
   insertSavedPropertySchema,
   insertReportSchema
 } from "../shared/schema";
-import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService";
+import { searchProperties, getPropertyDetails, getMarketData, synchronizeMLSData } from "./services/integrationService-enhanced";
 import { 
   getMarketPredictions, 
   getPropertyRecommendations, 
