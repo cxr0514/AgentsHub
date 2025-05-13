@@ -1143,24 +1143,38 @@ export class DatabaseStorage implements IStorage {
     
     // Order by year and month descending
     const results = await query;
-    return results.sort((a, b) => 
-      b.year - a.year || b.month - a.month
-    );
+    return results.sort((a, b) => {
+      // Handle null values by treating them as 0
+      const yearA = a.year || 0;
+      const yearB = b.year || 0;
+      
+      if (yearA !== yearB) {
+        return yearB - yearA;
+      }
+      
+      const monthA = a.month || 0;
+      const monthB = b.month || 0;
+      return monthB - monthA;
+    });
   }
 
   async createMarketData(data: InsertMarketData): Promise<MarketData> {
     const [createdData] = await db
       .insert(marketData)
       .values({
-        ...data,
-        daysOnMarket: data.daysOnMarket || null,
-        medianPrice: data.medianPrice || null,
+        city: data.city,
+        state: data.state,
+        zipCode: data.zipCode || null,
+        medianPrice: data.medianPrice,
         averagePricePerSqft: data.averagePricePerSqft || null,
+        daysOnMarket: data.daysOnMarket || null,
         activeListings: data.activeListings || null,
-        soldPerMonth: data.soldPerMonth || null,
-        medianRent: data.medianRent || null,
-        rentToValue: data.rentToValue || null,
-        marketType: data.marketType || null
+        inventoryMonths: data.inventoryMonths || null,
+        saleToListRatio: data.saleToListRatio || null,
+        priceReductions: data.priceReductions || null,
+        marketType: data.marketType || null,
+        year: data.year || new Date().getFullYear(),
+        month: data.month || new Date().getMonth() + 1
       })
       .returning();
     return createdData;

@@ -70,15 +70,15 @@ export const marketData = pgTable("market_data", {
   state: text("state").notNull(),
   zipCode: text("zip_code"),
   medianPrice: text("median_price").notNull(),
-  averagePrice: text("average_price").notNull(),
-  inventoryCount: integer("inventory_count").notNull(),
-  daysOnMarket: integer("days_on_market").notNull(),
-  monthlySupply: doublePrecision("monthly_supply").notNull(),
-  pricePerSqFt: doublePrecision("price_per_sqft").notNull(),
-  yearOverYearChange: doublePrecision("yoy_change").notNull(),
-  quarterOverQuarterChange: doublePrecision("qoq_change").notNull(),
-  totalSales: integer("total_sales").notNull(),
-  period: text("period").notNull(), // e.g., "2023-Q2"
+  averagePricePerSqft: doublePrecision("average_price_per_sqft"),
+  daysOnMarket: integer("days_on_market"),
+  activeListings: integer("active_listings"),
+  inventoryMonths: doublePrecision("inventory_months"),
+  saleToListRatio: doublePrecision("sale_to_list_ratio"),
+  priceReductions: doublePrecision("price_reductions"),
+  marketType: text("market_type"),
+  month: integer("month"),
+  year: integer("year"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -164,6 +164,7 @@ export const marketPredictions = pgTable("market_predictions", {
   confidenceScore: doublePrecision("confidence_score").notNull(),
   timeframe: text("timeframe").notNull(), // "3 months", "6 months", "1 year"
   factors: json("factors").notNull(), // Factors influencing the prediction
+  predictionDate: timestamp("prediction_date").defaultNow(), // When the prediction was made
   createdAt: timestamp("created_at").defaultNow(),
 });
 
