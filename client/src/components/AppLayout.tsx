@@ -270,8 +270,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 )}
                 onClick={() => window.location.href = item.path}
               >
-                <item.icon className="h-4 w-4" />
-                <span className="hidden xl:inline">{item.label}</span>
+                <span>{item.label}</span>
               </div>
             ))}
             
@@ -284,8 +283,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     ? "bg-[#FF7A00]/10 text-[#FF7A00]" 
                     : "text-white hover:bg-[#071224]"
                 )}>
-                  <ChevronRight className="h-4 w-4" />
-                  <span className="hidden xl:inline">More</span>
+                  <span>More</span>
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-[#050e1d] border border-[#0f1d31] text-white">
@@ -300,7 +298,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     )}
                     onClick={() => window.location.href = item.path}
                   >
-                    <item.icon className="mr-2 h-4 w-4 text-[#FF7A00]" />
                     <span>{item.label}</span>
                   </DropdownMenuItem>
                 ))}
@@ -321,8 +318,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 )}
                 onClick={() => window.location.href = item.path}
               >
-                <item.icon className="h-4 w-4" />
-                <span className="hidden sm:inline">{item.label}</span>
+                <span>{item.label}</span>
               </div>
             ))}
           </nav>
@@ -343,12 +339,10 @@ export default function AppLayout({ children }: AppLayoutProps) {
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-[#0f1d31]" />
               <DropdownMenuItem className="cursor-pointer bg-[#050e1d] text-white hover:bg-[#071224]" onClick={() => window.location.href = "/settings"}>
-                <Settings className="mr-2 h-4 w-4 text-[#FF7A00]" />
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-[#0f1d31]" />
               <DropdownMenuItem className="cursor-pointer bg-[#050e1d] text-white hover:bg-[#071224]" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4 text-[#FF7A00]" />
                 <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -376,8 +370,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 )}
                 onClick={() => item.onClick ? item.onClick() : window.location.href = item.path}
               >
-                <item.icon className="h-5 w-5 mb-1" />
-                <span className="text-xs">{item.label}</span>
+                <span className="text-sm">{item.label}</span>
               </div>
             ))}
           </div>
