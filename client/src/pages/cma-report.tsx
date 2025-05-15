@@ -9,7 +9,7 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { CMAReportGenerator } from '@/components/CMAReportGenerator';
+import CMAReportGenerator from '@/components/CMAReportGenerator';
 import { Separator } from '@/components/ui/separator';
 import { 
   Card,

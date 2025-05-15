@@ -10,7 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb';
-import { MarketInsights } from '@/components/MarketInsights';
+import SimpleMarketInsights from '../components/SimpleMarketInsights.jsx';
 import { MarketReport } from '@/components/MarketReport';
 import { PropertyRecommendations } from '@/components/PropertyRecommendations';
 import { Button } from '@/components/ui/button';
@@ -125,7 +125,7 @@ export default function AIMarketAnalysisPage() {
           </TabsList>
           
           <TabsContent value="insights" className="mt-0">
-            <MarketInsights />
+            <SimpleMarketInsights />
           </TabsContent>
           
           <TabsContent value="reports" className="mt-0">
