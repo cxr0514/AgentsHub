@@ -1,0 +1,130 @@
+[
+  {
+    "id": 1,
+    "external_id": "simple-test-1",
+    "address": "123 Test Street, Atlanta, GA",
+    "address_street": "123 Test Street",
+    "address_city": "Atlanta",
+    "address_state": "GA",
+    "address_zipcode": 30303,
+    "building_name": "Test Building 1",
+    "status_type": "FOR_RENT",
+    "status_text": "Available",
+    "property_type": "apartment",
+    "is_building": true,
+    "main_image_url": "https://example.com/image1.jpg",
+    "detail_url": "https://example.com/property/1",
+    "latitude": 33.749,
+    "longitude": -84.388,
+    "availability_count": 5,
+    "units": [
+      {
+        "beds": "1",
+        "price": "$1,200",
+        "roomForRent": false
+      },
+      {
+        "beds": "2",
+        "price": "$1,800",
+        "roomForRent": false
+      }
+    ],
+    "images": [
+      {
+        "url": "https://example.com/image1.jpg"
+      },
+      {
+        "url": "https://example.com/image2.jpg"
+      }
+    ],
+    "source": "zillow"
+  },
+  {
+    "id": 2,
+    "external_id": "simple-test-2",
+    "address": "456 Demo Ave, Atlanta, GA",
+    "address_street": "456 Demo Ave",
+    "address_city": "Atlanta",
+    "address_state": "GA",
+    "address_zipcode": 30308,
+    "building_name": "Test Building 2",
+    "status_type": "FOR_RENT",
+    "status_text": "Available",
+    "property_type": "apartment",
+    "is_building": true,
+    "main_image_url": "https://example.com/image3.jpg",
+    "detail_url": "https://example.com/property/2",
+    "latitude": 33.769,
+    "longitude": -84.388,
+    "availability_count": 3,
+    "units": [
+      {
+        "beds": "1",
+        "price": "$1,500",
+        "roomForRent": false
+      },
+      {
+        "beds": "2",
+        "price": "$2,200",
+        "roomForRent": false
+      }
+    ],
+    "images": [
+      {
+        "url": "https://example.com/image3.jpg"
+      },
+      {
+        "url": "https://example.com/image4.jpg"
+      }
+    ],
+    "source": "zillow"
+  },
+  {
+    "id": 3,
+    "external_id": "5rzyj3x05ygn",
+    "address": "1015 Boulevard Se, Atlanta, GA",
+    "address_street": "1015 Boulevard SE # 509",
+    "address_city": "Atlanta",
+    "address_state": "GA",
+    "address_zipcode": 30312,
+    "building_name": "The Boulevard at Grant Park",
+    "status_type": "FOR_RENT",
+    "status_text": "The Boulevard at Grant Park",
+    "property_type": "apartment",
+    "is_building": true,
+    "main_image_url": "https://photos.zillowstatic.com/fp/083c2b5ff71bd5f9cfcd0d267a5d300a-p_e.jpg",
+    "detail_url": "/apartments/atlanta-ga/the-boulevard-at-grant-park/ChZKRV/",
+    "latitude": 33.726593,
+    "longitude": -84.369514,
+    "availability_count": 34,
+    "units": [
+      {
+        "beds": "0",
+        "price": "$1,399+",
+        "roomForRent": false
+      },
+      {
+        "beds": "1",
+        "price": "$1,799+",
+        "roomForRent": false
+      },
+      {
+        "beds": "2",
+        "price": "$2,179+",
+        "roomForRent": false
+      }
+    ],
+    "images": [
+      {
+        "url": "https://photos.zillowstatic.com/fp/083c2b5ff71bd5f9cfcd0d267a5d300a-p_e.jpg"
+      },
+      {
+        "url": "https://photos.zillowstatic.com/fp/afb406a17512a93ac1e394bf8368f4b3-p_e.jpg"
+      },
+      {
+        "url": "https://photos.zillowstatic.com/fp/52fd3c03b89fe317e7fc0bd6b68954e5-p_e.jpg"
+      }
+    ],
+    "source": "zillow"
+  }
+]

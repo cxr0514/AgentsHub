@@ -1,0 +1,89 @@
+{
+  "location": "Atlanta, GA",
+  "currentTrends": {
+    "medianPrice": 425000,
+    "priceHistory": [
+      { "date": "2024-05", "price": 398000 },
+      { "date": "2024-06", "price": 401000 },
+      { "date": "2024-07", "price": 405000 },
+      { "date": "2024-08", "price": 410000 },
+      { "date": "2024-09", "price": 415000 },
+      { "date": "2024-10", "price": 418000 },
+      { "date": "2024-11", "price": 420000 },
+      { "date": "2024-12", "price": 422000 },
+      { "date": "2025-01", "price": 423000 },
+      { "date": "2025-02", "price": 424000 },
+      { "date": "2025-03", "price": 425000 },
+      { "date": "2025-04", "price": 425000 }
+    ],
+    "avgDaysOnMarket": 32,
+    "totalListings": 1250,
+    "inventoryYOY": 15.3,
+    "priceChangeYOY": 6.8
+  },
+  "neighborhoodBreakdown": [
+    {
+      "name": "Midtown",
+      "medianPrice": 525000,
+      "priceChangeYOY": 8.2,
+      "avgDaysOnMarket": 25
+    },
+    {
+      "name": "Buckhead",
+      "medianPrice": 750000,
+      "priceChangeYOY": 5.1,
+      "avgDaysOnMarket": 28
+    },
+    {
+      "name": "Old Fourth Ward",
+      "medianPrice": 485000,
+      "priceChangeYOY": 9.3,
+      "avgDaysOnMarket": 23
+    },
+    {
+      "name": "Grant Park",
+      "medianPrice": 410000,
+      "priceChangeYOY": 7.5,
+      "avgDaysOnMarket": 30
+    },
+    {
+      "name": "West End",
+      "medianPrice": 385000,
+      "priceChangeYOY": 12.1,
+      "avgDaysOnMarket": 22
+    }
+  ],
+  "propertyTypeAnalysis": [
+    {
+      "type": "Single Family",
+      "medianPrice": 450000,
+      "inventory": 750,
+      "priceChangeYOY": 7.2
+    },
+    {
+      "type": "Condo",
+      "medianPrice": 350000,
+      "inventory": 320,
+      "priceChangeYOY": 5.8
+    },
+    {
+      "type": "Townhouse",
+      "medianPrice": 395000,
+      "inventory": 180,
+      "priceChangeYOY": 6.5
+    }
+  ],
+  "marketHealth": {
+    "demandScore": 8.2,
+    "supplyScore": 6.5,
+    "competitiveIndex": 7.8,
+    "affordabilityScore": 5.3
+  },
+  "rentalMarket": {
+    "averageRent": 1895,
+    "rentChangeYOY": 5.2,
+    "occupancyRate": 95.8,
+    "priceToRentRatio": 18.7
+  },
+  "lastUpdated": "2025-05-15"
+}

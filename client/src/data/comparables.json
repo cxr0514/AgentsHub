@@ -1,0 +1,63 @@
+[
+  {
+    "id": 101,
+    "subjectPropertyId": 2,
+    "address": "460 Valencia Street",
+    "city": "San Francisco",
+    "state": "CA",
+    "zip_code": "94103",
+    "price": 1700000,
+    "saleDate": "2024-12-15",
+    "bedrooms": 3,
+    "bathrooms": 2.5,
+    "square_feet": 2200,
+    "year_built": 2010,
+    "distance_miles": 0.1,
+    "adjusted_price": 1720000,
+    "adjustments": [
+      { "factor": "Size", "amount": 20000 }
+    ],
+    "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+  },
+  {
+    "id": 102,
+    "subjectPropertyId": 2,
+    "address": "470 Valencia Street",
+    "city": "San Francisco",
+    "state": "CA",
+    "zip_code": "94103",
+    "price": 1690000,
+    "saleDate": "2024-11-20",
+    "bedrooms": 3,
+    "bathrooms": 2,
+    "square_feet": 2100,
+    "year_built": 2011,
+    "distance_miles": 0.2,
+    "adjusted_price": 1740000,
+    "adjustments": [
+      { "factor": "Size", "amount": 20000 },
+      { "factor": "Bathrooms", "amount": 30000 }
+    ],
+    "image": "https://images.unsplash.com/photo-1600210492493-0946911123ea"
+  },
+  {
+    "id": 103,
+    "subjectPropertyId": 2,
+    "address": "455 Guerrero Street",
+    "city": "San Francisco",
+    "state": "CA",
+    "zip_code": "94103",
+    "price": 1750000,
+    "saleDate": "2025-01-05",
+    "bedrooms": 3,
+    "bathrooms": 2.5,
+    "square_feet": 2300,
+    "year_built": 2013,
+    "distance_miles": 0.3,
+    "adjusted_price": 1730000,
+    "adjustments": [
+      { "factor": "Size", "amount": -20000 }
+    ],
+    "image": "https://images.unsplash.com/photo-1600489000022-c2086d79f9d4"
+  }
+]
