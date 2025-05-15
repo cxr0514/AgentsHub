@@ -14,7 +14,7 @@ import PropertiesPage from "@/pages/properties-page";
 import SearchPage from "@/pages/search-page";
 import AttomSearch from "@/pages/AttomSearch";
 import AttomSearchHelp from "@/pages/attom-search-help";
-import MarketAnalysisPage from "@/pages/market-analysis.jsx";
+import MarketReportPage from "./pages/market-report.jsx";
 import MapVisualizationPage from "@/pages/map-visualization";
 import PropertyComparisonPage from "@/pages/property-comparison-page";
 import ReportsPage from "@/pages/reports-page";
@@ -41,7 +41,7 @@ function Router() {
       <ProtectedRoute path="/search" component={SearchPage} />
       <ProtectedRoute path="/attom-search" component={AttomSearch} />
       <ProtectedRoute path="/attom-search-help" component={AttomSearchHelp} />
-      <ProtectedRoute path="/market-analysis" component={MarketAnalysisPage} />
+      <ProtectedRoute path="/market-analysis" component={MarketReportPage} />
       <ProtectedRoute path="/ai-market-analysis" component={AIMarketAnalysisPage} />
       <ProtectedRoute path="/property-analyzer" component={PropertyAnalyzerPage} />
       <ProtectedRoute path="/comp-matching" component={CompMatchingPage} />
