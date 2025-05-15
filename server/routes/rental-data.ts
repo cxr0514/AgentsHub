@@ -3,7 +3,7 @@ import { db } from '../db';
 import { rentalProperties } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { log } from '../vite';
-import { analyzeRentalProperty } from '../services/perplexityService';
+import { analyzeRentalProperty } from '../services/openAiService';
 
 const router = Router();
 
