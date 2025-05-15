@@ -1,0 +1,95 @@
+Task 1 – Expand Navbar
+bash
+Copy
+Edit
+# In client/src/components/Navbar.tsx
+# 1. Replace navItems array with the seven MVP routes.
+# 2. Highlight active link: bg-[#1A1F2E] text-[#F2801E] rounded-lg px-3 py-1
+Routes to add:
+
+Label	Path
+Properties	/properties
+Rental Properties	/rental
+Market Analysis	/market-analysis
+AI Insights	/ai-insights
+CMA Reports	/cma
+Comp Matching	/comp-matching
+
+Task 2 – Purge server-side DB calls
+Goal: everything must work with mock JSON only.
+
+Delete or comment out server/db.ts and any drizzle usage.
+
+In server/routes/**, replace database reads with require('../client/src/data/*.json').
+
+Ensure all /api/* endpoints simply return the mock arrays.
+
+Task 3 – Central mock-data store
+Create /client/src/data/index.ts:
+
+ts
+Copy
+Edit
+export { default as properties }   from './properties.json';
+export { default as comparables }  from './comparables.json';
+export { default as markets }      from './market-analysis-atl_ga.json';
+Refactor pages/components to import from that module instead of fetching.
+
+Task 4 – CMA PDF export
+Location: components/CMAReportGenerator.tsx
+
+npm i jspdf
+
+Add a Generate PDF button in Step 4 (Preview & Download).
+
+Use jsPDF to render:
+
+Subject property header (address, photo placeholder).
+
+Table of selected comps (salePrice, adjPrice, distanceMi).
+
+doc.save('CMA_Report.pdf');
+
+Task 5 – Market charts
+Location: components/MarketInsights.tsx
+
+Replace placeholder divs with Recharts:
+
+LineChart for median price trend (currentTrends).
+
+BarChart for YoY change.
+
+Use the mock markets object; no colors specified (default theme).
+
+Task 6 – Clean-up & smoke tests
+Delete .bak files and unused pages.
+
+npm i -D vitest @testing-library/react @testing-library/jest-dom
+
+Add one test per main route to assert heading is in the document.
+
+Update package.json scripts:
+
+json
+Copy
+Edit
+"test": "vitest run"
+Task 7 – README + Replit run
+Update README.md with:
+
+md
+Copy
+Edit
+## Local dev
+pnpm i
+pnpm dev          # client on 5173
+pnpm server       # mock API on 3000
+
+## Build
+pnpm build && pnpm preview
+In .replit:
+
+ini
+Copy
+Edit
+run = "npm run dev --prefix client"

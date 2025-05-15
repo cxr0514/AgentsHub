@@ -9,9 +9,12 @@ const Navbar = () => {
   
   const navItems = [
     { label: "Dashboard", path: "/" },
-    { label: "Search", path: "/search" },
-    { label: "Saved", path: "/saved" },
-    { label: "Reports", path: "/reports" }
+    { label: "Properties", path: "/properties" },
+    { label: "Rental Properties", path: "/rental" },
+    { label: "Market Analysis", path: "/market-analysis" },
+    { label: "AI Insights", path: "/ai-insights" },
+    { label: "CMA Reports", path: "/cma" },
+    { label: "Comp Matching", path: "/comp-matching" }
   ];
   
   return (
@@ -30,7 +33,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-4">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
-                <span className={`${location === item.path ? 'text-accent' : 'hover:text-accent'} transition-colors ${item.path === '/' ? 'font-medium' : ''} cursor-pointer`}>
+                <span className={`${location === item.path ? 'bg-[#1A1F2E] text-[#F2801E] rounded-lg px-3 py-1' : 'hover:text-accent'} transition-colors ${item.path === '/' ? 'font-medium' : ''} cursor-pointer`}>
                   {item.label}
                 </span>
               </Link>
