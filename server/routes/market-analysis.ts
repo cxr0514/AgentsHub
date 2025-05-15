@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getMarketInsights, generateMarketReport, getPropertyRecommendations, analyzePropertyInvestment } from '../services/perplexityService';
+import { getMarketInsights, generateMarketReport, getPropertyRecommendations, analyzePropertyInvestment } from '../services/openAiService';
 import { log } from '../vite';
 
 const router = Router();
