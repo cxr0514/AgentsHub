@@ -4,12 +4,48 @@ import {
   Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { markets } from '@/data';
 
-function MarketInsights() {
-  // Get market data from our mock data
-  const marketData = markets;
-  
+// Sample market data for visualizations
+const marketData = {
+  location: "Atlanta, GA",
+  currentTrends: {
+    avgDaysOnMarket: 18,
+    totalListings: 3254,
+    priceChangeYOY: 7.8,
+    inventoryYOY: 4.2,
+    priceHistory: [
+      { date: "Jan 2024", price: 385000 },
+      { date: "Feb 2024", price: 392000 },
+      { date: "Mar 2024", price: 398000 },
+      { date: "Apr 2024", price: 405000 },
+      { date: "May 2024", price: 412000 },
+      { date: "Jun 2024", price: 420000 },
+      { date: "Jul 2024", price: 425000 },
+      { date: "Aug 2024", price: 430000 },
+      { date: "Sep 2024", price: 432000 },
+      { date: "Oct 2024", price: 435000 },
+      { date: "Nov 2024", price: 438000 },
+      { date: "Dec 2024", price: 442000 },
+      { date: "Jan 2025", price: 448000 },
+      { date: "Feb 2025", price: 455000 },
+      { date: "Mar 2025", price: 462000 },
+      { date: "Apr 2025", price: 469000 },
+      { date: "May 2025", price: 475000 }
+    ]
+  },
+  neighborhoodBreakdown: [
+    { name: "Midtown", priceChangeYOY: 9.2, avgPrice: 545000 },
+    { name: "Buckhead", priceChangeYOY: 8.5, avgPrice: 695000 },
+    { name: "Inman Park", priceChangeYOY: 7.8, avgPrice: 625000 },
+    { name: "Virginia Highland", priceChangeYOY: 7.2, avgPrice: 575000 },
+    { name: "Grant Park", priceChangeYOY: 6.9, avgPrice: 518000 },
+    { name: "Old Fourth Ward", priceChangeYOY: 8.3, avgPrice: 498000 },
+    { name: "Decatur", priceChangeYOY: 6.5, avgPrice: 485000 }
+  ]
+};
+
+// Simple market insights component with charts
+const SimpleMarketInsights = () => {
   const priceHistoryData = marketData.currentTrends.priceHistory;
   
   // Prepare data for YoY change bar chart for neighborhoods
@@ -106,4 +142,4 @@ function MarketInsights() {
   );
 };
 
-export default MarketInsights;
+export default SimpleMarketInsights;

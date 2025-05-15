@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-// Import the default export (not named export)
-import MarketInsights from '../components/MarketInsights.jsx';
+import SimpleMarketInsights from '../components/SimpleMarketInsights.jsx';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 
-const MarketAnalysisPage: React.FC = () => {
+export default function MarketAnalysisPage() {
   const [searchQuery, setSearchQuery] = useState('');
   
   // For now we're only displaying data for Atlanta, GA from our mock data
@@ -48,7 +47,7 @@ const MarketAnalysisPage: React.FC = () => {
                 <CardTitle>Atlanta, GA Market Overview</CardTitle>
               </CardHeader>
               <CardContent className="pt-6">
-                <MarketInsights />
+                <SimpleMarketInsights />
               </CardContent>
             </Card>
           </div>
@@ -72,7 +71,7 @@ const MarketAnalysisPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {/* Sample data from our mock data */}
+                      {/* Sample data for demo */}
                       <tr>
                         <td className="px-6 py-4 whitespace-nowrap">Single Family</td>
                         <td className="px-6 py-4 whitespace-nowrap">$450,000</td>
@@ -132,6 +131,4 @@ const MarketAnalysisPage: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default MarketAnalysisPage;
+}

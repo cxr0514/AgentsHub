@@ -112,7 +112,8 @@ const CMAReportGenerator: React.FC = () => {
     // Calculate market value based on comparables
     const avgAdjPrice = selectedComps.reduce((sum, comp) => sum + comp.adjusted_price, 0) / selectedComps.length;
     
-    const finalY = tableResult.finalY || 150;
+    // Define a safe default position for the text
+    const finalY = 150; // Default position if tableResult doesn't provide one
     
     doc.setFontSize(14);
     doc.text('Estimated Market Value', 14, finalY + 20);

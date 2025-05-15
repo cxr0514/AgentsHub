@@ -14,7 +14,7 @@ import PropertiesPage from "@/pages/properties-page";
 import SearchPage from "@/pages/search-page";
 import AttomSearch from "@/pages/AttomSearch";
 import AttomSearchHelp from "@/pages/attom-search-help";
-import MarketAnalysisPage from "@/pages/market-analysis-page";
+import MarketAnalysisPage from "@/pages/market-analysis.jsx";
 import MapVisualizationPage from "@/pages/map-visualization";
 import PropertyComparisonPage from "@/pages/property-comparison-page";
 import ReportsPage from "@/pages/reports-page";
@@ -24,6 +24,7 @@ import AIMarketAnalysisPage from "@/pages/ai-market-analysis";
 import PropertyAnalyzerPage from "@/pages/property-analyzer";
 import CompMatchingPage from "@/pages/comp-matching";
 import CMAReportPage from "@/pages/cma-report";
+import CMAPage from "@/pages/cma";
 import SharedPropertiesPage from "@/pages/shared-properties";
 import SharedPropertyView from "@/pages/shared-property-view";
 import CollaborationTeamsPage from "@/pages/collaboration-teams";
@@ -45,6 +46,7 @@ function Router() {
       <ProtectedRoute path="/property-analyzer" component={PropertyAnalyzerPage} />
       <ProtectedRoute path="/comp-matching" component={CompMatchingPage} />
       <ProtectedRoute path="/cma-report" component={CMAReportPage} />
+      <ProtectedRoute path="/cma" component={CMAPage} />
       <ProtectedRoute path="/map-visualization" component={MapVisualizationPage} />
       <ProtectedRoute path="/property-comparison" component={PropertyComparisonPage} />
       <ProtectedRoute path="/reports" component={ReportsPage} />
