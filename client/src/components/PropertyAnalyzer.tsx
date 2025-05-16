@@ -499,8 +499,8 @@ Recommendation: BUY - This property presents a solid investment opportunity with
             {analyzePropertyMutation.isPending ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Loader2 className="h-12 w-12 animate-spin text-[#FF7A00] mb-4" />
-                <h3 className="text-lg font-medium">Analyzing Property Investment</h3>
-                <p className="text-muted-foreground mt-2">
+                <h3 className="text-lg font-medium text-white">Analyzing Property Investment</h3>
+                <p className="text-slate-300 mt-2">
                   Our AI is analyzing this property as an investment opportunity. This may take a moment...
                 </p>
               </div>
@@ -512,7 +512,7 @@ Recommendation: BUY - This property presents a solid investment opportunity with
                   {analyzePropertyMutation.error?.message || "There was an error analyzing this property."}
                 </AlertDescription>
               </Alert>
-            ) : analyzePropertyMutation.data ? (
+            ) : analyzePropertyMutation.data || demoResult ? (
               <div className="space-y-6">
                 <div className="bg-[#071224] p-4 rounded-lg border border-[#0f1d31]">
                   <div className="flex flex-wrap gap-4 items-start">
@@ -535,7 +535,7 @@ Recommendation: BUY - This property presents a solid investment opportunity with
                 <div className="bg-[#050e1d] rounded-lg border border-[#0f1d31] p-6">
                   <h3 className="text-xl font-semibold mb-4 text-white">Investment Analysis</h3>
                   <div className="text-slate-300">
-                    {formatAnalysis(analyzePropertyMutation.data.analysis)}
+                    {formatAnalysis((analyzePropertyMutation.data || demoResult)?.analysis)}
                   </div>
                 </div>
               </div>
