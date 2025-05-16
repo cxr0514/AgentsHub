@@ -282,20 +282,6 @@ export default function RentalAnalysisPage() {
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.onerror = null;
-                      target.style.display = 'none';
-                      const parent = target.parentNode as HTMLElement;
-                      if (parent) {
-                        parent.appendChild(document.createElement('div')).innerHTML = `
-                          <div class="w-full h-full bg-[#071224] border border-[#0f1d31] rounded-md flex items-center justify-center">
-                            <div class="text-center">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="mx-auto text-gray-400">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                              </svg>
-                              <p class="mt-2 text-gray-400">Image failed to load</p>
-                            </div>
-                          </div>
-                        `;
-                      }
                     }}
                   />
                 </div>
