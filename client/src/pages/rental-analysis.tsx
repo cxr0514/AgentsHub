@@ -93,6 +93,31 @@ const PropertyImage = ({ property }: { property: RentalProperty }) => {
   );
 };
 
+// Property Image for Carousel
+const PropertyImageSlide = ({ property, imageUrl, index }: { property: RentalProperty, imageUrl: string, index: number }) => {
+  const fallbackImage = getPropertyImage(property.propertyType || 'apartment', property.id + index);
+  
+  return (
+    <div className="relative w-full h-[300px]">
+      <img 
+        src={imageUrl || fallbackImage} 
+        alt={`Property ${index + 1}`} 
+        className="w-full h-[300px] object-cover rounded-md"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.onerror = null;
+          target.src = fallbackImage;
+        }}
+      />
+      {property.source && (
+        <div className="absolute bottom-2 right-2 text-xs bg-black bg-opacity-70 text-white px-1 py-0.5 rounded">
+          {property.source}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function RentalAnalysisPage() {
   const params = useParams<{ id: string }>();
   const [location, setLocation] = useLocation();
@@ -236,41 +261,11 @@ export default function RentalAnalysisPage() {
                     {property.images.map((image, index) => (
                       <CarouselItem key={index}>
                         <div className="p-1">
-                          <div className="relative w-full h-[300px]">
-                            <img 
-                              src={image.url} 
-                              alt={`Property ${index + 1}`} 
-                              className="w-full h-[300px] object-cover rounded-md"
-                              referrerPolicy="no-referrer"
-                              crossOrigin="anonymous"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.onerror = null;
-                                
-                                // Replace parent content with error placeholder
-                                const parent = target.parentElement?.parentElement;
-                                if (parent) {
-                                  parent.innerHTML = `
-                                    <div class="w-full h-[300px] bg-[#071224] border border-[#0f1d31] rounded-md flex items-center justify-center">
-                                      <div class="text-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-gray-400">
-                                          <rect x="4" y="3" width="16" height="18" rx="2"></rect>
-                                          <path d="M4 11h16"></path>
-                                          <path d="M12 3v18"></path>
-                                        </svg>
-                                        <p class="mt-2 text-gray-400">Image failed to load</p>
-                                      </div>
-                                    </div>
-                                  `;
-                                }
-                              }}
-                            />
-                            {property.source === 'zillow' && (
-                              <div className="absolute bottom-2 right-2 text-xs bg-black bg-opacity-70 text-white px-1 py-0.5 rounded">
-                                Zillow
-                              </div>
-                            )}
-                          </div>
+                          <PropertyImageSlide 
+                            property={property} 
+                            imageUrl={image.url} 
+                            index={index} 
+                          />
                         </div>
                       </CarouselItem>
                     ))}
@@ -306,7 +301,7 @@ export default function RentalAnalysisPage() {
                 </div>
               ) : (
                 <div className="w-full h-[300px]">
-                  <NoImagePlaceholder />
+                  <PropertyImage property={property} />
                 </div>
               )}
             </CardContent>
