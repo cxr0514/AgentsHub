@@ -44,13 +44,31 @@ interface RentalProperty {
   source?: string;
 }
 
-// Placeholder image for properties without images
-const NoImageSvg = () => (
-  <div className="flex items-center justify-center w-full h-40 bg-[#071224] rounded-t-md">
-    <Building2 size={48} className="text-gray-500" />
-    <span className="ml-2 text-gray-400">No image available</span>
-  </div>
-);
+// Placeholder image component with enhanced styling
+const PropertyImageWithFallback = ({ property }: { property: RentalProperty }) => {
+  // Use the property's image if available, otherwise generate one based on property type and ID
+  const imageUrl = property.mainImageUrl || getPropertyImage(property.propertyType || 'apartment', property.id);
+  
+  return (
+    <div className="relative h-40 w-full">
+      <img 
+        src={imageUrl} 
+        alt={property.address}
+        className="h-40 w-full object-cover rounded-t-md"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.onerror = null;
+          target.src = getPropertyImage('apartment', property.id);
+        }}
+      />
+      {property.source && (
+        <div className="absolute bottom-1 right-1 text-xs bg-black bg-opacity-70 text-white px-1 py-0.5 rounded">
+          {property.source}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function RentalPropertiesPage() {
   const [location, setLocation] = useLocation();
@@ -247,24 +265,7 @@ export default function RentalPropertiesPage() {
                 className="overflow-hidden border border-[#0f1d31] bg-[#071224] transition-all duration-200 hover:shadow-md cursor-pointer"
                 onClick={() => handlePropertyClick(property.id)}
               >
-                {/* Property image using our utility */}
-                <div className="relative h-40 w-full">
-                  <img 
-                    src={property.mainImageUrl || getPropertyImage(property.propertyType || 'apartment', property.id)} 
-                    alt={property.address}
-                    className="h-40 w-full object-cover rounded-t-md"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.onerror = null;
-                      target.src = getPropertyImage('apartment', property.id);
-                    }}
-                  />
-                  {property.source && (
-                    <div className="absolute bottom-1 right-1 text-xs bg-black bg-opacity-70 text-white px-1 py-0.5 rounded">
-                      {property.source}
-                    </div>
-                  )}
-                </div>}
+                <PropertyImageWithFallback property={property} />
                 
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
