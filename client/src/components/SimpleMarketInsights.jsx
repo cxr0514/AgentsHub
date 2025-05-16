@@ -57,9 +57,9 @@ const SimpleMarketInsights = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       {/* Median Price Trend Line Chart */}
-      <Card className="col-span-1 md:col-span-2">
+      <Card className="col-span-1 md:col-span-2 bg-[#071224] border-[#0f1d31]">
         <CardHeader>
-          <CardTitle>Median Price Trend - {marketData.location}</CardTitle>
+          <CardTitle className="text-white">Median Price Trend - {marketData.location}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -67,19 +67,23 @@ const SimpleMarketInsights = () => {
               data={priceHistoryData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} />
-              <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Median Price']} />
-              <Legend />
+              <CartesianGrid strokeDasharray="3 3" stroke="#0f1d31" />
+              <XAxis dataKey="date" stroke="#9ca3af" />
+              <YAxis tickFormatter={(value) => `$${value.toLocaleString()}`} stroke="#9ca3af" />
+              <Tooltip 
+                formatter={(value) => [`$${value.toLocaleString()}`, 'Median Price']}
+                contentStyle={{ backgroundColor: '#071224', borderColor: '#0f1d31', color: '#fff' }}
+                labelStyle={{ color: '#fff' }}
+              />
+              <Legend wrapperStyle={{ color: '#9ca3af' }} />
               <Line 
                 type="monotone" 
                 dataKey="price" 
-                stroke="#8884d8" 
+                stroke="#FF7A00" 
                 name="Median Price"
                 strokeWidth={2}
-                dot={{ r: 4 }}
-                activeDot={{ r: 8 }}
+                dot={{ r: 4, fill: '#FF7A00' }}
+                activeDot={{ r: 8, fill: '#FF7A00' }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -87,9 +91,9 @@ const SimpleMarketInsights = () => {
       </Card>
       
       {/* Year-over-Year Price Change by Neighborhood Bar Chart */}
-      <Card>
+      <Card className="bg-[#071224] border-[#0f1d31]">
         <CardHeader>
-          <CardTitle>YoY Price Change by Neighborhood</CardTitle>
+          <CardTitle className="text-white">YoY Price Change by Neighborhood</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -97,14 +101,18 @@ const SimpleMarketInsights = () => {
               data={neighborhoodYoYData}
               margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis tickFormatter={(value) => `${value}%`} />
-              <Tooltip formatter={(value) => [`${value}%`, 'YoY Change']} />
-              <Legend />
+              <CartesianGrid strokeDasharray="3 3" stroke="#0f1d31" />
+              <XAxis dataKey="name" stroke="#9ca3af" />
+              <YAxis tickFormatter={(value) => `${value}%`} stroke="#9ca3af" />
+              <Tooltip 
+                formatter={(value) => [`${value}%`, 'YoY Change']}
+                contentStyle={{ backgroundColor: '#071224', borderColor: '#0f1d31', color: '#fff' }}
+                labelStyle={{ color: '#fff' }}
+              />
+              <Legend wrapperStyle={{ color: '#9ca3af' }} />
               <Bar 
                 dataKey="priceChangeYOY" 
-                fill="#82ca9d" 
+                fill="#FF7A00" 
                 name="YoY Price Change (%)"
               />
             </BarChart>
@@ -113,27 +121,27 @@ const SimpleMarketInsights = () => {
       </Card>
       
       {/* Key Market Metrics */}
-      <Card>
+      <Card className="bg-[#071224] border-[#0f1d31]">
         <CardHeader>
-          <CardTitle>Key Market Metrics</CardTitle>
+          <CardTitle className="text-white">Key Market Metrics</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-500">Avg. Days on Market</p>
-              <p className="text-2xl font-bold">{marketData.currentTrends.avgDaysOnMarket} days</p>
+            <div className="bg-[#0f1d31] p-4 rounded-lg border border-[#1a2942]">
+              <p className="text-sm text-gray-300">Avg. Days on Market</p>
+              <p className="text-2xl font-bold text-white">{marketData.currentTrends.avgDaysOnMarket} days</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-500">Total Listings</p>
-              <p className="text-2xl font-bold">{marketData.currentTrends.totalListings}</p>
+            <div className="bg-[#0f1d31] p-4 rounded-lg border border-[#1a2942]">
+              <p className="text-sm text-gray-300">Total Listings</p>
+              <p className="text-2xl font-bold text-white">{marketData.currentTrends.totalListings}</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-500">Inventory YoY</p>
-              <p className="text-2xl font-bold">+{marketData.currentTrends.inventoryYOY}%</p>
+            <div className="bg-[#0f1d31] p-4 rounded-lg border border-[#1a2942]">
+              <p className="text-sm text-gray-300">Inventory YoY</p>
+              <p className="text-2xl font-bold text-white">+{marketData.currentTrends.inventoryYOY}%</p>
             </div>
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="text-sm text-gray-500">Price Change YoY</p>
-              <p className="text-2xl font-bold">+{marketData.currentTrends.priceChangeYOY}%</p>
+            <div className="bg-[#0f1d31] p-4 rounded-lg border border-[#1a2942]">
+              <p className="text-sm text-gray-300">Price Change YoY</p>
+              <p className="text-2xl font-bold text-white">+{marketData.currentTrends.priceChangeYOY}%</p>
             </div>
           </div>
         </CardContent>
