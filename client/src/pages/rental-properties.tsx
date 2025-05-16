@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
-import { Building2, Search, Filter, MapPin, Loader2, Info, UploadCloud } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Loader2, Info, UploadCloud, Image } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/components/ui/alert";
+import { getPropertyImage } from '@/utils/rentalImageUtils';
 
 // Type for rental units in a property
 interface RentalUnit {
@@ -246,43 +247,24 @@ export default function RentalPropertiesPage() {
                 className="overflow-hidden border border-[#0f1d31] bg-[#071224] transition-all duration-200 hover:shadow-md cursor-pointer"
                 onClick={() => handlePropertyClick(property.id)}
               >
-                {/* Property image or placeholder */}
-                {property.mainImageUrl && property.mainImageUrl.includes('zillow') ? (
-                  <div className="relative h-40 w-full">
-                    <img 
-                      src={property.mainImageUrl} 
-                      alt={property.address}
-                      className="h-40 w-full object-cover"
-                      referrerPolicy="no-referrer" 
-                      crossOrigin="anonymous"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        // Replace the parent completely instead of trying to manipulate DOM
-                        const parent = target.parentElement;
-                        if (parent) {
-                          parent.innerHTML = `
-                            <div class="flex items-center justify-center w-full h-40 bg-[#071224] rounded-t-md">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-500">
-                                <rect x="4" y="3" width="16" height="18" rx="2"></rect>
-                                <path d="M4 11h16"></path>
-                                <path d="M12 3v18"></path>
-                              </svg>
-                              <span class="ml-2 text-gray-400">No image available</span>
-                            </div>
-                          `;
-                        }
-                      }}
-                    />
-                    {property.source === 'zillow' && (
-                      <div className="absolute bottom-1 right-1 text-xs bg-black bg-opacity-70 text-white px-1 py-0.5 rounded">
-                        Zillow
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <NoImageSvg />
-                )}
+                {/* Property image using our utility */}
+                <div className="relative h-40 w-full">
+                  <img 
+                    src={property.mainImageUrl || getPropertyImage(property.propertyType || 'apartment', property.id)} 
+                    alt={property.address}
+                    className="h-40 w-full object-cover rounded-t-md"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.onerror = null;
+                      target.src = getPropertyImage('apartment', property.id);
+                    }}
+                  />
+                  {property.source && (
+                    <div className="absolute bottom-1 right-1 text-xs bg-black bg-opacity-70 text-white px-1 py-0.5 rounded">
+                      {property.source}
+                    </div>
+                  )}
+                </div>}
                 
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start">
