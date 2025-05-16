@@ -35,6 +35,7 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
   });
   
   const [activeTab, setActiveTab] = useState('form');
+  const [demoResult, setDemoResult] = useState<any>(null);
   
   // Validation state
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -137,6 +138,67 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
     return Object.keys(newErrors).length === 0;
   };
   
+  // Demo property analysis with pre-defined results
+  const runDemoAnalysis = () => {
+    const demoAnalysisResult = {
+      analysis: `# Investment Analysis for ${formData.address || '123 Market Street, Atlanta, GA'}
+
+## Market Value Assessment
+This ${formData.propertyType === 'single-family' ? 'single-family home' : formData.propertyType} in Atlanta shows strong potential as an investment property. Based on comparable properties in the area, the current asking price of $${formData.price.toLocaleString()} is within market range, though slightly on the higher end.
+
+## Rental Income Potential
+- Estimated Monthly Rent: $${Math.round(formData.price * 0.007).toLocaleString()}
+- Annual Gross Rental Income: $${Math.round(formData.price * 0.007 * 12).toLocaleString()}
+- Vacancy Rate (Area Average): 4.2%
+- Effective Gross Income: $${Math.round(formData.price * 0.007 * 12 * 0.958).toLocaleString()}
+
+## Expense Analysis
+- Property Taxes (Annual): $${Math.round(formData.price * 0.012).toLocaleString()}
+- Insurance (Annual): $${Math.round(formData.price * 0.005).toLocaleString()}
+- Maintenance (5% of Rental Income): $${Math.round(formData.price * 0.007 * 12 * 0.05).toLocaleString()}
+- Property Management (8% of Rental Income): $${Math.round(formData.price * 0.007 * 12 * 0.08).toLocaleString()}
+- Total Annual Expenses: $${Math.round(formData.price * 0.012 + formData.price * 0.005 + formData.price * 0.007 * 12 * 0.05 + formData.price * 0.007 * 12 * 0.08).toLocaleString()}
+
+## Investment Metrics
+- Cap Rate: 5.8%
+- Cash on Cash Return (assuming 20% down): 8.2%
+- Price per Square Foot: $${Math.round(formData.price / formData.sqft).toLocaleString()}
+- Gross Rent Multiplier: 14.2
+
+## Neighborhood Analysis
+The property is located in a growing neighborhood with strong rental demand. The area has seen approximately 4.7% appreciation over the past year, outperforming the metro average of 3.8%.
+
+## Risk Assessment
+- Market Volatility: Low to Medium
+- Rental Demand: Strong
+- Neighborhood Trajectory: Positive
+- Price Fluctuation Risk: Low
+
+## Investment Rating: 7.5/10
+
+Recommendation: BUY - This property presents a solid investment opportunity with good cash flow potential and appreciation prospects.`,
+      rating: 7.5,
+      recommendation: "buy",
+      metrics: {
+        capRate: 5.8,
+        cashOnCash: 8.2,
+        rentalIncome: Math.round(formData.price * 0.007),
+        appreciation: 4.7
+      }
+    };
+
+    setDemoResult(demoAnalysisResult);
+    setActiveTab('analysis');
+    
+    toast({
+      title: 'Demo Analysis Generated',
+      description: 'The demo property investment analysis has been generated successfully.',
+    });
+    
+    // Also save to history
+    saveToHistory(demoAnalysisResult);
+  };
+
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -391,7 +453,15 @@ export function PropertyAnalyzer({ initialPropertyData }: PropertyAnalyzerProps)
                     {errors.baths && <p className="text-red-500 text-sm mt-1">{errors.baths}</p>}
                   </div>
                   
-                  <div className="pt-4 flex justify-end">
+                  <div className="pt-4 flex justify-between">
+                    <Button 
+                      type="button"
+                      onClick={runDemoAnalysis}
+                      className="bg-[#0f1d31] hover:bg-[#1a2942] text-white"
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Run Demo Analysis
+                    </Button>
                     <Button 
                       type="submit"
                       className="bg-[#FF7A00] hover:bg-[#FF7A00]/90 text-white"
