@@ -61,31 +61,31 @@ export default function MarketReportPage() {
                   <table className="min-w-full divide-y divide-[#1a2942]">
                     <thead className="bg-[#0f1d31]">
                       <tr>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Median Price</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Inventory</th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">YoY Change</th>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Median Price</th>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Inventory</th>
+                        <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">YoY Change</th>
                       </tr>
                     </thead>
                     <tbody className="bg-[#071224] divide-y divide-[#1a2942]">
                       {/* Sample data for demo */}
                       <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">Single Family</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">$450,000</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">750</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-green-400">+7.2%</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">Single Family</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">$450,000</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">750</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-green-400">+7.2%</td>
                       </tr>
                       <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">Condo</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">$350,000</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">320</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-green-400">+5.8%</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">Condo</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">$350,000</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">320</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-green-400">+5.8%</td>
                       </tr>
                       <tr>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">Townhouse</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">$395,000</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-gray-200">180</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-green-400">+6.5%</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">Townhouse</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">$395,000</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-gray-200">180</td>
+                        <td className="px-4 py-4 whitespace-nowrap text-green-400">+6.5%</td>
                       </tr>
                     </tbody>
                   </table>
