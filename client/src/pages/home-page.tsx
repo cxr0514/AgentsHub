@@ -53,7 +53,7 @@ export default function HomePage() {
             </Link>
             <Link href="/financial-calculators" className="flex items-center space-x-2 px-2 py-1.5 rounded-md text-slate-400 hover:bg-[#0f1d31] hover:text-white">
               <Calculator className="h-4 w-4 text-[#FF7A00]" />
-              <span>Financial Tools</span>
+              <span>Mortgage Calculator</span>
               <span className="ml-auto bg-[#FF7A00] text-white text-[10px] px-1.5 py-0.5 rounded-full">New</span>
             </Link>
           </div>
