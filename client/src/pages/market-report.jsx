@@ -55,7 +55,7 @@ export default function MarketReportPage() {
               <CardHeader>
                 <CardTitle className="text-white">Property Type Analysis</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 <div className="space-y-4">
                   {/* Property Type Analysis Table */}
                   <table className="min-w-full divide-y divide-[#1a2942]">
@@ -97,7 +97,7 @@ export default function MarketReportPage() {
               <CardHeader>
                 <CardTitle className="text-white">Rental Market</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center border-b border-[#1a2942] pb-2">
                     <span className="font-medium text-gray-200">Average Rent</span>

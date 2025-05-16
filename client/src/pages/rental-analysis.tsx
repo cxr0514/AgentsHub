@@ -11,8 +11,10 @@ import {
   Loader2, 
   AlertCircle,
   BarChart2,
-  Sparkles
+  Sparkles,
+  Image
 } from 'lucide-react';
+import { getPropertyImage, getPropertyImages } from '@/utils/rentalImageUtils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -65,15 +67,31 @@ interface AnalysisResponse {
   analysis: string;
 }
 
-// NoImagePlaceholder Component
-const NoImagePlaceholder = () => (
-  <div className="flex items-center justify-center h-full w-full bg-[#071224] border border-[#0f1d31] rounded-md">
-    <div className="text-center">
-      <Building2 size={40} className="mx-auto text-gray-400" />
-      <p className="mt-2 text-gray-400">No image available</p>
+// Enhanced PropertyImage Component
+const PropertyImage = ({ property }: { property: RentalProperty }) => {
+  // Use the property's image if available, otherwise generate one based on property type and ID
+  const imageUrl = property.mainImageUrl || getPropertyImage(property.propertyType || 'apartment', property.id);
+  
+  return (
+    <div className="relative h-full w-full">
+      <img 
+        src={imageUrl} 
+        alt={property.address}
+        className="h-full w-full object-cover rounded-md"
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.onerror = null;
+          target.src = getPropertyImage('apartment', property.id);
+        }}
+      />
+      {property.source && (
+        <div className="absolute bottom-2 right-2 text-xs bg-black bg-opacity-70 text-white px-1 py-0.5 rounded">
+          {property.source}
+        </div>
+      )}
     </div>
-  </div>
-);
+  );
+};
 
 export default function RentalAnalysisPage() {
   const params = useParams<{ id: string }>();
