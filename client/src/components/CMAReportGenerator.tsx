@@ -126,21 +126,19 @@ const CMAReportGenerator: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">CMA Report Generator</h1>
-      
+    <div className="container mx-auto">
       {/* Step indicators */}
-      <div className="flex mb-8">
-        <div className={`flex-1 text-center p-2 ${step === 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+      <div className="flex mb-8 rounded-md overflow-hidden border border-[#0f1d31]">
+        <div className={`flex-1 text-center p-2 ${step === 1 ? 'bg-[#FF7A00] text-white' : 'bg-[#0f1d31] text-gray-300'}`}>
           Step 1: Select Subject Property
         </div>
-        <div className={`flex-1 text-center p-2 ${step === 2 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+        <div className={`flex-1 text-center p-2 ${step === 2 ? 'bg-[#FF7A00] text-white' : 'bg-[#0f1d31] text-gray-300'}`}>
           Step 2: Select Comparables
         </div>
-        <div className={`flex-1 text-center p-2 ${step === 3 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+        <div className={`flex-1 text-center p-2 ${step === 3 ? 'bg-[#FF7A00] text-white' : 'bg-[#0f1d31] text-gray-300'}`}>
           Step 3: Adjust Comparables
         </div>
-        <div className={`flex-1 text-center p-2 ${step === 4 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}>
+        <div className={`flex-1 text-center p-2 ${step === 4 ? 'bg-[#FF7A00] text-white' : 'bg-[#0f1d31] text-gray-300'}`}>
           Step 4: Preview & Download
         </div>
       </div>
@@ -148,20 +146,20 @@ const CMAReportGenerator: React.FC = () => {
       {/* Step 1: Select Subject Property */}
       {step === 1 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Select Subject Property</h2>
+          <h2 className="text-xl font-semibold mb-4 text-white">Select Subject Property</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {availableProperties.map((property) => (
               <Card 
                 key={property.id} 
-                className={`cursor-pointer hover:shadow-lg ${selectedProperty?.id === property.id ? 'border-2 border-blue-500' : ''}`}
+                className={`cursor-pointer bg-[#071224] border-[#0f1d31] hover:border-[#FF7A00] transition-all ${selectedProperty?.id === property.id ? 'border-2 border-[#FF7A00]' : ''}`}
                 onClick={() => handleSelectProperty(property)}
               >
                 <CardContent className="p-4">
-                  <div className="font-semibold">{property.address}</div>
-                  <div>{property.city}, {property.state}</div>
-                  <div className="text-lg font-bold">${property.price.toLocaleString()}</div>
-                  <div>{property.bedrooms} beds, {property.bathrooms} baths</div>
-                  <div>{property.square_feet} sq ft</div>
+                  <div className="font-semibold text-white">{property.address}</div>
+                  <div className="text-gray-300">{property.city}, {property.state}</div>
+                  <div className="text-lg font-bold text-white">${property.price.toLocaleString()}</div>
+                  <div className="text-gray-300">{property.bedrooms} beds, {property.bathrooms} baths</div>
+                  <div className="text-gray-300">{property.square_feet} sq ft</div>
                 </CardContent>
               </Card>
             ))}
@@ -172,33 +170,35 @@ const CMAReportGenerator: React.FC = () => {
       {/* Step 2: Select Comparables */}
       {step === 2 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Select Comparable Properties</h2>
+          <h2 className="text-xl font-semibold mb-4 text-white">Select Comparable Properties</h2>
           {availableComps.length > 0 ? (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                 {availableComps.map((comp) => (
                   <Card 
                     key={comp.id} 
-                    className={`cursor-pointer hover:shadow-lg ${selectedComps.find(c => c.id === comp.id) ? 'border-2 border-green-500' : ''}`}
+                    className={`cursor-pointer bg-[#071224] border-[#0f1d31] hover:border-[#FF7A00] transition-all ${selectedComps.find(c => c.id === comp.id) ? 'border-2 border-[#FF7A00]' : ''}`}
                     onClick={() => handleSelectComp(comp)}
                   >
                     <CardContent className="p-4">
-                      <div className="font-semibold">{comp.address}</div>
-                      <div>{comp.city}, {comp.state}</div>
-                      <div className="text-lg font-bold">${comp.price.toLocaleString()}</div>
-                      <div>{comp.bedrooms} beds, {comp.bathrooms} baths</div>
-                      <div>{comp.square_feet} sq ft</div>
-                      <div>Distance: {comp.distance_miles.toFixed(2)} mi</div>
+                      <div className="font-semibold text-white">{comp.address}</div>
+                      <div className="text-gray-300">{comp.city}, {comp.state}</div>
+                      <div className="text-lg font-bold text-white">${comp.price.toLocaleString()}</div>
+                      <div className="text-gray-300">{comp.bedrooms} beds, {comp.bathrooms} baths</div>
+                      <div className="text-gray-300">{comp.square_feet} sq ft</div>
+                      <div className="text-gray-300">Distance: {comp.distance_miles.toFixed(2)} mi</div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
               <div className="flex justify-between">
-                <Button onClick={() => setStep(1)}>Back</Button>
+                <Button onClick={() => setStep(1)} variant="outline" className="border-[#0f1d31] text-white hover:bg-[#0f1d31]">
+                  Back
+                </Button>
                 <Button 
                   onClick={() => setStep(3)} 
                   disabled={selectedComps.length === 0}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-[#FF7A00] hover:bg-[#e56e00] text-white"
                 >
                   Continue
                 </Button>
@@ -206,8 +206,10 @@ const CMAReportGenerator: React.FC = () => {
             </>
           ) : (
             <div className="text-center py-8">
-              <p className="mb-4">No comparable properties found for this subject property.</p>
-              <Button onClick={() => setStep(1)}>Back to Property Selection</Button>
+              <p className="mb-4 text-gray-300">No comparable properties found for this subject property.</p>
+              <Button onClick={() => setStep(1)} variant="outline" className="border-[#0f1d31] text-white hover:bg-[#0f1d31]">
+                Back to Property Selection
+              </Button>
             </div>
           )}
         </div>
@@ -216,40 +218,42 @@ const CMAReportGenerator: React.FC = () => {
       {/* Step 3: Adjust Comparables */}
       {step === 3 && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Adjust Comparables</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border">
-              <thead>
+          <h2 className="text-xl font-semibold mb-4 text-white">Adjust Comparables</h2>
+          <div className="overflow-x-auto rounded-md border border-[#0f1d31]">
+            <table className="min-w-full">
+              <thead className="bg-[#0f1d31]">
                 <tr>
-                  <th className="py-2 px-4 border">Address</th>
-                  <th className="py-2 px-4 border">Sale Price</th>
-                  <th className="py-2 px-4 border">Adjustments</th>
-                  <th className="py-2 px-4 border">Adjusted Price</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Address</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Sale Price</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Adjustments</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Adjusted Price</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-[#071224] divide-y divide-[#1a2942]">
                 {selectedComps.map((comp) => (
                   <tr key={comp.id}>
-                    <td className="py-2 px-4 border">{comp.address}</td>
-                    <td className="py-2 px-4 border">${comp.price.toLocaleString()}</td>
-                    <td className="py-2 px-4 border">
+                    <td className="py-3 px-4 text-gray-200">{comp.address}</td>
+                    <td className="py-3 px-4 text-gray-200">${comp.price.toLocaleString()}</td>
+                    <td className="py-3 px-4">
                       {comp.adjustments.map((adj, index) => (
-                        <div key={index}>
-                          {adj.factor}: ${adj.amount.toLocaleString()}
+                        <div key={index} className="text-gray-200">
+                          {adj.factor}: <span className={adj.amount > 0 ? 'text-green-400' : 'text-red-400'}>${Math.abs(adj.amount).toLocaleString()}</span>
                         </div>
                       ))}
                     </td>
-                    <td className="py-2 px-4 border">${comp.adjusted_price.toLocaleString()}</td>
+                    <td className="py-3 px-4 text-gray-200">${comp.adjusted_price.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
           <div className="flex justify-between mt-6">
-            <Button onClick={() => setStep(2)}>Back</Button>
+            <Button onClick={() => setStep(2)} variant="outline" className="border-[#0f1d31] text-white hover:bg-[#0f1d31]">
+              Back
+            </Button>
             <Button 
               onClick={() => setStep(4)} 
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#FF7A00] hover:bg-[#e56e00] text-white"
             >
               Continue
             </Button>
@@ -260,38 +264,38 @@ const CMAReportGenerator: React.FC = () => {
       {/* Step 4: Preview & Download */}
       {step === 4 && selectedProperty && (
         <div>
-          <h2 className="text-xl font-semibold mb-4">Preview & Download</h2>
-          <div className="bg-white p-6 border rounded-lg mb-6">
-            <h3 className="text-xl font-bold mb-4">Comparative Market Analysis (CMA) Report</h3>
+          <h2 className="text-xl font-semibold mb-4 text-white">Preview & Download</h2>
+          <div className="bg-[#071224] p-6 border border-[#0f1d31] rounded-lg mb-6">
+            <h3 className="text-xl font-bold mb-4 text-white">Comparative Market Analysis (CMA) Report</h3>
             
             <div className="mb-6">
-              <h4 className="text-lg font-semibold mb-2">Subject Property</h4>
-              <p className="mb-1">{selectedProperty.address}, {selectedProperty.city}, {selectedProperty.state}</p>
-              <p className="mb-1">Price: ${selectedProperty.price.toLocaleString()}</p>
-              <p className="mb-1">Bedrooms: {selectedProperty.bedrooms}</p>
-              <p className="mb-1">Bathrooms: {selectedProperty.bathrooms}</p>
-              <p className="mb-1">Square Feet: {selectedProperty.square_feet}</p>
+              <h4 className="text-lg font-semibold mb-2 text-white">Subject Property</h4>
+              <p className="mb-1 text-gray-300">{selectedProperty.address}, {selectedProperty.city}, {selectedProperty.state}</p>
+              <p className="mb-1 text-gray-300">Price: <span className="text-white">${selectedProperty.price.toLocaleString()}</span></p>
+              <p className="mb-1 text-gray-300">Bedrooms: <span className="text-white">{selectedProperty.bedrooms}</span></p>
+              <p className="mb-1 text-gray-300">Bathrooms: <span className="text-white">{selectedProperty.bathrooms}</span></p>
+              <p className="mb-1 text-gray-300">Square Feet: <span className="text-white">{selectedProperty.square_feet}</span></p>
             </div>
             
             <div className="mb-6">
-              <h4 className="text-lg font-semibold mb-2">Comparable Properties</h4>
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border">
-                  <thead>
+              <h4 className="text-lg font-semibold mb-2 text-white">Comparable Properties</h4>
+              <div className="overflow-x-auto rounded-md border border-[#0f1d31]">
+                <table className="min-w-full">
+                  <thead className="bg-[#0f1d31]">
                     <tr>
-                      <th className="py-2 px-4 border">Address</th>
-                      <th className="py-2 px-4 border">Sale Price</th>
-                      <th className="py-2 px-4 border">Adjusted Price</th>
-                      <th className="py-2 px-4 border">Distance (mi)</th>
+                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Address</th>
+                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Sale Price</th>
+                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Adjusted Price</th>
+                      <th className="py-3 px-4 text-left text-xs font-medium text-gray-300 uppercase tracking-wider border-b border-[#1a2942]">Distance (mi)</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="bg-[#071224] divide-y divide-[#1a2942]">
                     {selectedComps.map((comp) => (
                       <tr key={comp.id}>
-                        <td className="py-2 px-4 border">{comp.address}</td>
-                        <td className="py-2 px-4 border">${comp.price.toLocaleString()}</td>
-                        <td className="py-2 px-4 border">${comp.adjusted_price.toLocaleString()}</td>
-                        <td className="py-2 px-4 border">{comp.distance_miles.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-gray-200">{comp.address}</td>
+                        <td className="py-3 px-4 text-gray-200">${comp.price.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-gray-200">${comp.adjusted_price.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-gray-200">{comp.distance_miles.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -300,18 +304,20 @@ const CMAReportGenerator: React.FC = () => {
             </div>
             
             <div>
-              <h4 className="text-lg font-semibold mb-2">Estimated Market Value</h4>
-              <p className="text-xl font-bold">
+              <h4 className="text-lg font-semibold mb-2 text-white">Estimated Market Value</h4>
+              <p className="text-xl font-bold text-[#FF7A00]">
                 ${Math.round(selectedComps.reduce((sum, comp) => sum + comp.adjusted_price, 0) / selectedComps.length).toLocaleString()}
               </p>
             </div>
           </div>
           
           <div className="flex justify-between">
-            <Button onClick={() => setStep(3)}>Back</Button>
+            <Button onClick={() => setStep(3)} variant="outline" className="border-[#0f1d31] text-white hover:bg-[#0f1d31]">
+              Back
+            </Button>
             <Button 
               onClick={handleGeneratePDF}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-[#FF7A00] hover:bg-[#e56e00] text-white"
             >
               Generate PDF
             </Button>
